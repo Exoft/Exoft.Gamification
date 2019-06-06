@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Exoft.Gamification.Api.Data\Exoft.Gamification.Api.Data.csproj" />
     <ProjectReference Include="..\Exoft.Gamification.Api.Services.Interfaces\Exoft.Gamification.Api.Services.Interfaces.csproj" />
   </ItemGroup>
 

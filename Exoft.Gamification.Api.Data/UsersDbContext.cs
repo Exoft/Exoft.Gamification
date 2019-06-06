@@ -1,22 +1,17 @@
-﻿using Exoft.Gamification.Api.Data.Core.Entities;
+﻿using Exoft.Gamification.Api.Data.Configurations;
+using Exoft.Gamification.Api.Data.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Exoft.Gamification.Api.Data
 {
     public class UsersDbContext : DbContext
     {
-        public UsersDbContext(DbContextOptions<UsersDbContext> options) : base(options)
-        {
-            //Database.EnsureCreated();
-        }
-
-        public UsersDbContext()
-        {
-        }
+        public UsersDbContext() { }
+        public UsersDbContext(DbContextOptions<UsersDbContext> options) : base(options) { }
         
-        public DbSet<UserEntity> Users { get; set; }
-        public DbSet<AchievementEntity> Achievements { get; set; }
-        public DbSet<UserAchievementsEntity> UserAchievements { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Achievement> Achievements { get; set; }
+        public DbSet<UserAchievements> UserAchievements { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -25,11 +20,7 @@ namespace Exoft.Gamification.Api.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<UserAchievementsEntity>().HasKey(ua => new { ua.UserId, ua.AchievementId });
-            modelBuilder.Entity<UserAchievementsEntity>().HasOne(ua => ua.User).WithMany(u => u.Achievements).HasForeignKey(u => u.UserId);
-            modelBuilder.Entity<UserAchievementsEntity>().HasOne(ua => ua.Achievement).WithMany(d => d.Users).HasForeignKey(pd => pd.AchievementId);
-
-            modelBuilder.Entity<UserAchievementsEntity>().ToTable("UserAchievements");
+            modelBuilder.ApplyConfiguration(new UserAchievementsConfiguration());
         }
     }
 }

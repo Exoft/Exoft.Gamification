@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Data;
 using Exoft.Gamification.Api.Data.Seeds;
 using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
+using Exoft.Gamification.Api.Services.Interfaces.Interfaces;
+using Exoft.Gamification.Api.Services.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -20,6 +21,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
+using Exoft.Gamification.Api.Common.Helpers;
 
 namespace Exoft.Gamification
 {
@@ -40,17 +42,17 @@ namespace Exoft.Gamification
             services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            // configure strongly typed settings objects
-            var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure<AppSettings>(appSettingsSection);
-
             services.AddDbContext<UsersDbContext>(options =>
-                options.UseSqlServer(connection, b => b.MigrationsAssembly("Exoft.Gamification.Api.Data")));
+                options.UseSqlServer(connection));
+
+            // configure strongly typed settings objects
+            var secretSection = Configuration.GetSection("Secrets");
+            services.Configure<JwtSecret>(secretSection);
 
 
             // configure jwt authentication
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            var jwtSecret = secretSection.Get<JwtSecret>();
+            var key = Encoding.ASCII.GetBytes(jwtSecret.TokenSecretString);
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -71,6 +73,7 @@ namespace Exoft.Gamification
 
             // configure DI for application services
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
 
 
             services.AddSwaggerGen(c =>
@@ -87,12 +90,12 @@ namespace Exoft.Gamification
                 app.UseDeveloperExceptionPage();
 
 
-                var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-                var context = scope.ServiceProvider.GetService<UsersDbContext>();
+                //var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+                //var context = scope.ServiceProvider.GetService<UsersDbContext>();
 
-                context.Database.Migrate();
+                //context.Database.Migrate();
 
-                ContextInitializer.Initialize(context);
+                //ContextInitializer.Initialize(context);
             }
             
             app.UseSwagger();

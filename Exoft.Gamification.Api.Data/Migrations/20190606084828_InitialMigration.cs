@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Exoft.Gamification.Api.Data.Migrations
 {
-    public partial class Initial : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -11,8 +11,7 @@ namespace Exoft.Gamification.Api.Data.Migrations
                 name: "Achievements",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Id = table.Column<Guid>(nullable: false),
                     Name = table.Column<string>(nullable: true),
                     Description = table.Column<string>(nullable: true),
                     XP = table.Column<int>(nullable: false),
@@ -27,8 +26,7 @@ namespace Exoft.Gamification.Api.Data.Migrations
                 name: "Users",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Id = table.Column<Guid>(nullable: false),
                     Email = table.Column<string>(nullable: true),
                     FirstName = table.Column<string>(nullable: true),
                     LastName = table.Column<string>(nullable: true),
@@ -47,20 +45,20 @@ namespace Exoft.Gamification.Api.Data.Migrations
                 name: "UserAchievements",
                 columns: table => new
                 {
-                    UserId = table.Column<int>(nullable: false),
-                    AchievementId = table.Column<int>(nullable: false)
+                    UserId = table.Column<Guid>(nullable: false),
+                    AchievementId = table.Column<Guid>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserAchievementsEntity", x => new { x.UserId, x.AchievementId });
+                    table.PrimaryKey("PK_UserAchievements", x => new { x.UserId, x.AchievementId });
                     table.ForeignKey(
-                        name: "FK_UserAchievementsEntity_Achievements_AchievementId",
+                        name: "FK_UserAchievements_Achievements_AchievementId",
                         column: x => x.AchievementId,
                         principalTable: "Achievements",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserAchievementsEntity_Users_UserId",
+                        name: "FK_UserAchievements_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -68,7 +66,7 @@ namespace Exoft.Gamification.Api.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAchievementsEntity_AchievementId",
+                name: "IX_UserAchievements_AchievementId",
                 table: "UserAchievements",
                 column: "AchievementId");
         }

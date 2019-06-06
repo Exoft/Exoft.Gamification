@@ -1,11 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Exoft.Gamification.Api.Data.Core.Entities
 {
-    public class UserEntity
+    public class User : Entity
     {
-        public int Id { get; set; }
-        
+        public User()
+        {
+            Achievements = new List<UserAchievements>();
+        }
+
         public string Email { get; set; }
         
         public string FirstName { get; set; }
@@ -22,12 +26,6 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
         
         public int XP { get; set; }
 
-        public ICollection<UserAchievementsEntity> Achievements { get; set; }
-
-
-        public UserEntity()
-        {
-            Achievements = new List<UserAchievementsEntity>();
-        }
+        public ICollection<UserAchievements> Achievements { get; set; }
     }
 }
