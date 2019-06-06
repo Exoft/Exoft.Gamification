@@ -22,6 +22,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using Exoft.Gamification.Api.Common.Helpers;
+using Exoft.Gamification.Api.Helpers;
+//using Exoft.Gamification.Api.Helpers;
 
 namespace Exoft.Gamification
 {
@@ -74,6 +76,7 @@ namespace Exoft.Gamification
             // configure DI for application services
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IJwtSecret, JwtSecret>();
 
 
             services.AddSwaggerGen(c =>
@@ -90,12 +93,12 @@ namespace Exoft.Gamification
                 app.UseDeveloperExceptionPage();
 
 
-                //var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-                //var context = scope.ServiceProvider.GetService<UsersDbContext>();
+                var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+                var context = scope.ServiceProvider.GetService<UsersDbContext>();
 
-                //context.Database.Migrate();
+                context.Database.Migrate();
 
-                //ContextInitializer.Initialize(context);
+                ContextInitializer.Initialize(context);
             }
             
             app.UseSwagger();

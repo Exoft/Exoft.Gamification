@@ -26,6 +26,8 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
         
         public int XP { get; set; }
 
+        public ICollection<UserRoles> Roles { get; set; }
+
         public ICollection<UserAchievements> Achievements { get; set; }
     }
 }

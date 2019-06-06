@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Exoft.Gamification.Api.Common.Helpers
 {
-    public class JwtSecret
+    public interface IJwtSecret
     {
-        public string TokenSecretString { get; set; }
+        string TokenSecretString { get; set; }
     }
 }

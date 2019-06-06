@@ -20,8 +20,10 @@ namespace Exoft.Gamification.Api.Common.Models
 
         public int XP { get; set; }
 
+        public string Token { get; set; }
+
         public ICollection<AchievementModel> Achievements { get; set; }
 
-        public string Token { get; set; }
+        public ICollection<RoleModel> Roles { get; set; }
     }
 }

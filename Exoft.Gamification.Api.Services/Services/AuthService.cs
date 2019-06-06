@@ -17,12 +17,12 @@ namespace Exoft.Gamification.Api.Services
     public class AuthService : IAuthService
     {
         private readonly IUserService _userService;
-        private readonly JwtSecret _jwtSecret;
+        private readonly IJwtSecret _jwtSecret;
         
-        public AuthService(IUserService userService, IOptions<JwtSecret> jwtSecret)
+        public AuthService(IUserService userService, IJwtSecret jwtSecret)
         {
             _userService = userService;
-            _jwtSecret = jwtSecret.Value;
+            _jwtSecret = jwtSecret;
         }
 
         public UserModel Authenticate(string userName, string password)
@@ -36,7 +36,12 @@ namespace Exoft.Gamification.Api.Services
             
             // authentication successful so generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSecret.TokenSecretString);
+
+            // TODO fix
+            var key = Encoding.ASCII.GetBytes("THIS IS USED TO SIGN AND VERIFY JWT TOKENS, REPLACE IT WITH YOUR OWN SECRET, IT CAN BE ANY STRING");
+            //var key = Encoding.ASCII.GetBytes(_jwtSecret.TokenSecretString);
+            //
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
@@ -47,6 +52,30 @@ namespace Exoft.Gamification.Api.Services
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            var roles = new List<RoleModel>();
+            foreach (var item in userEntity.Roles)
+            {
+                RoleModel roleModel = new RoleModel()
+                {
+                    Id = item.Role.Id,
+                    Text = item.Role.Text
+                };
+                roles.Add(roleModel);
+            }
+            var achievements = new List<AchievementModel>();
+            foreach (var item in userEntity.Achievements)
+            {
+                AchievementModel achievementModel = new AchievementModel()
+                {
+                    Id = item.Achievement.Id,
+                    Description = item.Achievement.Description,
+                    Icon = item.Achievement.Icon,
+                    Name = item.Achievement.Name,
+                    XP = item.Achievement.XP
+                };
+                achievements.Add(achievementModel);
+            }
             UserModel userModel = new UserModel()
             {
                 Id = userEntity.Id,
@@ -57,8 +86,9 @@ namespace Exoft.Gamification.Api.Services
                 Status = userEntity.Status,
                 Avatar = userEntity.Avatar,
                 XP = userEntity.XP,
-                //Achievements = user.Achievements,
-                Token = tokenHandler.WriteToken(token)
+                Token = tokenHandler.WriteToken(token),
+                Achievements = achievements,
+                Roles = roles
             };
 
             return userModel;

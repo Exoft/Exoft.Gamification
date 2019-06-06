@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data.Repositories
@@ -41,13 +42,23 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public async Task<User> GetUserAsync(Guid Id)
         {
-            var user = await db.Users.SingleOrDefaultAsync(item => item.Id == Id);
+            var user = await db.Users.FirstOrDefaultAsync(item => item.Id == Id);
+            var roles = await db.Set<UserRoles>().Include(r => r.Role).Where(r => r.User.Id == user.Id).ToListAsync();
+            var achievements = await db.Set<UserAchievements>().Include(a => a.Achievement).Where(a => a.User.Id == user.Id).ToListAsync();
+            user.Roles = roles;
+            user.Achievements = achievements;
+
             return user;
         }
 
         public async Task<User> GetUserAsync(string userName)
         {
-            var user = await db.Users.SingleOrDefaultAsync(item => item.UserName == userName);
+            var user = await db.Users.FirstOrDefaultAsync(item => item.UserName == userName);
+            var roles = await db.Set<UserRoles>().Include(r => r.Role).Where(r => r.User.Id == user.Id).ToListAsync();
+            var achievements = await db.Set<UserAchievements>().Include(a => a.Achievement).Where(a => a.User.Id == user.Id).ToListAsync();
+            user.Roles = roles;
+            user.Achievements = achievements;
+
             return user;
         }
 

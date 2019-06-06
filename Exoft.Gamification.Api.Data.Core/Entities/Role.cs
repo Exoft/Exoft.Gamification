@@ -4,10 +4,8 @@ using System.Text;
 
 namespace Exoft.Gamification.Api.Data.Core.Entities
 {
-    public class UserAchievements
+    public class Role : Entity
     {
-        public User User { get; set; }
-
-        public Achievement Achievement { get; set; }
+        public string Text { get; set; }
     }
 }

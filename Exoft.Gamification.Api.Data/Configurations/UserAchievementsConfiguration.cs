@@ -11,8 +11,13 @@ namespace Exoft.Gamification.Api.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<UserAchievements> builder)
         {
-            builder.HasKey(ua => new { ua.UserId, ua.AchievementId });
-            builder.HasOne(ua => ua.User).WithMany(u => u.Achievements).HasForeignKey(ua => ua.UserId);
+            builder.Property<Guid>("UserId");
+            builder.Property<Guid>("AchievementId");
+
+            builder.HasKey("UserId", "AchievementId");
+            builder.HasOne(ua => ua.User).WithMany(u => u.Achievements);
+
+            builder.HasOne(ua => ua.Achievement).WithMany();
         }
     }
 }

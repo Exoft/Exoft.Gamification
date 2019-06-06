@@ -12,6 +12,8 @@ namespace Exoft.Gamification.Api.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Achievement> Achievements { get; set; }
         public DbSet<UserAchievements> UserAchievements { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRoles> UserRoles { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -21,6 +23,7 @@ namespace Exoft.Gamification.Api.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UserAchievementsConfiguration());
+            modelBuilder.ApplyConfiguration(new UserRolesConfiguration());
         }
     }
 }

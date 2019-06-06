@@ -13,7 +13,6 @@ namespace Exoft.Gamification.Api.Data.Seeds
 
             var user1 = new Core.Entities.User()
             {
-                Id = Guid.NewGuid(),
                 FirstName = "Ostap",
                 LastName = "Roik",
                 Email = "ostap2308@gmail.com",
@@ -25,7 +24,6 @@ namespace Exoft.Gamification.Api.Data.Seeds
             };
             var user2 = new Core.Entities.User()
             {
-                Id = Guid.NewGuid(),
                 FirstName = "Tanya",
                 LastName = "Gogina",
                 Email = "tanya@gmail.com",
@@ -37,7 +35,6 @@ namespace Exoft.Gamification.Api.Data.Seeds
             };
             var achievement1 = new Core.Entities.Achievement()
             {
-                Id = Guid.NewGuid(),
                 Name = "Welcome",
                 Description = "A newcomer to the team",
                 Icon = null,
@@ -45,11 +42,18 @@ namespace Exoft.Gamification.Api.Data.Seeds
             };
             var achievement2 = new Core.Entities.Achievement()
             {
-                Id = Guid.NewGuid(),
                 Name = "1 year",
                 Description = "1 year in company",
                 Icon = null,
                 XP = 30
+            };
+            var role1 = new Core.Entities.Role()
+            {
+                Text = "Admin"
+            };
+            var role2 = new Core.Entities.Role()
+            {
+                Text = "User"
             };
 
             if (!context.Users.Any())
@@ -66,28 +70,44 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 context.SaveChanges();
             }
 
+            if (!context.Roles.Any())
+            {
+                context.Roles.Add(role1);
+                context.Roles.Add(role2);
+                context.SaveChanges();
+            }
+
             if (!context.UserAchievements.Any())
             {
                 context.UserAchievements.Add(new Core.Entities.UserAchievements()
                 {
                     User = user1,
-                    UserId = user1.Id,
-                    Achievement = achievement1,
-                    AchievementId = achievement1.Id
+                    Achievement = achievement1
                 });
                 context.UserAchievements.Add(new Core.Entities.UserAchievements()
                 {
                     User = user2,
-                    UserId = user2.Id,
-                    Achievement = achievement1,
-                    AchievementId = achievement1.Id
+                    Achievement = achievement1
                 });
                 context.UserAchievements.Add(new Core.Entities.UserAchievements()
                 {
                     User = user2,
-                    UserId = user2.Id,
-                    Achievement = achievement2,
-                    AchievementId = achievement2.Id
+                    Achievement = achievement2
+                });
+                context.SaveChanges();
+            }
+
+            if (!context.UserRoles.Any())
+            {
+                context.UserRoles.Add(new Core.Entities.UserRoles()
+                {
+                    User = user1,
+                    Role = role1
+                });
+                context.UserRoles.Add(new Core.Entities.UserRoles()
+                {
+                    User = user2,
+                    Role = role2
                 });
                 context.SaveChanges();
             }
