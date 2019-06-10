@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Exoft.Gamification.Api.Data.Core\Exoft.Gamification.Api.Data.Core.csproj" />
+    <ProjectReference Include="..\Exoft.Gamification.Api.Services.Interfaces\Exoft.Gamification.Api.Services.Interfaces.csproj" />
   </ItemGroup>
 
   <ItemGroup>

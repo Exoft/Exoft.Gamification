@@ -14,7 +14,7 @@ namespace Exoft.Gamification.Api.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController : GamificationController
     {
         private IAuthService _authService;
 

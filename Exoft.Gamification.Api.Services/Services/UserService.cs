@@ -1,4 +1,6 @@
-﻿using Exoft.Gamification.Api.Data;
+﻿using Exoft.Gamification.Api.Common.Helpers;
+using Exoft.Gamification.Api.Common.Models;
+using Exoft.Gamification.Api.Data;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces.Interfaces;
@@ -23,9 +25,14 @@ namespace Exoft.Gamification.Api.Services.Services
             await userRepository.AddAsync(user);
         }
 
-        public async Task DeleteAsync(Guid Id)
+        public async Task DeleteAsync(User user)
         {
-            await userRepository.DeleteAsync(Id);
+            await userRepository.DeleteAsync(user);
+        }
+
+        public async Task UpdateAsync(User user)
+        {
+            await userRepository.UpdateAsync(user);
         }
 
         public async Task<User> GetUserAsync(Guid Id)
@@ -36,16 +43,6 @@ namespace Exoft.Gamification.Api.Services.Services
         public async Task<User> GetUserAsync(string userName)
         {
             return await userRepository.GetUserAsync(userName);
-        }
-
-        public async Task<IEnumerable<User>> GetUsersAsync()
-        {
-            return await userRepository.GetUsersAsync();
-        }
-
-        public async Task UpdateAsync(User user)
-        {
-            await userRepository.UpdateAsync(user);
         }
     }
 }

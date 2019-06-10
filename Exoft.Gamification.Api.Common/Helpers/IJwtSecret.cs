@@ -6,6 +6,6 @@ namespace Exoft.Gamification.Api.Common.Helpers
 {
     public interface IJwtSecret
     {
-        string TokenSecretString { get; set; }
+        string TokenSecretString { get; }
     }
 }

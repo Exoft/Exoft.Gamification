@@ -1,5 +1,7 @@
-﻿using Exoft.Gamification.Api.Common.Helpers;
+﻿using AutoMapper;
+using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
+using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Interfaces;
 using Exoft.Gamification.Api.Services.Services;
@@ -18,11 +20,13 @@ namespace Exoft.Gamification.Api.Services
     {
         private readonly IUserService _userService;
         private readonly IJwtSecret _jwtSecret;
+        private readonly IMapper mapper;
         
-        public AuthService(IUserService userService, IJwtSecret jwtSecret)
+        public AuthService(IUserService userService, IJwtSecret jwtSecret, IMapper mapper)
         {
             _userService = userService;
             _jwtSecret = jwtSecret;
+            this.mapper = mapper;
         }
 
         public UserModel Authenticate(string userName, string password)
@@ -53,43 +57,9 @@ namespace Exoft.Gamification.Api.Services
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            var roles = new List<RoleModel>();
-            foreach (var item in userEntity.Roles)
-            {
-                RoleModel roleModel = new RoleModel()
-                {
-                    Id = item.Role.Id,
-                    Text = item.Role.Text
-                };
-                roles.Add(roleModel);
-            }
-            var achievements = new List<AchievementModel>();
-            foreach (var item in userEntity.Achievements)
-            {
-                AchievementModel achievementModel = new AchievementModel()
-                {
-                    Id = item.Achievement.Id,
-                    Description = item.Achievement.Description,
-                    Icon = item.Achievement.Icon,
-                    Name = item.Achievement.Name,
-                    XP = item.Achievement.XP
-                };
-                achievements.Add(achievementModel);
-            }
-            UserModel userModel = new UserModel()
-            {
-                Id = userEntity.Id,
-                UserName = userEntity.UserName,
-                FirstName = userEntity.FirstName,
-                LastName = userEntity.LastName,
-                Email = userEntity.Email,
-                Status = userEntity.Status,
-                Avatar = userEntity.Avatar,
-                XP = userEntity.XP,
-                Token = tokenHandler.WriteToken(token),
-                Achievements = achievements,
-                Roles = roles
-            };
+            var userModel = mapper.Map<User, UserModel>(userEntity);
+
+            userModel.Token = tokenHandler.WriteToken(token);
 
             return userModel;
         }

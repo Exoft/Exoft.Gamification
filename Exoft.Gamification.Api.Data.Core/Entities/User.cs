@@ -8,6 +8,9 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
         public User()
         {
             Achievements = new List<UserAchievements>();
+            Roles = new List<UserRoles>();
+                
+            XP = 0;
         }
 
         public string Email { get; set; }

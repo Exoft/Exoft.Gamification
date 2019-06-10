@@ -23,7 +23,8 @@ using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Helpers;
-//using Exoft.Gamification.Api.Helpers;
+using AutoMapper;
+using Exoft.Gamification.Api.Services.Interfaces.Services;
 
 namespace Exoft.Gamification
 {
@@ -76,7 +77,14 @@ namespace Exoft.Gamification
             // configure DI for application services
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAchievementService, AchievementService>();
             services.AddScoped<IJwtSecret, JwtSecret>();
+            services.AddTransient<UnitOfWork>();
+
+            // AutoMapper
+            var mappingConfig = new MapperConfiguration(mc => { mc.AddProfile(new Exoft.Gamification.Api.Common.Helpers.AutoMapper()); });
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
 
 
             services.AddSwaggerGen(c =>
