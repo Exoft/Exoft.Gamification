@@ -38,5 +38,12 @@ namespace Exoft.Gamification.Api.Controllers
                 return Ok(user);
             }
         }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public IActionResult GetSomeData()
+        {
+            return Ok("OK");
+        }
     }
 }

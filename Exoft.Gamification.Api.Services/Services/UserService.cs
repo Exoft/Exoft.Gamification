@@ -1,9 +1,8 @@
-﻿using Exoft.Gamification.Api.Common.Helpers;
+﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data;
-using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Repositories;
-using Exoft.Gamification.Api.Services.Interfaces.Interfaces;
+using Exoft.Gamification.Api.Services.Interfaces.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,35 +13,41 @@ namespace Exoft.Gamification.Api.Services.Services
     public class UserService : IUserService
     {
         private UserRepository userRepository;
+        private IMapper mapper;
 
-        public UserService(UsersDbContext context)
+        public UserService(UsersDbContext context, IMapper mapper)
         {
-            userRepository = new UserRepository(context);
+            this.mapper = mapper;
+            this.userRepository = new UserRepository(context);
         }
 
-        public async Task AddAsync(User user)
+        public async Task<UserModel> GetUserAsync(Guid Id)
         {
-            await userRepository.AddAsync(user);
+            var userEntity = await userRepository.GetUserAsync(Id);
+            var userModel = mapper.Map<UserModel>(userEntity);
+
+            return userModel;
         }
 
-        public async Task DeleteAsync(User user)
+        public async Task<UserModel> GetUserAsync(string userName)
         {
-            await userRepository.DeleteAsync(user);
+            var userEntity = await userRepository.GetUserAsync(userName);
+            var userModel = mapper.Map<UserModel>(userEntity);
+
+            return userModel;
         }
 
-        public async Task UpdateAsync(User user)
+        public async Task<ICollection<UserModel>> GetUsersAsync()
         {
-            await userRepository.UpdateAsync(user);
-        }
+            var userEntities = await userRepository.GetUsersAsync();
 
-        public async Task<User> GetUserAsync(Guid Id)
-        {
-            return await userRepository.GetUserAsync(Id);
-        }
+            var userModels = new List<UserModel>();
+            foreach (var item in userEntities)
+            {
+                userModels.Add(mapper.Map<UserModel>(item));
+            }
 
-        public async Task<User> GetUserAsync(string userName)
-        {
-            return await userRepository.GetUserAsync(userName);
+            return userModels;
         }
     }
 }

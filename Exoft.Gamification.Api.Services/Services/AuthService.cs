@@ -1,9 +1,10 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
+using Exoft.Gamification.Api.Data;
 using Exoft.Gamification.Api.Data.Core.Entities;
+using Exoft.Gamification.Api.Data.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
-using Exoft.Gamification.Api.Services.Interfaces.Interfaces;
 using Exoft.Gamification.Api.Services.Services;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -18,26 +19,26 @@ namespace Exoft.Gamification.Api.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly IUserService _userService;
-        private readonly IJwtSecret _jwtSecret;
+        private readonly UserRepository userRepository;
+        private readonly IJwtSecret jwtSecret;
         private readonly IMapper mapper;
         
-        public AuthService(IUserService userService, IJwtSecret jwtSecret, IMapper mapper)
+        public AuthService(UsersDbContext context, IJwtSecret jwtSecret, IMapper mapper)
         {
-            _userService = userService;
-            _jwtSecret = jwtSecret;
+            this.userRepository = new UserRepository(context);
+            this.jwtSecret = jwtSecret;
             this.mapper = mapper;
         }
 
-        public UserModel Authenticate(string userName, string password)
+        public JwtTokenModel Authenticate(string userName, string password)
         {
-            var userEntity = _userService.GetUserAsync(userName).Result;
-            
-            if(userEntity==null || password != userEntity.Password)
+            var userEntity = userRepository.GetUserAsync(userName).Result;
+
+            if (userEntity == null || password != userEntity.Password)
             {
                 return null;
             }
-            
+
             // authentication successful so generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -46,22 +47,25 @@ namespace Exoft.Gamification.Api.Services
             //var key = Encoding.ASCII.GetBytes(_jwtSecret.TokenSecretString);
             //
 
+            var claims = new List<Claim>();
+            foreach (var item in userEntity.Roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, item.Role.Name));
+            }
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, userEntity.Id.ToString())
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            var userModel = mapper.Map<User, UserModel>(userEntity);
+            var jwtTokenModel = new JwtTokenModel()
+            {
+                Token = tokenHandler.WriteToken(token)
+            };
 
-            userModel.Token = tokenHandler.WriteToken(token);
-
-            return userModel;
+            return jwtTokenModel;
         }
     }
 }

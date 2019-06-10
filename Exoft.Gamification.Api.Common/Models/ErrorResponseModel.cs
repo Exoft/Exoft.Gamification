@@ -13,16 +13,7 @@ namespace Exoft.Gamification.Api.Common.Models
 
         public ErrorResponseModel(Exception exception)
         {
-            StringBuilder sb = new StringBuilder(exception.Message);
-
-            while (exception.InnerException != null)
-            {
-                exception = exception.InnerException;
-
-                sb.AppendLine($"--> {exception.Message}");
-            }
-
-            Message = sb.ToString();
+            Message = exception.ToString();
         }
 
         public string Message { get; set; }

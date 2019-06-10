@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Exoft.Gamification.Api.Data.Core.Entities
 {
-    public class Role : Entity
+    public class File : Entity
     {
-        public string Name { get; set; }
+        public byte[] Data { get; set; }
     }
 }

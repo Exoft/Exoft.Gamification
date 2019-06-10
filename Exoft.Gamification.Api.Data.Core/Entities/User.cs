@@ -9,8 +9,6 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
         {
             Achievements = new List<UserAchievements>();
             Roles = new List<UserRoles>();
-                
-            XP = 0;
         }
 
         public string Email { get; set; }
@@ -25,7 +23,7 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
 
         public string Status { get; set; }
 
-        public string Avatar { get; set; }
+        public File Avatar { get; set; }
         
         public int XP { get; set; }
 

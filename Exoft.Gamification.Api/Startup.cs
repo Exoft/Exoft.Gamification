@@ -7,7 +7,6 @@ using Exoft.Gamification.Api.Data;
 using Exoft.Gamification.Api.Data.Seeds;
 using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
-using Exoft.Gamification.Api.Services.Interfaces.Interfaces;
 using Exoft.Gamification.Api.Services.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -25,6 +24,8 @@ using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Helpers;
 using AutoMapper;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using Exoft.Gamification.Api.Services.Interfaces.Repositories;
+using Exoft.Gamification.Api.Data.Repositories;
 
 namespace Exoft.Gamification
 {
@@ -77,7 +78,6 @@ namespace Exoft.Gamification
             // configure DI for application services
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IAchievementService, AchievementService>();
             services.AddScoped<IJwtSecret, JwtSecret>();
             services.AddTransient<UnitOfWork>();
 

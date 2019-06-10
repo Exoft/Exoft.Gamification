@@ -14,6 +14,7 @@ namespace Exoft.Gamification.Api.Data
         public DbSet<UserAchievements> UserAchievements { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRoles> UserRoles { get; set; }
+        public DbSet<File> Files { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

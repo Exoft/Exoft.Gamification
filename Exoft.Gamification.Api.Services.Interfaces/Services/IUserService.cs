@@ -1,15 +1,15 @@
 ﻿using Exoft.Gamification.Api.Common.Models;
-using Exoft.Gamification.Api.Data.Core.Entities;
-using Exoft.Gamification.Api.Services.Interfaces.Services;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 
-namespace Exoft.Gamification.Api.Services.Interfaces.Interfaces
+namespace Exoft.Gamification.Api.Services.Interfaces.Services
 {
-    public interface IUserService : IService<User>
+    public interface IUserService
     {
-        Task<User> GetUserAsync(Guid Id);
-        Task<User> GetUserAsync(string userName);
+        Task<UserModel> GetUserAsync(Guid Id);
+        Task<UserModel> GetUserAsync(string userName);
+        Task<ICollection<UserModel>> GetUsersAsync();
     }
 }

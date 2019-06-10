@@ -4,10 +4,8 @@ using System.Text;
 
 namespace Exoft.Gamification.Api.Common.Models
 {
-    public class RoleModel
+    public class ResponseModel
     {
-        public Guid Id { get; set; }
-
-        public string Name { get; set; }
+        public bool IsSuccessful { get; set; }
     }
 }

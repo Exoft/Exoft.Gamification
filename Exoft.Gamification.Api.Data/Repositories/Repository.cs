@@ -51,5 +51,7 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Repositories
 
             DbSet.Remove(entity);
         }
+
+        protected abstract IQueryable<T> IncludeAll();
     }
 }

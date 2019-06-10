@@ -19,7 +19,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 UserName = "OstapRoik",
                 Password = "password",
                 Status = "Status bla bla bla",
-                Avatar = null,
+                Avatar = new Core.Entities.File() { Data = null },
                 XP = 10
             };
             var user2 = new Core.Entities.User()
@@ -30,30 +30,30 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 UserName = "TanyaGogina",
                 Password = "password",
                 Status = "Status 123",
-                Avatar = null,
+                Avatar = new Core.Entities.File() { Data = null },
                 XP = 40
             };
             var achievement1 = new Core.Entities.Achievement()
             {
                 Name = "Welcome",
                 Description = "A newcomer to the team",
-                Icon = null,
+                Icon = new Core.Entities.File() { Data = null },
                 XP = 10
             };
             var achievement2 = new Core.Entities.Achievement()
             {
                 Name = "1 year",
                 Description = "1 year in company",
-                Icon = null,
+                Icon = new Core.Entities.File() { Data = null },
                 XP = 30
             };
             var role1 = new Core.Entities.Role()
             {
-                Text = "Admin"
+                Name = "Admin"
             };
             var role2 = new Core.Entities.Role()
             {
-                Text = "User"
+                Name = "User"
             };
 
             if (!context.Users.Any())

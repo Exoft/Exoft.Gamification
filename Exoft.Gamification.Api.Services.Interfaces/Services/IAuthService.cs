@@ -5,6 +5,6 @@ namespace Exoft.Gamification.Api.Services.Interfaces
 {
     public interface IAuthService
     {
-        UserModel Authenticate(string login, string password);
+        JwtTokenModel Authenticate(string login, string password);
     }
 }

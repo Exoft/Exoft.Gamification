@@ -10,5 +10,6 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Repositories
     {
         Task<User> GetUserAsync(Guid Id);
         Task<User> GetUserAsync(string userName);
+        Task<ICollection<User>> GetUsersAsync();
     }
 }
