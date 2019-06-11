@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Exoft.Gamification.Api.Services.Interfaces;
+using System;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data
 {
-    public class UnitOfWork : IDisposable
+    public class UnitOfWork : IUnitOfWork, IDisposable
     {
-        private UsersDbContext db;
+        private readonly UsersDbContext _context;
 
         public UnitOfWork(UsersDbContext context)
         {
-            db = context;
+            _context = context;
         }
 
-        public async Task SaveAsync()
+        public async Task SaveChangesAsync()
         {
-            await db.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
 
         #region IDisposable Support
@@ -28,29 +27,18 @@ namespace Exoft.Gamification.Api.Data
             {
                 if (disposing)
                 {
-                    // TODO: dispose managed state (managed objects).
+                    _context.Dispose();
                 }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
 
                 disposedValue = true;
             }
         }
 
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~UnitOfWork() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
-
         // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
         #endregion
     }

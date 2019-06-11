@@ -1,10 +1,10 @@
 ﻿using Exoft.Gamification.Api.Common.Models;
-using System;
+using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services.Interfaces
 {
     public interface IAuthService
     {
-        JwtTokenModel Authenticate(string login, string password);
+        Task<JwtTokenModel> Authenticate(string login, string password);
     }
 }

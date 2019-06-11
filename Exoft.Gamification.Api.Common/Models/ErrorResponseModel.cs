@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Exoft.Gamification.Api.Common.Models
 {
-    public class ErrorResponseModel
+    public class ErrorResponseModel : ResponseModel
     {
-        public ErrorResponseModel(string message)
+        public ErrorResponseModel(string message) : base(false)
         {
             Message = message;
         }
 
-        public ErrorResponseModel(Exception exception)
+        public ErrorResponseModel(Exception exception) : base(false)
         {
             Message = exception.ToString();
         }

@@ -1,31 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Data;
-using Exoft.Gamification.Api.Data.Seeds;
+using Exoft.Gamification.Api.Data.Repositories;
+using Exoft.Gamification.Api.Helpers;
 using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
-using Exoft.Gamification.Api.Services.Services;
+using Exoft.Gamification.Api.Services.Interfaces.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
-using Exoft.Gamification.Api.Common.Helpers;
-using Exoft.Gamification.Api.Helpers;
-using AutoMapper;
-using Exoft.Gamification.Api.Services.Interfaces.Services;
-using Exoft.Gamification.Api.Services.Interfaces.Repositories;
-using Exoft.Gamification.Api.Data.Repositories;
+using System;
 
 namespace Exoft.Gamification
 {
@@ -41,22 +31,28 @@ namespace Exoft.Gamification
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string connection = Configuration.GetConnectionString("DataConnection");
-
             services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddDbContext<UsersDbContext>(options =>
-                options.UseSqlServer(connection));
+            services.AddDbContext<UsersDbContext>
+            (
+                options => options.UseSqlServer(Configuration.GetConnectionString("DataConnection"))
+            );
 
-            // configure strongly typed settings objects
-            var secretSection = Configuration.GetSection("Secrets");
-            services.Configure<JwtSecret>(secretSection);
+            // configure DI for application services
+            var jwtSecret = new JwtSecret(Configuration);
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IUserRepository, UserRepository>();
 
+            // AutoMapper
+            //TODO: Ostap please use this: https://dotnetcoretutorials.com/2017/09/23/using-automapper-asp-net-core/
+            var mappingConfig = new MapperConfiguration(mc => { mc.AddProfile(new Api.Common.Helpers.AutoMapper()); });
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
 
             // configure jwt authentication
-            var jwtSecret = secretSection.Get<JwtSecret>();
-            var key = Encoding.ASCII.GetBytes(jwtSecret.TokenSecretString);
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -69,23 +65,11 @@ namespace Exoft.Gamification
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    IssuerSigningKey = new SymmetricSecurityKey(jwtSecret.Secret),
                     ValidateIssuer = false,
                     ValidateAudience = false
                 };
             });
-
-            // configure DI for application services
-            services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IJwtSecret, JwtSecret>();
-            services.AddTransient<UnitOfWork>();
-
-            // AutoMapper
-            var mappingConfig = new MapperConfiguration(mc => { mc.AddProfile(new Exoft.Gamification.Api.Common.Helpers.AutoMapper()); });
-            IMapper mapper = mappingConfig.CreateMapper();
-            services.AddSingleton(mapper);
-
 
             services.AddSwaggerGen(c =>
             {
@@ -100,15 +84,11 @@ namespace Exoft.Gamification
             {
                 app.UseDeveloperExceptionPage();
 
-
-                var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-                var context = scope.ServiceProvider.GetService<UsersDbContext>();
-
-                context.Database.Migrate();
-
-                ContextInitializer.Initialize(context);
+                //var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+                //var context = scope.ServiceProvider.GetService<UsersDbContext>();
+                // ContextInitializer.Initialize(context);
             }
-            
+
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {

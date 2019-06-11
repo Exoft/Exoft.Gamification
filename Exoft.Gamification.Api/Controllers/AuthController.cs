@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Exoft.Gamification.Api.Common.Models;
-using Exoft.Gamification.Api.Services;
+﻿using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
 {
     [Authorize]
-    [Route("api/[controller]")]
+    [Route("api/authenticate")]
     [ApiController]
     public class AuthController : GamificationController
     {
-        private IAuthService _authService;
+        private readonly IAuthService _authService;
 
         public AuthController(IAuthService authService)
         {
@@ -24,26 +19,17 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]UserLoginModel userModel)
+        [HttpPost]
+        public async Task<IActionResult> AuthenticateAsync([FromBody]UserLoginModel userModel)
         {
-            var user = _authService.Authenticate(userModel.UserName, userModel.Password);
+            var user = await _authService.Authenticate(userModel.UserName, userModel.Password);
 
             if (user == null)
             {
-                return BadRequest(new ErrorResponseModel("Username or password is incorrect"));
+                return Unauthorized();
             }
-            else
-            {
-                return Ok(user);
-            }
-        }
 
-        [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public IActionResult GetSomeData()
-        {
-            return Ok("OK");
+            return Ok(user);
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Services.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,31 +10,13 @@ namespace Exoft.Gamification.Api.Data.Repositories
     {
         public UserRepository(UsersDbContext context) : base(context)
         {
-
         }
 
-        public async Task<User> GetUserAsync(Guid Id)
+        public async Task<User> GetByUserNameAsync(string userName)
         {
-            var user = await IncludeAll().FirstOrDefaultAsync(i => i.Id == Id);
+            var user = await IncludeAll().SingleOrDefaultAsync(i => i.UserName == userName);
 
             return user;
-        }
-
-        public async Task<User> GetUserAsync(string userName)
-        {
-            var user = await IncludeAll().FirstOrDefaultAsync(i => i.UserName == userName);
-
-            return user;
-        }
-
-        public async Task<ICollection<User>> GetUsersAsync()
-        {
-            var list = new List<User>();
-            foreach (var item in IncludeAll())
-            {
-                list.Add(item);
-            }
-            return list;
         }
 
         protected override IQueryable<User> IncludeAll()

@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Exoft.Gamification.Api.Common.Models
+﻿namespace Exoft.Gamification.Api.Common.Models
 {
-    public class ResponseModel
+    public abstract class ResponseModel
     {
-        public bool IsSuccessful { get; set; }
+        public ResponseModel(bool isSussessful)
+        {
+            IsSuccessful = isSussessful;
+        }
+
+        public bool IsSuccessful { get; }
     }
 }

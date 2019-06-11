@@ -1,11 +1,9 @@
-﻿using Exoft.Gamification.Api.Data.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Exoft.Gamification.Api.Data;
-using System.Threading.Tasks;
-using System.Linq;
+﻿using Exoft.Gamification.Api.Data;
+using Exoft.Gamification.Api.Data.Core.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services.Interfaces.Repositories
 {
@@ -21,6 +19,11 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Repositories
         protected DbSet<T> DbSet { get; }
         protected UsersDbContext Context { get; }
 
+        public async Task<T> GetByIdAsync(Guid id)
+        {
+            return await IncludeAll().SingleOrDefaultAsync(i => i.Id == id);
+        }
+
         public virtual async Task AddAsync(T entity)
         {
             if (entity == null)
@@ -31,18 +34,17 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Repositories
             await DbSet.AddAsync(entity);
         }
 
-        public virtual async Task UpdateAsync(T entity)
+        public virtual void Update(T entity)
         {
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
 
-            var user = await DbSet.FindAsync(entity.Id);
-            Context.Entry(user).CurrentValues.SetValues(entity);
+            Context.Update(entity);
         }
 
-        public virtual async Task DeleteAsync(T entity)
+        public virtual void Delete(T entity)
         {
             if (entity == null)
             {
