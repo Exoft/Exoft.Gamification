@@ -48,9 +48,7 @@ namespace Exoft.Gamification
 
             // AutoMapper
             //TODO: Ostap please use this: https://dotnetcoretutorials.com/2017/09/23/using-automapper-asp-net-core/
-            var mappingConfig = new MapperConfiguration(mc => { mc.AddProfile(new Api.Common.Helpers.AutoMapper()); });
-            IMapper mapper = mappingConfig.CreateMapper();
-            services.AddSingleton(mapper);
+            services.AddAutoMapper();
 
             // configure jwt authentication
             services.AddAuthentication(x =>
@@ -86,7 +84,7 @@ namespace Exoft.Gamification
 
                 //var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
                 //var context = scope.ServiceProvider.GetService<UsersDbContext>();
-                // ContextInitializer.Initialize(context);
+                //ContextInitializer.Initialize(context);
             }
 
             app.UseSwagger();
