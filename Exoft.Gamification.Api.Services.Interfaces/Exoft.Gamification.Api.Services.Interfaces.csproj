@@ -4,4 +4,9 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Exoft.Gamification.Api.Common\Exoft.Gamification.Api.Common.csproj" />
+    <ProjectReference Include="..\Exoft.Gamification.Api.Data.Core\Exoft.Gamification.Api.Data.Core.csproj" />
+  </ItemGroup>
+
 </Project>
