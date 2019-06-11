@@ -40,7 +40,7 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Repositories
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-
+            
             Context.Update(entity);
         }
 

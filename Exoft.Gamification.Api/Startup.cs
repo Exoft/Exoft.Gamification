@@ -6,6 +6,8 @@ using Exoft.Gamification.Api.Helpers;
 using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Repositories;
+using Exoft.Gamification.Api.Services.Interfaces.Services;
+using Exoft.Gamification.Api.Services.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,12 +44,15 @@ namespace Exoft.Gamification
             // configure DI for application services
             var jwtSecret = new JwtSecret(Configuration);
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IAchievementService, AchievementService>();
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<IAchievementRepository, AchievementRepository>();
 
             // AutoMapper
             //TODO: Ostap please use this: https://dotnetcoretutorials.com/2017/09/23/using-automapper-asp-net-core/
+            Mapper.Initialize(cfg => cfg.AddProfile<AutoMapperProfile>());
             services.AddAutoMapper();
 
             // configure jwt authentication
