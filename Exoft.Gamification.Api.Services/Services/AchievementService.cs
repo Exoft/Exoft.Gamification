@@ -28,6 +28,7 @@ namespace Exoft.Gamification.Api.Services.Services
             _mapper = mapper;
         }
 
+        //AZL I'd recommend you to have different models for create/update as far as update and create fields could be different
         public async Task AddAchievementAsync(InAchievementModel model)
         {
             await _achievementRepository.AddAsync(_mapper.Map<Achievement>(model));
@@ -35,6 +36,7 @@ namespace Exoft.Gamification.Api.Services.Services
 
         public void DeleteAchievement(Guid Id)
         {
+            //AZ: I've already commented you such lines.... DO NOT wait async methods
             var achievement = _achievementRepository.GetByIdAsync(Id).Result;
 
             _achievementRepository.Delete(achievement);
@@ -54,6 +56,7 @@ namespace Exoft.Gamification.Api.Services.Services
             return achievements.Select(i => _mapper.Map<OutAchievementModel>(i)).ToList();
         }
 
+        //AZ: we dont need method in service that returns all items
         public async Task<ICollection<OutAchievementModel>> GetAllAsync()
         {
             var list = await _achievementRepository.GetAllAsync();

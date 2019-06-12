@@ -2,6 +2,7 @@
 
 namespace Exoft.Gamification.Api.Common.Models
 {
+    //AZ: given just model name its hard to  understand what it is used for. use Read, Write or Create/Update models
     public class OutAchievementModel
     {
         public Guid Id { get; set; }

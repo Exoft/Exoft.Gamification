@@ -9,12 +9,15 @@ using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
 {
+    //AZ: Add metadata foreach action
+
     [Route("api/achievements")]
     //[Authorize]
     [ApiController]
     public class AchievementsController : GamificationController
     {
         private readonly IAchievementService _achievementService;
+        //AZ: better to move uow inside service
         private readonly IUnitOfWork _unitOfWork;
 
         public AchievementsController
@@ -27,6 +30,8 @@ namespace Exoft.Gamification.Api.Controllers
             _unitOfWork = unitOfWork;
         }
 
+
+        //AZ: paging is missing
         [HttpGet]
         public async Task<IActionResult> GetAchievementsAsync()
         {
@@ -40,12 +45,14 @@ namespace Exoft.Gamification.Api.Controllers
 
                 return Ok(allItems);
             }
+            //AZ: remove all catches.... no need in it
             catch (Exception ex)
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponseModel(ex));
             }
         }
 
+        //AZ: GetSingleAchievementAsync or GetAchievementByIdAsync would be better
         [HttpGet("{achievementId}")]
         public async Task<IActionResult> GetAchievementAsync(Guid achievementId)
         {
@@ -66,10 +73,12 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         [HttpGet("{userId}/achievements")]
+        //AZ: better to call GetUserAchievementsAsync
         public async Task<IActionResult> GetAchievementsByUserAsync(Guid userId)
         {
             try
             {
+                //AZ: typo here, also its betterto call GetUserAchievementsAsync
                 var item = await _achievementService.GetAchievementsDyUserAsync(userId);
                 if (item == null)
                 {
@@ -94,6 +103,7 @@ namespace Exoft.Gamification.Api.Controllers
                 {
                     return NotFound();
                 }
+                //AZ: please create additional method here.
                 var model = models.Select(i => i).Where(i => i.Id == achievementId);
                 if(model.Count() == 0)
                 {
@@ -114,10 +124,12 @@ namespace Exoft.Gamification.Api.Controllers
         {
             try
             {
+                //AZ: I do not see any ModelState  check here
                 await _achievementService.AddAchievementAsync(model);
 
                 await _unitOfWork.SaveChangesAsync();
 
+                //AZ: response is not correct
                 return Ok();
             }
             catch (Exception ex)
@@ -131,10 +143,14 @@ namespace Exoft.Gamification.Api.Controllers
         {
             try
             {
+                //AZ: what if achievement does not exist?
+
+                //AZ: I do not see any ModelState  check here
                 _achievementService.UpdateAchievement(model, achievementId);
 
                 await _unitOfWork.SaveChangesAsync();
 
+                //AZ: its not correct, update method should return you entity
                 var item = await _achievementService.GetAchievementByIdAsync(achievementId);
 
                 return Ok(item);
@@ -150,6 +166,7 @@ namespace Exoft.Gamification.Api.Controllers
         {
             try
             {
+                //AZ: what if achievement does not exist?
                 _achievementService.DeleteAchievement(achievementId);
 
                 await _unitOfWork.SaveChangesAsync();

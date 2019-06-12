@@ -51,7 +51,7 @@ namespace Exoft.Gamification
             services.AddTransient<IAchievementRepository, AchievementRepository>();
 
             // AutoMapper
-            //TODO: Ostap please use this: https://dotnetcoretutorials.com/2017/09/23/using-automapper-asp-net-core/
+            //AZ: fix obsolete issue
             Mapper.Initialize(cfg => cfg.AddProfile<AutoMapperProfile>());
             services.AddAutoMapper();
 
