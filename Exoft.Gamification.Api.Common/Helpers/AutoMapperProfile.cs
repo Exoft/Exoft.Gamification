@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Exoft.Gamification.Api.Common.Models;
+using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Data.Core.Entities;
 
 namespace Exoft.Gamification.Api.Common.Helpers
@@ -8,10 +8,12 @@ namespace Exoft.Gamification.Api.Common.Helpers
     {
         public AutoMapperProfile()
         {
-            CreateMap<Achievement, OutAchievementModel>()
+            CreateMap<Achievement, ReadAchievementModel>()
                 .ForMember(d => d.IconId, o => o.MapFrom(s => s.Icon.Id));
 
-            CreateMap<InAchievementModel, Achievement>();
+            CreateMap<CreateAchievementModel, Achievement>();
+
+            CreateMap<UpdateAchievementModel, Achievement>();
         }
     }
 }

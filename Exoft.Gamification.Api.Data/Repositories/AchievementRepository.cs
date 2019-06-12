@@ -1,5 +1,6 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
-using Exoft.Gamification.Api.Services.Interfaces.Repositories;
+using Exoft.Gamification.Api.Data.Core.Helpers;
+using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +14,11 @@ namespace Exoft.Gamification.Api.Data.Repositories
         {
         }
 
-        public async Task<ICollection<Achievement>> GetAllAsync()
+        public async Task<ICollection<Achievement>> GetPagedAchievementAsync(PageInfo pageInfo)
         {
-            return await IncludeAll().ToListAsync();
+            var list = await IncludeAll().Skip((pageInfo.PageNumber - 1) * pageInfo.PageSize).Take(pageInfo.PageSize).ToListAsync();
+
+            return list;
         }
 
         protected override IQueryable<Achievement> IncludeAll()

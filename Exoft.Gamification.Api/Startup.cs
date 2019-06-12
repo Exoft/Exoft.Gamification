@@ -1,13 +1,12 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Data;
+using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Data.Repositories;
 using Exoft.Gamification.Api.Helpers;
 using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
-using Exoft.Gamification.Api.Services.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
-using Exoft.Gamification.Api.Services.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -51,9 +50,7 @@ namespace Exoft.Gamification
             services.AddTransient<IAchievementRepository, AchievementRepository>();
 
             // AutoMapper
-            //AZ: fix obsolete issue
-            Mapper.Initialize(cfg => cfg.AddProfile<AutoMapperProfile>());
-            services.AddAutoMapper();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             // configure jwt authentication
             services.AddAuthentication(x =>
@@ -106,7 +103,13 @@ namespace Exoft.Gamification
 
             app.UseAuthentication();
 
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "GetAchievementById", 
+                    template: "{controller=Achievements}/{action=GetAchievementByIdAsync}/{achievementId}"
+                    );
+            });
         }
     }
 }

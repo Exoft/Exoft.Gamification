@@ -1,5 +1,6 @@
 ﻿using Exoft.Gamification.Api.Common.Models;
-using Exoft.Gamification.Api.Services.Interfaces;
+using Exoft.Gamification.Api.Common.Models.Achievement;
+using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -9,174 +10,173 @@ using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
 {
-    //AZ: Add metadata foreach action
-
     [Route("api/achievements")]
     //[Authorize]
     [ApiController]
     public class AchievementsController : GamificationController
     {
         private readonly IAchievementService _achievementService;
-        //AZ: better to move uow inside service
-        private readonly IUnitOfWork _unitOfWork;
 
-        public AchievementsController
-        (
-            IAchievementService achievementService,
-            IUnitOfWork unitOfWork
-        )
+        public AchievementsController(IAchievementService achievementService)
         {
             _achievementService = achievementService;
-            _unitOfWork = unitOfWork;
         }
 
 
-        //AZ: paging is missing
+        /// <summary>
+        /// Get paged list of achievements
+        /// </summary>
+        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of achievements</responce> 
+        /// <responce code="404">When we haven't any achievements</responce> 
         [HttpGet]
-        public async Task<IActionResult> GetAchievementsAsync()
+        public async Task<IActionResult> GetAchievementsAsync(int pageNumber, int pageSize)
         {
-            try
+            PageInfo pageInfo = new PageInfo()
             {
-                var allItems = await _achievementService.GetAllAsync();
-                if(allItems == null)
-                {
-                    return NotFound();
-                }
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+            var allItems = await _achievementService.GetPagedAchievement(pageInfo);
+            if(allItems == null)
+            {
+                return NotFound();
+            }
 
-                return Ok(allItems);
-            }
-            //AZ: remove all catches.... no need in it
-            catch (Exception ex)
+            var pagedList = new ReturnPageModel<ReadAchievementModel>()
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponseModel(ex));
-            }
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                Data = allItems.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList()
+            };
+            return Ok(pagedList);
         }
 
-        //AZ: GetSingleAchievementAsync or GetAchievementByIdAsync would be better
-        [HttpGet("{achievementId}")]
-        public async Task<IActionResult> GetAchievementAsync(Guid achievementId)
+        /// <summary>
+        /// Get some achievement
+        /// </summary>
+        /// <responce code="200">Return some achievement</responce> 
+        /// <responce code="404">When the achievement does not exist</responce> 
+        [HttpGet("{achievementId}", Name = "GetAchievement")]
+        public async Task<IActionResult> GetAchievementByIdAsync(Guid achievementId)
         {
-            try
+            var item = await _achievementService.GetAchievementByIdAsync(achievementId);
+            if (item == null)
             {
-                var item = await _achievementService.GetAchievementByIdAsync(achievementId);
-                if (item == null)
-                {
-                    return NotFound();
-                }
+                return NotFound();
+            }
 
-                return Ok(item);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponseModel(ex));
-            }
+            return Ok(item);
         }
 
+        /// <summary>
+        /// Get all achievements current user
+        /// </summary>
+        /// <responce code="200">Return all achievements current user</responce> 
+        /// <responce code="404">When the user haven't any achievements</responce> 
         [HttpGet("{userId}/achievements")]
-        //AZ: better to call GetUserAchievementsAsync
-        public async Task<IActionResult> GetAchievementsByUserAsync(Guid userId)
+        public async Task<IActionResult> GetUserAchievementsAsync(Guid userId)
         {
-            try
+            var item = await _achievementService.GetUserAchievementsAsync(userId);
+            if (item == null)
             {
-                //AZ: typo here, also its betterto call GetUserAchievementsAsync
-                var item = await _achievementService.GetAchievementsDyUserAsync(userId);
-                if (item == null)
-                {
-                    return NotFound();
-                }
+                return NotFound();
+            }
 
-                return Ok(item);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponseModel(ex));
-            }
+            return Ok(item);
         }
 
+        /// <summary>
+        /// Get some achievements current user
+        /// </summary>
+        /// <responce code="200">Return some achievement current user</responce> 
+        /// <responce code="404">When the achievement does not exist</responce> 
         [HttpGet("{userId}/achievements/{achievementId}")]
         public async Task<IActionResult> GetAchievementByUserAsync(Guid userId, Guid achievementId)
         {
-            try
+            var models = await _achievementService.GetUserAchievementsAsync(userId);
+            if (models == null)
             {
-                var models = await _achievementService.GetAchievementsDyUserAsync(userId);
-                if (models == null)
-                {
-                    return NotFound();
-                }
-                //AZ: please create additional method here.
-                var model = models.Select(i => i).Where(i => i.Id == achievementId);
-                if(model.Count() == 0)
-                {
-                    return NotFound();
-                }
-                    
+                return NotFound();
+            }
 
-                return Ok(model);
-            }
-            catch (Exception ex)
+            var modelsId = models.Select(i => i.Id);
+            if(!modelsId.Contains(achievementId))
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponseModel(ex));
+                return NotFound();
             }
+
+            var model = _achievementService.GetAchievementByIdAsync(achievementId);
+
+            return Ok(model);
         }
 
+        /// <summary>
+        /// Create a new achievement
+        /// </summary>
+        /// <response code="201">Return created achievement</response>
+        /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpPost]
-        public async Task<IActionResult> AddAchievementAsync([FromBody] InAchievementModel model)
+        public async Task<IActionResult> AddAchievementAsync([FromBody] CreateAchievementModel model)
         {
-            try
+            if(!ModelState.IsValid)
             {
-                //AZ: I do not see any ModelState  check here
-                await _achievementService.AddAchievementAsync(model);
-
-                await _unitOfWork.SaveChangesAsync();
-
-                //AZ: response is not correct
-                return Ok();
+                return UnprocessableEntity();
             }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponseModel(ex));
-            }
+            var achievement = await _achievementService.AddAchievementAsync(model);
+
+            await _achievementService.SaveChangesAsync();
+            
+            return CreatedAtRoute(
+                "GetAchievement",
+                new { achievementId = achievement.Id },
+                achievement);
         }
 
+        /// <summary>
+        /// Update achievement
+        /// </summary>
+        /// <responce code="200">Return the updated achievement</responce> 
+        /// <responce code="404">When the achievement does not exist</responce> 
+        /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [HttpPut("{achievementId}")]
-        public async Task<IActionResult> UpdateAchievementAsync([FromBody] InAchievementModel model, Guid achievementId)
+        public async Task<IActionResult> UpdateAchievementAsync([FromBody] UpdateAchievementModel model, Guid achievementId)
         {
-            try
+            var achievement = await _achievementService.GetAchievementByIdAsync(achievementId);
+            if(achievement == null)
             {
-                //AZ: what if achievement does not exist?
-
-                //AZ: I do not see any ModelState  check here
-                _achievementService.UpdateAchievement(model, achievementId);
-
-                await _unitOfWork.SaveChangesAsync();
-
-                //AZ: its not correct, update method should return you entity
-                var item = await _achievementService.GetAchievementByIdAsync(achievementId);
-
-                return Ok(item);
+                return NotFound();
             }
-            catch (Exception ex)
+
+            if (!ModelState.IsValid)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponseModel(ex));
+                return UnprocessableEntity();
             }
+            var item = _achievementService.UpdateAchievement(model, achievementId);
+
+            await _achievementService.SaveChangesAsync();
+
+            return Ok(item);
         }
 
+        /// <summary>
+        /// Delete achievement by Id
+        /// </summary>
+        /// <responce code="204">When the achievement successful delete</responce>
+        /// <response code="404">When the achievement does not exist</response>
         [HttpDelete("{achievementId}")]
         public async Task<IActionResult> DeleteAchievementAsync(Guid achievementId)
         {
-            try
+            var achievement = await _achievementService.GetAchievementByIdAsync(achievementId);
+            if (achievement == null)
             {
-                //AZ: what if achievement does not exist?
-                _achievementService.DeleteAchievement(achievementId);
-
-                await _unitOfWork.SaveChangesAsync();
-
-                return NoContent();
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new ErrorResponseModel(ex));
-            }
+            
+            _achievementService.DeleteAchievementAsync(achievementId);
+
+            await _achievementService.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
