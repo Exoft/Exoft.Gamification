@@ -3,6 +3,7 @@ using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Data;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Data.Repositories;
+using Exoft.Gamification.Api.Data.Seeds;
 using Exoft.Gamification.Api.Helpers;
 using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
@@ -103,13 +104,7 @@ namespace Exoft.Gamification
 
             app.UseAuthentication();
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "GetAchievementById", 
-                    template: "{controller=Achievements}/{action=GetAchievementByIdAsync}/{achievementId}"
-                    );
-            });
+            app.UseMvc();
         }
     }
 }

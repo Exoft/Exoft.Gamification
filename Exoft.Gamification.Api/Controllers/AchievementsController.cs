@@ -29,26 +29,20 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of achievements</responce> 
         /// <responce code="404">When we haven't any achievements</responce> 
         [HttpGet]
-        public async Task<IActionResult> GetAchievementsAsync(int pageNumber, int pageSize)
+        public async Task<IActionResult> GetAchievementsAsync(int pageNumber = 1, int pageSize = 10)
         {
-            PageInfo pageInfo = new PageInfo()
+            var pageInfo = new InputPagingModel()
             {
                 PageNumber = pageNumber,
                 PageSize = pageSize
             };
-            var allItems = await _achievementService.GetPagedAchievement(pageInfo);
-            if(allItems == null)
+            var allItems = await _achievementService.GetPagedAchievementAsync(pageInfo);
+            if(allItems.Data.Count == 0)
             {
                 return NotFound();
             }
 
-            var pagedList = new ReturnPageModel<ReadAchievementModel>()
-            {
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                Data = allItems.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList()
-            };
-            return Ok(pagedList);
+            return Ok(allItems);
         }
 
         /// <summary>
@@ -69,15 +63,20 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         /// <summary>
-        /// Get all achievements current user
+        /// Get paged list of achievements current user
         /// </summary>
         /// <responce code="200">Return all achievements current user</responce> 
         /// <responce code="404">When the user haven't any achievements</responce> 
         [HttpGet("{userId}/achievements")]
-        public async Task<IActionResult> GetUserAchievementsAsync(Guid userId)
+        public async Task<IActionResult> GetUserAchievementsAsync(Guid userId, int pageNumber = 1, int pageSize = 10)
         {
-            var item = await _achievementService.GetUserAchievementsAsync(userId);
-            if (item == null)
+            var pageInfo = new InputPagingModel()
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+            var item = await _achievementService.GetPagedAchievementByUserAsync(pageInfo, userId);
+            if (item.Data.Count == 0)
             {
                 return NotFound();
             }
@@ -93,19 +92,11 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpGet("{userId}/achievements/{achievementId}")]
         public async Task<IActionResult> GetAchievementByUserAsync(Guid userId, Guid achievementId)
         {
-            var models = await _achievementService.GetUserAchievementsAsync(userId);
-            if (models == null)
+            var model = await _achievementService.IsUserHaveAchievement(userId, achievementId);
+            if(model == null)
             {
                 return NotFound();
             }
-
-            var modelsId = models.Select(i => i.Id);
-            if(!modelsId.Contains(achievementId))
-            {
-                return NotFound();
-            }
-
-            var model = _achievementService.GetAchievementByIdAsync(achievementId);
 
             return Ok(model);
         }
@@ -120,11 +111,9 @@ namespace Exoft.Gamification.Api.Controllers
         {
             if(!ModelState.IsValid)
             {
-                return UnprocessableEntity();
+                return UnprocessableEntity(ModelState);
             }
             var achievement = await _achievementService.AddAchievementAsync(model);
-
-            await _achievementService.SaveChangesAsync();
             
             return CreatedAtRoute(
                 "GetAchievement",
@@ -149,11 +138,9 @@ namespace Exoft.Gamification.Api.Controllers
 
             if (!ModelState.IsValid)
             {
-                return UnprocessableEntity();
+                return UnprocessableEntity(ModelState);
             }
-            var item = _achievementService.UpdateAchievement(model, achievementId);
-
-            await _achievementService.SaveChangesAsync();
+            var item = await _achievementService.UpdateAchievementAsync(model, achievementId);
 
             return Ok(item);
         }
@@ -172,9 +159,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return NotFound();
             }
             
-            _achievementService.DeleteAchievementAsync(achievementId);
-
-            await _achievementService.SaveChangesAsync();
+            await _achievementService.DeleteAchievementAsync(achievementId);
 
             return NoContent();
         }

@@ -1,4 +1,5 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
+using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -24,7 +25,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
             return await IncludeAll().SingleOrDefaultAsync(i => i.Id == id);
         }
 
-        public virtual async Task<T> AddAsync(T entity)
+        public virtual async Task AddAsync(T entity)
         {
             if (entity == null)
             {
@@ -32,28 +33,16 @@ namespace Exoft.Gamification.Api.Data.Repositories
             }
 
             await DbSet.AddAsync(entity);
-            return entity;
         }
 
-        public virtual T Update(T entity)
+        public virtual void Update(T entity)
         {
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-
-            try
-            {
-                Context.Update(entity);
-                return entity;
-            }
-            catch (System.InvalidOperationException)
-            {
-                var originalEntity = Context.Find(entity.GetType(), entity.Id);
-                Context.Entry(originalEntity).CurrentValues.SetValues(entity);
-                Context.Entry(originalEntity);
-                return (T)originalEntity;
-            }
+            
+            Context.Update(entity);
         }
 
         public virtual void Delete(T entity)
@@ -64,6 +53,25 @@ namespace Exoft.Gamification.Api.Data.Repositories
             }
 
             DbSet.Remove(entity);
+        }
+
+        public async Task<ReturnPagingInfo<T>> GetPagingDataAsync(PagingInfo pagingInfo)
+        {
+            var items = await IncludeAll()
+                .Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
+                .Take(pagingInfo.PageSize)
+                .ToListAsync();
+
+            var result = new ReturnPagingInfo<T>()
+            {
+                CurrentPage = pagingInfo.CurrentPage,
+                PageSize = items.Count,
+                TotalItems = IncludeAll().Count(),
+                TotalPages = (int)Math.Ceiling((double)IncludeAll().Count() / pagingInfo.PageSize),
+                Data = items
+            };
+
+            return result;
         }
 
         protected abstract IQueryable<T> IncludeAll();

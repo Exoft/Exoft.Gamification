@@ -1,4 +1,5 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
+using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -14,13 +15,6 @@ namespace Exoft.Gamification.Api.Data.Repositories
         {
         }
 
-        public async Task<ICollection<Achievement>> GetAchievementsByUserAsync(Guid Id)
-        {
-            var user = await GetByIdAsync(Id);
-
-            return user.Achievements.Select(i => i.Achievement).ToList();
-        }
-
         public async Task<User> GetByUserNameAsync(string userName)
         {
             var user = await IncludeAll().SingleOrDefaultAsync(i => i.UserName == userName);
@@ -34,7 +28,8 @@ namespace Exoft.Gamification.Api.Data.Repositories
                 .Include(s => s.Roles)
                     .ThenInclude(s => s.Role)
                 .Include(s => s.Achievements)
-                    .ThenInclude(s => s.Achievement);
+                    .ThenInclude(s => s.Achievement)
+                .OrderByDescending(i => i.XP);
         }
     }
 }
