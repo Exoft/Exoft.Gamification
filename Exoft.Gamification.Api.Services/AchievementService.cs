@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
@@ -7,7 +6,6 @@ using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -46,7 +44,7 @@ namespace Exoft.Gamification.Api.Services
             {
                 using (MemoryStream memory = new MemoryStream())
                 {
-                    model.Icon.CopyTo(memory);
+                    await model.Icon.CopyToAsync(memory);
 
                     achievement.Icon = new File()
                     {
@@ -89,13 +87,19 @@ namespace Exoft.Gamification.Api.Services
             {
                 using (MemoryStream memory = new MemoryStream())
                 {
-                    model.Icon.CopyTo(memory);
+                    await model.Icon.CopyToAsync(memory);
 
-                    achievement.Icon = new File()
+                    if(achievement.Icon != null)
                     {
-                        Data = memory.ToArray()
-                    };
-
+                        achievement.Icon.Data = memory.ToArray();
+                    }
+                    else
+                    {
+                        achievement.Icon = new File()
+                        {
+                            Data = memory.ToArray()
+                        };
+                    }
                 }
             }
             _achievementRepository.Update(achievement);
@@ -105,15 +109,12 @@ namespace Exoft.Gamification.Api.Services
             return _mapper.Map<ReadAchievementModel>(achievement);
         }
 
-        public async Task<ReturnPagingModel<ReadAchievementModel>> GetPagedAchievementAsync(InputPagingModel pagingModel)
+        public async Task<ReturnPagingInfo<ReadAchievementModel>> GetAllAchievementsAsync(PagingInfo pagingInfo)
         {
-            var page = await _achievementRepository.GetPagingDataAsync(_mapper.Map<PagingInfo>(pagingModel));
-            var readAchievementModel = new List<ReadAchievementModel>();
-            foreach (var item in page.Data)
-            {
-                readAchievementModel.Add(_mapper.Map<ReadAchievementModel>(item));
-            }
-            var result = new ReturnPagingModel<ReadAchievementModel>()
+            var page = await _achievementRepository.GetAllDataAsync(pagingInfo);
+
+            var readAchievementModel = page.Data.Select(i => _mapper.Map<ReadAchievementModel>(i)).ToList();
+            var result = new ReturnPagingInfo<ReadAchievementModel>()
             {
                 CurrentPage = page.CurrentPage,
                 PageSize = page.PageSize,
@@ -125,17 +126,13 @@ namespace Exoft.Gamification.Api.Services
             return result;
         }
 
-        public async Task<ReturnPagingModel<ReadAchievementModel>> GetPagedAchievementByUserAsync(InputPagingModel pagingModel, Guid UserId)
+        public async Task<ReturnPagingInfo<ReadAchievementModel>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid UserId)
         {
             var page = await _achievementRepository
-                .GetPagedAchievementByUserAsync(_mapper.Map<PagingInfo>(pagingModel), UserId);
+                .GetAllAchievementsByUserAsync(pagingInfo, UserId);
 
-            var readAchievementModel = new List<ReadAchievementModel>();
-            foreach (var item in page.Data)
-            {
-                readAchievementModel.Add(_mapper.Map<ReadAchievementModel>(item));
-            }
-            var result = new ReturnPagingModel<ReadAchievementModel>()
+            var readAchievementModel = page.Data.Select(i => _mapper.Map<ReadAchievementModel>(i)).ToList();
+            var result = new ReturnPagingInfo<ReadAchievementModel>()
             {
                 CurrentPage = page.CurrentPage,
                 PageSize = page.PageSize,
@@ -147,10 +144,10 @@ namespace Exoft.Gamification.Api.Services
             return result;
         }
 
-        public async Task<ReadAchievementModel> IsUserHaveAchievement(Guid userId, Guid achievementId)
+        public async Task<ReadAchievementModel> DoesUserHaveAchievement(Guid userId, Guid achievementId)
         {
-            var achievement = await _achievementRepository.IsUserHaveAchievementAsync(userId, achievementId);
-
+            var achievement = await _achievementRepository.DoesUserHaveAchievementAsync(userId, achievementId);
+            
             return _mapper.Map<ReadAchievementModel>(achievement);
         }
     }

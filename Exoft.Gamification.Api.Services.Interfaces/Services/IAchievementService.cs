@@ -1,7 +1,6 @@
-﻿using Exoft.Gamification.Api.Common.Models;
-using Exoft.Gamification.Api.Common.Models.Achievement;
+﻿using Exoft.Gamification.Api.Common.Models.Achievement;
+using Exoft.Gamification.Api.Data.Core.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services.Interfaces.Services
@@ -12,8 +11,8 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Services
         Task<ReadAchievementModel> UpdateAchievementAsync(UpdateAchievementModel model, Guid Id);
         Task DeleteAchievementAsync(Guid Id);
         Task<ReadAchievementModel> GetAchievementByIdAsync(Guid Id);
-        Task<ReadAchievementModel> IsUserHaveAchievement(Guid userId, Guid achievementId);
-        Task<ReturnPagingModel<ReadAchievementModel>> GetPagedAchievementAsync(InputPagingModel pagingModel);
-        Task<ReturnPagingModel<ReadAchievementModel>> GetPagedAchievementByUserAsync(InputPagingModel pagingModel, Guid UserId);
+        Task<ReadAchievementModel> DoesUserHaveAchievement(Guid userId, Guid achievementId);
+        Task<ReturnPagingInfo<ReadAchievementModel>> GetAllAchievementsAsync(PagingInfo pagingInfo);
+        Task<ReturnPagingInfo<ReadAchievementModel>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid UserId);
     }
 }

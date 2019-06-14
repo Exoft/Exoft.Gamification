@@ -11,6 +11,6 @@ namespace Exoft.Gamification.Api.Data.Core.Interfaces
         Task AddAsync(T entity);
         void Delete(T entity);
         void Update(T entity);
-        Task<ReturnPagingInfo<T>> GetPagingDataAsync(PagingInfo pagingInfo);
+        Task<ReturnPagingInfo<T>> GetAllDataAsync(PagingInfo pagingInfo);
     }
 }

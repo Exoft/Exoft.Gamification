@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script>
+
+        $("#Submit").click(function () {
+            alert("hello");
+            var dataObject = {
+                'Name': $('input[name=Name]').val(),
+                'Description': $('input[name=Description]').val(),
+                'XP': $('input[name=XP]').val(),
+                'Icon': $('input[name=Icon]').val(),
+            };
+
+            $.ajax({
+                url: 'http://localhost:5000/api/achievements/F7FAD597-18AE-442F-935F-D0A221557926',
+                type: 'put',
+                data: JSON.stringify(dataObject),
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                dataType: 'json'
+            });
+        }
+    </script>
+</head>
+<body>
+    <form>
+        <div class="form-group">
+            <div class="col-md-10">
+                <p>Upload one or more files using this form:</p>
+                <input type="file" name="Icon">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-10">
+                <input type="text" value="Name achievement" name="Name" />
+                <input type="text" value="Description achievement" name="Description" />
+                <input type="text" value="30" name="XP" />
+                <input type="button" id="Submit" value="Submit" />
+            </div>
+        </div>
+    </form>
+    </body>
+</html>

@@ -14,9 +14,6 @@ namespace Exoft.Gamification.Api.Common.Helpers
             CreateMap<Achievement, ReadAchievementModel>()
                 .ForMember(d => d.IconId, o => o.MapFrom(s => s.Icon.Id));
 
-            CreateMap<ReturnPagingInfo<Achievement>, ReturnPagingModel<ReadAchievementModel>>()
-                .ForMember(d => d.Data, o => o.MapFrom(s => s.Data));
-
             CreateMap<CreateAchievementModel, ReadAchievementModel>();
 
             CreateMap<UpdateAchievementModel, ReadAchievementModel>();
@@ -25,9 +22,6 @@ namespace Exoft.Gamification.Api.Common.Helpers
             // map to entity
 
             CreateMap<UpdateAchievementModel, Achievement>();
-
-            CreateMap<InputPagingModel, PagingInfo>()
-                .ForMember(d => d.CurrentPage, m => m.MapFrom(s => s.PageNumber));
         }
     }
 }

@@ -55,19 +55,22 @@ namespace Exoft.Gamification.Api.Data.Repositories
             DbSet.Remove(entity);
         }
 
-        public async Task<ReturnPagingInfo<T>> GetPagingDataAsync(PagingInfo pagingInfo)
+        public async Task<ReturnPagingInfo<T>> GetAllDataAsync(PagingInfo pagingInfo)
         {
             var items = await IncludeAll()
+                .OrderBy(s => s.Id)
                 .Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
                 .Take(pagingInfo.PageSize)
                 .ToListAsync();
+
+            int allItemsCount = await IncludeAll().CountAsync();
 
             var result = new ReturnPagingInfo<T>()
             {
                 CurrentPage = pagingInfo.CurrentPage,
                 PageSize = items.Count,
-                TotalItems = IncludeAll().Count(),
-                TotalPages = (int)Math.Ceiling((double)IncludeAll().Count() / pagingInfo.PageSize),
+                TotalItems = allItemsCount,
+                TotalPages = (int)Math.Ceiling((double)allItemsCount / pagingInfo.PageSize),
                 Data = items
             };
 

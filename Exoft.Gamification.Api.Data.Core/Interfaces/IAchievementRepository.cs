@@ -8,7 +8,7 @@ namespace Exoft.Gamification.Api.Data.Core.Interfaces
 {
     public interface IAchievementRepository : IRepository<Achievement>
     {
-        Task<Achievement> IsUserHaveAchievementAsync(Guid userId, Guid achievementId);
-        Task<ReturnPagingInfo<Achievement>> GetPagedAchievementByUserAsync(PagingInfo pagingInfo, Guid userId);
+        Task<Achievement> DoesUserHaveAchievementAsync(Guid userId, Guid achievementId);
+        Task<ReturnPagingInfo<Achievement>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid userId);
     }
 }
