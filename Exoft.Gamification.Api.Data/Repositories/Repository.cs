@@ -1,11 +1,12 @@
-﻿using Exoft.Gamification.Api.Data;
-using Exoft.Gamification.Api.Data.Core.Entities;
+﻿using Exoft.Gamification.Api.Data.Core.Entities;
+using Exoft.Gamification.Api.Data.Core.Helpers;
+using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Exoft.Gamification.Api.Services.Interfaces.Repositories
+namespace Exoft.Gamification.Api.Data.Repositories
 {
     public abstract class Repository<T> : IRepository<T> where T : Entity
     {
@@ -40,7 +41,7 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Repositories
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-
+            
             Context.Update(entity);
         }
 
@@ -52,6 +53,28 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Repositories
             }
 
             DbSet.Remove(entity);
+        }
+
+        public async Task<ReturnPagingInfo<T>> GetAllDataAsync(PagingInfo pagingInfo)
+        {
+            var items = await IncludeAll()
+                .OrderBy(s => s.Id)
+                .Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
+                .Take(pagingInfo.PageSize)
+                .ToListAsync();
+
+            int allItemsCount = await IncludeAll().CountAsync();
+
+            var result = new ReturnPagingInfo<T>()
+            {
+                CurrentPage = pagingInfo.CurrentPage,
+                PageSize = items.Count,
+                TotalItems = allItemsCount,
+                TotalPages = (int)Math.Ceiling((double)allItemsCount / pagingInfo.PageSize),
+                Data = items
+            };
+
+            return result;
         }
 
         protected abstract IQueryable<T> IncludeAll();

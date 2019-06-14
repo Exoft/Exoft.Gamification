@@ -1,5 +1,5 @@
-﻿using Exoft.Gamification.Api.Common.Models;
-using Exoft.Gamification.Api.Services.Interfaces;
+﻿using Exoft.Gamification.Api.Common.Models.User;
+using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;

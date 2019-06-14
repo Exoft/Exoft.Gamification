@@ -1,7 +1,7 @@
 ﻿using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
-using Exoft.Gamification.Api.Services.Interfaces;
-using Exoft.Gamification.Api.Services.Interfaces.Repositories;
+using Exoft.Gamification.Api.Data.Core.Interfaces;
+using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
