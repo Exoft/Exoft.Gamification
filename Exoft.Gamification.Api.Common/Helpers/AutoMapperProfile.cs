@@ -18,6 +18,8 @@ namespace Exoft.Gamification.Api.Common.Helpers
 
             CreateMap<UpdateAchievementModel, ReadAchievementModel>();
 
+            CreateMap<File, FileModel>();
+
 
             // map to entity
 
