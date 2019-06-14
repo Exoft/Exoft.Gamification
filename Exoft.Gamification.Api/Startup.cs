@@ -44,6 +44,7 @@ namespace Exoft.Gamification
             // configure DI for application services
             var jwtSecret = new JwtSecret(Configuration);
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAchievementService, AchievementService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);

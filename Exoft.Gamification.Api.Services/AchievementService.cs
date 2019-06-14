@@ -48,7 +48,8 @@ namespace Exoft.Gamification.Api.Services
 
                     achievement.Icon = new File()
                     {
-                        Data = memory.ToArray()
+                        Data = memory.ToArray(),
+                        ContentType = model.Icon.ContentType
                     };
                 }
             }
@@ -92,12 +93,14 @@ namespace Exoft.Gamification.Api.Services
                     if(achievement.Icon != null)
                     {
                         achievement.Icon.Data = memory.ToArray();
+                        achievement.Icon.ContentType = model.Icon.ContentType;
                     }
                     else
                     {
                         achievement.Icon = new File()
                         {
-                            Data = memory.ToArray()
+                            Data = memory.ToArray(),
+                            ContentType = model.Icon.ContentType
                         };
                     }
                 }

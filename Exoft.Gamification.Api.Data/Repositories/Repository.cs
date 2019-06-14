@@ -4,6 +4,7 @@ using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data.Repositories
@@ -55,7 +56,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
             DbSet.Remove(entity);
         }
 
-        public async Task<ReturnPagingInfo<T>> GetAllDataAsync(PagingInfo pagingInfo)
+        public virtual async Task<ReturnPagingInfo<T>> GetAllDataAsync(PagingInfo pagingInfo)
         {
             var items = await IncludeAll()
                 .OrderBy(s => s.Id)
