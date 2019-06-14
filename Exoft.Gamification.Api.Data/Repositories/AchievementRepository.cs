@@ -15,10 +15,10 @@ namespace Exoft.Gamification.Api.Data.Repositories
         {
         }
 
-        public async Task<ReturnPagingInfo<Achievement>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid UserId)
+        public async Task<ReturnPagingInfo<Achievement>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid userId)
         {
             var list = Context.UserAchievements
-                .Where(o => o.User.Id == UserId)
+                .Where(o => o.User.Id == userId)
                 .Select(i => i.Achievement)
                 .OrderBy(i => i.XP);
             
@@ -47,7 +47,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
                 .Include(i => i.Icon);
         }
 
-        public async Task<Achievement> DoesUserHaveAchievementAsync(Guid userId, Guid achievementId)
+        public async Task<Achievement> GetSingleUserAchievementAsync(Guid userId, Guid achievementId)
         {
             return await Context.UserAchievements
                 .Where(o => o.User.Id == userId && o.Achievement.Id == achievementId)
