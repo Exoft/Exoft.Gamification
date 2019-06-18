@@ -15,10 +15,10 @@ namespace Exoft.Gamification.Api.Data.Repositories
         {
         }
 
-        public async Task<ReturnPagingInfo<Achievement>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid userId)
+        public async Task<ReturnPagingInfo<Achievement>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid UserId)
         {
             var list = Context.UserAchievements
-                .Where(o => o.User.Id == userId)
+                .Where(o => o.User.Id == UserId)
                 .Select(i => i.Achievement)
                 .OrderBy(i => i.XP);
             
@@ -43,8 +43,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         protected override IQueryable<Achievement> IncludeAll()
         {
-            return DbSet
-                .Include(i => i.Icon);
+            return DbSet;
         }
 
         public async Task<Achievement> GetSingleUserAchievementAsync(Guid userId, Guid achievementId)
@@ -54,6 +53,5 @@ namespace Exoft.Gamification.Api.Data.Repositories
                 .Select(i => i.Achievement)
                 .SingleOrDefaultAsync();
         }
-
     }
 }
