@@ -37,6 +37,26 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.ToTable("Achievements");
                 });
 
+            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Event", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Description");
+
+                    b.Property<string>("Time");
+
+                    b.Property<int>("Type");
+
+                    b.Property<Guid?>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Events");
+                });
+
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.File", b =>
                 {
                     b.Property<Guid>("Id")
@@ -113,6 +133,13 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles");
+                });
+
+            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Event", b =>
+                {
+                    b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.UserAchievements", b =>
