@@ -1,4 +1,5 @@
-﻿using Exoft.Gamification.Api.Common.Models.Achievement;
+﻿using Exoft.Gamification.Api.Common.Models;
+using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;

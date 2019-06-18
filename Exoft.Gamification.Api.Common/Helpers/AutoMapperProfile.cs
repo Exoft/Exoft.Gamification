@@ -19,6 +19,8 @@ namespace Exoft.Gamification.Api.Common.Helpers
             CreateMap<User, ReadShortUserModel>();
 
             CreateMap<User, ReadFullUserModel>();
+            
+            CreateMap<File, FileModel>();
 
 
             // map to entity
