@@ -54,8 +54,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="201">Return created user</responce> 
         /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpPost]
-        // TODO fix
-        public async Task<IActionResult> AddUserAsync([FromForm] CreateUserModel model)
+        public async Task<IActionResult> AddUserAsync([FromBody] CreateUserModel model)
         {
             if(!ModelState.IsValid)
             {
@@ -76,8 +75,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="404">When the user does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [HttpPut("{userId}")]
-        // TODO fix
-        public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateUserModel model, Guid userId)
+        public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserModel model, Guid userId)
         {
             var user = await _userService.GetUserByIdAsync(userId);
             if(user == null)

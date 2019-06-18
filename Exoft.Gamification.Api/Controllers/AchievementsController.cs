@@ -25,7 +25,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of achievements</responce> 
         [HttpGet]
-        public async Task<IActionResult> GetAchievementsAsync([FromQuery] PagingInfo pagingInfo)
+        public async Task<IActionResult> GetAchievementsAsync([FromQuery]PagingInfo pagingInfo)
         {
             var allItems = await _achievementService.GetAllAchievementsAsync(pagingInfo);
 
@@ -54,7 +54,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="200">Return all achievements current user</responce> 
         [HttpGet("{userId}/achievements")]
-        public async Task<IActionResult> GetUserAchievementsAsync([FromQuery] PagingInfo pagingInfo, Guid userId)
+        public async Task<IActionResult> GetUserAchievementsAsync(Guid userId, [FromQuery]PagingInfo pagingInfo)
         {
             var item = await _achievementService.GetAllAchievementsByUserAsync(pagingInfo, userId);
 
@@ -69,7 +69,7 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpGet("{userId}/achievements/{achievementId}")]
         public async Task<IActionResult> GetAchievementByUserAsync(Guid userId, Guid achievementId)
         {
-            var model = await _achievementService.DoesUserHaveAchievement(userId, achievementId);
+            var model = await _achievementService.GetSingleUserAchievementAsync(userId, achievementId);
             if(model == null)
             {
                 return NotFound();

@@ -147,9 +147,9 @@ namespace Exoft.Gamification.Api.Services
             return result;
         }
 
-        public async Task<ReadAchievementModel> DoesUserHaveAchievement(Guid userId, Guid achievementId)
+        public async Task<ReadAchievementModel> GetSingleUserAchievementAsync(Guid userId, Guid achievementId)
         {
-            var achievement = await _achievementRepository.DoesUserHaveAchievementAsync(userId, achievementId);
+            var achievement = await _achievementRepository.GetSingleUserAchievementAsync(userId, achievementId);
             
             return _mapper.Map<ReadAchievementModel>(achievement);
         }
