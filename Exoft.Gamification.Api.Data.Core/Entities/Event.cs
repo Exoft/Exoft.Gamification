@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Exoft.Gamification.Api.Data.Core.Helpers;
+using System;
 
 namespace Exoft.Gamification.Api.Data.Core.Entities
 {
@@ -8,16 +9,8 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
 
         public DateTime Time { get; set; }
 
-        public Types Type { get; set; }
+        public GamificationEnums.Types Type { get; set; }
 
         public User User { get; set; }
-    }
-
-    public enum Types
-    {
-        Race,
-        Records,
-        Challenge,
-        Upload
     }
 }
