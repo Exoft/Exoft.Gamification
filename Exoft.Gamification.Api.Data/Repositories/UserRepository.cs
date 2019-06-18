@@ -49,8 +49,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
                 .Include(s => s.Roles)
                     .ThenInclude(s => s.Role)
                 .Include(s => s.Achievements)
-                    .ThenInclude(s => s.Achievement)
-                .Include(s => s.Avatar);
+                    .ThenInclude(s => s.Achievement);
         }
     }
 }

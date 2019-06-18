@@ -43,8 +43,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         protected override IQueryable<Achievement> IncludeAll()
         {
-            return DbSet
-                .Include(i => i.Icon);
+            return DbSet;
         }
 
         public async Task<Achievement> GetSingleUserAchievementAsync(Guid userId, Guid achievementId)
@@ -54,6 +53,5 @@ namespace Exoft.Gamification.Api.Data.Repositories
                 .Select(i => i.Achievement)
                 .SingleOrDefaultAsync();
         }
-
     }
 }

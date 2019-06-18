@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Exoft.Gamification.Api.Data.Core.Entities
 {
@@ -22,7 +23,7 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
 
         public string Status { get; set; }
 
-        public File Avatar { get; set; }
+        public Guid AvatarId { get; set; }
         
         public int XP { get; set; }
 

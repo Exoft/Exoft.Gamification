@@ -10,18 +10,15 @@ namespace Exoft.Gamification.Api.Common.Helpers
         public AutoMapperProfile()
         {
             // map to model
-            CreateMap<Achievement, ReadAchievementModel>()
-                .ForMember(d => d.IconId, o => o.MapFrom(s => s.Icon.Id));
+            CreateMap<Achievement, ReadAchievementModel>();
 
             CreateMap<CreateAchievementModel, ReadAchievementModel>();
 
             CreateMap<UpdateAchievementModel, ReadAchievementModel>();
 
-            CreateMap<User, ReadShortUserModel>()
-                .ForMember(d => d.AvatarId, o => o.MapFrom(s => s.Avatar.Id));
+            CreateMap<User, ReadShortUserModel>();
 
-            CreateMap<User, ReadFullUserModel>()
-                .ForMember(d => d.AvatarId, o => o.MapFrom(s => s.Avatar.Id));
+            CreateMap<User, ReadFullUserModel>();
 
 
             // map to entity

@@ -16,17 +16,20 @@ namespace Exoft.Gamification.Api.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IFileRepository _fileRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
         public UserService
         (
             IUserRepository userRepository,
+            IFileRepository fileRepository,
             IMapper mapper,
             IUnitOfWork unitOfWork
         )
         {
             _userRepository = userRepository;
+            _fileRepository = fileRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
@@ -90,18 +93,22 @@ namespace Exoft.Gamification.Api.Services
                 {
                     await model.Avatar.CopyToAsync(memory);
 
-                    if(user.Avatar != null)
+                    if(user.AvatarId != Guid.Empty)
                     {
-                        user.Avatar.Data = memory.ToArray();
-                        user.Avatar.ContentType = model.Avatar.ContentType;
+                        var file = await _fileRepository.GetByIdAsync(user.AvatarId);
+                        file.Data = memory.ToArray();
+                        file.ContentType = model.Avatar.ContentType;
+                        _fileRepository.Update(file);
                     }
                     else
                     {
-                        user.Avatar = new File()
+                        var file = new File()
                         {
                             Data = memory.ToArray(),
                             ContentType = model.Avatar.ContentType
                         };
+                        await _fileRepository.AddAsync(file);
+                        user.AvatarId = file.Id;
                     }
                 }
             }

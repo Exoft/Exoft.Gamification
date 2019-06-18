@@ -16,17 +16,20 @@ namespace Exoft.Gamification.Api.Services
     public class AchievementService : IAchievementService
     {
         private readonly IAchievementRepository _achievementRepository;
+        private readonly IFileRepository _fileRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
         public AchievementService
         (
             IAchievementRepository achievementRepository,
+            IFileRepository fileRepository,
             IMapper mapper,
             IUnitOfWork unitOfWork
         )
         {
             _achievementRepository = achievementRepository;
+            _fileRepository = fileRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
@@ -46,11 +49,12 @@ namespace Exoft.Gamification.Api.Services
                 {
                     await model.Icon.CopyToAsync(memory);
 
-                    achievement.Icon = new File()
+                    var file = new File()
                     {
                         Data = memory.ToArray(),
                         ContentType = model.Icon.ContentType
                     };
+                    achievement.IconId = file.Id;
                 }
             }
 
@@ -90,18 +94,21 @@ namespace Exoft.Gamification.Api.Services
                 {
                     await model.Icon.CopyToAsync(memory);
 
-                    if(achievement.Icon != null)
+                    if(achievement.IconId != Guid.Empty)
                     {
-                        achievement.Icon.Data = memory.ToArray();
-                        achievement.Icon.ContentType = model.Icon.ContentType;
+                        var file = await _fileRepository.GetByIdAsync(achievement.IconId);
+                        file.Data = memory.ToArray();
+                        file.ContentType = model.Icon.ContentType;
+                        _fileRepository.Update(file);
                     }
                     else
                     {
-                        achievement.Icon = new File()
+                        var file = new File()
                         {
                             Data = memory.ToArray(),
                             ContentType = model.Icon.ContentType
                         };
+                        achievement.IconId = file.Id;
                     }
                 }
             }
