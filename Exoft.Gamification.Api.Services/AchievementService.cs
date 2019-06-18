@@ -125,7 +125,7 @@ namespace Exoft.Gamification.Api.Services
 
             return result;
         }
-
+        
         public async Task<ReturnPagingInfo<ReadAchievementModel>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid userId)
         {
             var page = await _achievementRepository

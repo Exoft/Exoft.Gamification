@@ -45,10 +45,12 @@ namespace Exoft.Gamification
             var jwtSecret = new JwtSecret(Configuration);
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAchievementService, AchievementService>();
+            services.AddScoped<IFileService, FileService>();
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IAchievementRepository, AchievementRepository>();
+            services.AddTransient<IFileRepository, FileRepository>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

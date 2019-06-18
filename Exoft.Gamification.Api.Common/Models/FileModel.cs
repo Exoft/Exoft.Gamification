@@ -1,6 +1,6 @@
-﻿namespace Exoft.Gamification.Api.Data.Core.Entities
+﻿namespace Exoft.Gamification.Api.Common.Models
 {
-    public class File : Entity
+    public class FileModel
     {
         public string ContentType { get; set; }
 
