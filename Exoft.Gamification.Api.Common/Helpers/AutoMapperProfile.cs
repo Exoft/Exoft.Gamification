@@ -27,7 +27,7 @@ namespace Exoft.Gamification.Api.Common.Helpers
                 .ForMember(s => s.FirstName, o => o.MapFrom(d => d.User.FirstName))
                 .ForMember(s => s.LastName, o => o.MapFrom(d => d.User.LastName))
                 .ForMember(s => s.Type, o => o.MapFrom(d => d.Type.ToString()))
-                .ForMember(s => s.Time, o => o.MapFrom(d => d.Time.ConvertToIso8601DateTimeUtc()));
+                .ForMember(s => s.CreatedTime, o => o.MapFrom(d => d.CreatedTime.ConvertToIso8601DateTimeUtc()));
 
             // map to entity
 

@@ -1,5 +1,4 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Helpers;
-using System;
 using System.Linq;
 
 namespace Exoft.Gamification.Api.Data.Seeds
@@ -53,15 +52,13 @@ namespace Exoft.Gamification.Api.Data.Seeds
             var event1 = new Core.Entities.Event()
             {
                 Description = "First",
-                Time = DateTime.Today,
-                Type = GamificationEnums.Types.Race,
+                Type = GamificationEnums.EventType.Race,
                 User = user1
             };
             var event2 = new Core.Entities.Event()
             {
                 Description = "Second",
-                Time = DateTime.Today,
-                Type = GamificationEnums.Types.Records,
+                Type = GamificationEnums.EventType.Records,
                 User = user1
             };
 

@@ -16,6 +16,10 @@ namespace Exoft.Gamification.Api.Controllers
             _eventService = eventService;
         }
 
+        /// <summary>
+        /// Get paged list of events
+        /// </summary>
+        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of events</responce> 
         [HttpGet]
         public async Task<IActionResult> GetEventsAsync([FromQuery] PagingInfo pagingInfo)
         {

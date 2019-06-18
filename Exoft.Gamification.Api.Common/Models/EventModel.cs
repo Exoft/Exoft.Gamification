@@ -10,6 +10,6 @@
 
         public string Description { get; set; }
 
-        public string Time { get; set; }
+        public string CreatedTime { get; set; }
     }
 }

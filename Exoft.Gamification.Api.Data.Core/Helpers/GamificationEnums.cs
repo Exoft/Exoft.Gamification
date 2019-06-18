@@ -2,7 +2,7 @@
 {
     public class GamificationEnums
     {
-        public enum Types
+        public enum EventType
         {
             Race,
             Records,
