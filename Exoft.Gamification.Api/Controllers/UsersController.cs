@@ -19,19 +19,23 @@ namespace Exoft.Gamification.Api.Controllers
             _userService = userService;
         }
 
+        /// <summary>
+        /// Get paged list of users
+        /// </summary>
+        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of users</responce> 
         [HttpGet]
-        public async Task<IActionResult> GetUsersAsync(int pageNumber = 1, int pageSize = 10)
+        public async Task<IActionResult> GetUsersAsync([FromQuery] PagingInfo pagingInfo)
         {
-            var pagingInfo = new PagingInfo()
-            {
-                CurrentPage = pageNumber,
-                PageSize = pageSize
-            };
             var allItems = await _userService.GetAllUserAsync(pagingInfo);
 
             return Ok(allItems);
         }
 
+        /// <summary>
+        /// Get user by Id
+        /// </summary>
+        /// <responce code="200">Return some user</responce> 
+        /// <responce code="404">When user does not exist</responce> 
         [HttpGet("{userId}", Name = "GetUser")]
         public async Task<IActionResult> GetUserByIdAsync(Guid userId)
         {
@@ -44,6 +48,11 @@ namespace Exoft.Gamification.Api.Controllers
             return Ok(item);
         }
 
+        /// <summary>
+        /// Create a new user
+        /// </summary>
+        /// <responce code="201">Return created user</responce> 
+        /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpPost]
         // TODO fix
         public async Task<IActionResult> AddUserAsync([FromForm] CreateUserModel model)
@@ -60,6 +69,12 @@ namespace Exoft.Gamification.Api.Controllers
                 user);
         }
 
+        /// <summary>
+        /// Update user
+        /// </summary>
+        /// <responce code="200">Return the updated user</responce> 
+        /// <responce code="404">When the user does not exist</responce> 
+        /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [HttpPut("{userId}")]
         // TODO fix
         public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateUserModel model, Guid userId)
@@ -79,6 +94,11 @@ namespace Exoft.Gamification.Api.Controllers
             return Ok(item);
         }
 
+        /// <summary>
+        /// Delete user by Id
+        /// </summary>
+        /// <responce code="204">When the user successful delete</responce>
+        /// <response code="404">When the user does not exist</response>
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUserAsync(Guid userId)
         {
