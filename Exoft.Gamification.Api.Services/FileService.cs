@@ -27,6 +27,6 @@ namespace Exoft.Gamification.Api.Services
             var file = await _fileRepository.GetByIdAsync(Id);
 
             return _mapper.Map<FileModel>(file);
-        }
+        } 
     }
 }
