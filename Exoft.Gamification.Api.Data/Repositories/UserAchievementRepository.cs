@@ -19,7 +19,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
             var list = IncludeAll()
                 .Where(o => o.User.Id == UserId)
                 .Select(i => i)
-                .OrderBy(i => i.Achievement.XP);
+                .OrderByDescending(i => i.AddedTime);
 
             var items = list
                 .Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
