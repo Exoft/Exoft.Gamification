@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using Exoft.Gamification.Api.Data.Core.Helpers;
+using System.Linq;
 
 namespace Exoft.Gamification.Api.Data.Seeds
 {
@@ -47,6 +48,18 @@ namespace Exoft.Gamification.Api.Data.Seeds
             var role2 = new Core.Entities.Role()
             {
                 Name = "User"
+            };
+            var event1 = new Core.Entities.Event()
+            {
+                Description = "First",
+                Type = GamificationEnums.EventType.Race,
+                User = user1
+            };
+            var event2 = new Core.Entities.Event()
+            {
+                Description = "Second",
+                Type = GamificationEnums.EventType.Records,
+                User = user1
             };
 
             if (!context.Users.Any())
@@ -102,6 +115,13 @@ namespace Exoft.Gamification.Api.Data.Seeds
                     User = user2,
                     Role = role2
                 });
+                context.SaveChanges();
+            }
+
+            if(!context.Events.Any())
+            {
+                context.Events.Add(event1);
+                context.Events.Add(event2);
                 context.SaveChanges();
             }
         }

@@ -47,11 +47,13 @@ namespace Exoft.Gamification
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAchievementService, AchievementService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IEventService, EventService>();
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IAchievementRepository, AchievementRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
+            services.AddTransient<IEventRepository, EventRepository>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

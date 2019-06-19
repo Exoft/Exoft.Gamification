@@ -23,6 +23,11 @@ namespace Exoft.Gamification.Api.Common.Helpers
             
             CreateMap<File, FileModel>();
 
+            CreateMap<Event, EventModel>()
+                .ForMember(s => s.FirstName, o => o.MapFrom(d => d.User.FirstName))
+                .ForMember(s => s.LastName, o => o.MapFrom(d => d.User.LastName))
+                .ForMember(s => s.Type, o => o.MapFrom(d => d.Type.ToString()))
+                .ForMember(s => s.CreatedTime, o => o.MapFrom(d => d.CreatedTime.ConvertToIso8601DateTimeUtc()));
 
             // map to entity
 
