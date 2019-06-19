@@ -57,10 +57,17 @@ namespace Exoft.Gamification.Api.Controllers
         /// Remove some achievement into user
         /// </summary>
         /// <responce code="204">When the achievement successful delete</responce>
+        /// <responce code="404">When userAchievements does not exist</responce>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpDelete("{userId}/achievements/{achievementId}")]
         public async Task<IActionResult> DeleteAchievementIntoUser(Guid userAchievementsId)
         {
+            var userAchievements = await _userAchievementsService.GetUserAchievementsByIdAsync(userAchievementsId);
+            if(userAchievements == null)
+            {
+                return NotFound();
+            }
+
             await _userAchievementsService.DeleteAsync(userAchievementsId);
 
             return NoContent();

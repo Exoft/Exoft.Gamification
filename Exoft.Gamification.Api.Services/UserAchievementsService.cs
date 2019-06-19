@@ -91,5 +91,12 @@ namespace Exoft.Gamification.Api.Services
 
             return _mapper.Map<ReadAchievementModel>(userAchievement);
         }
+
+        public async Task<ReadAchievementModel> GetUserAchievementsByIdAsync(Guid userAchievementsId)
+        {
+            var userAchievement = await _userAchievementsRepository.GetByIdAsync(userAchievementsId);
+
+            return _mapper.Map<ReadAchievementModel>(userAchievement);
+        }
     }
 }
