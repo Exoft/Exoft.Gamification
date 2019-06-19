@@ -1,6 +1,6 @@
 ﻿namespace Exoft.Gamification.Api.Data.Core.Entities
 {
-    public class UserAchievements : Entity
+    public class UserAchievement : Entity
     {
         public User User { get; set; }
 

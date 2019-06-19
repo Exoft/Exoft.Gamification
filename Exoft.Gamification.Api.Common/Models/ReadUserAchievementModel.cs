@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Exoft.Gamification.Api.Common.Models.Achievement
+namespace Exoft.Gamification.Api.Common.Models
 {
-    public class ReadAchievementModel
+    public class ReadUserAchievementModel
     {
         public Guid Id { get; set; }
 

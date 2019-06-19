@@ -49,14 +49,14 @@ namespace Exoft.Gamification
             services.AddScoped<IAchievementService, AchievementService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IEventService, EventService>();
-            services.AddScoped<IUserAchievementsService, UserAchievementsService>();
+            services.AddScoped<IUserAchievementService, UserAchievementService>();
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IAchievementRepository, AchievementRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
             services.AddTransient<IEventRepository, EventRepository>();
-            services.AddTransient<IUserAchievementsRepository, UserAchievementsRepository>();
+            services.AddTransient<IUserAchievementRepository, UserAchievementRepository>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -108,9 +108,9 @@ namespace Exoft.Gamification
             {
                 app.UseDeveloperExceptionPage();
 
-                //var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-                //var context = scope.ServiceProvider.GetService<UsersDbContext>();
-                //ContextInitializer.Initialize(context);
+                var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+                var context = scope.ServiceProvider.GetService<UsersDbContext>();
+                ContextInitializer.Initialize(context);
             }
 
             app.UseSwagger();

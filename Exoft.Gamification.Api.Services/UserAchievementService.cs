@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
@@ -11,26 +12,29 @@ using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services
 {
-    public class UserAchievementsService : IUserAchievementsService
+    public class UserAchievementService : IUserAchievementService
     {
         private readonly IUserRepository _userRepository;
         private readonly IAchievementRepository _achievementRepository;
-        private readonly IUserAchievementsRepository _userAchievementsRepository;
+        private readonly IUserAchievementRepository _userAchievementRepository;
+        private readonly IEventRepository _eventRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public UserAchievementsService
+        public UserAchievementService
         (
             IUserRepository userRepository,
             IAchievementRepository achievementRepository,
-            IUserAchievementsRepository userAchievementsRepository,
+            IUserAchievementRepository userAchievementsRepository,
+            IEventRepository eventRepository,
             IUnitOfWork unitOfWork,
             IMapper mapper
         )
         {
             _userRepository = userRepository;
             _achievementRepository = achievementRepository;
-            _userAchievementsRepository = userAchievementsRepository;
+            _userAchievementRepository = userAchievementsRepository;
+            _eventRepository = eventRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
@@ -41,35 +45,43 @@ namespace Exoft.Gamification.Api.Services
 
             var achievement = await _achievementRepository.GetByIdAsync(achievementId);
 
-            var userAchievements = new UserAchievements()
+            var userAchievement = new UserAchievement()
             {
                 User = user,
                 Achievement = achievement
             };
 
-            user.Achievements.Add(userAchievements);
+            user.Achievements.Add(userAchievement);
 
-            await _userAchievementsRepository.AddAsync(userAchievements);
+            await _userAchievementRepository.AddAsync(userAchievement);
+
+            var eventEntity = new Event()
+            {
+                Description = "Got achievement " + achievement.Name,
+                User = user,
+                Type = GamificationEnums.EventType.Records
+            };
+            await _eventRepository.AddAsync(eventEntity);
 
             await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(Guid userAchievementId)
         {
-            var userAchievements = await _userAchievementsRepository.GetByIdAsync(userAchievementId);
+            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementId);
 
-            var user = await _userRepository.GetByIdAsync(userAchievements.User.Id);
+            var user = await _userRepository.GetByIdAsync(userAchievement.User.Id);
             
-            _userAchievementsRepository.Delete(userAchievements);
+            _userAchievementRepository.Delete(userAchievement);
 
-            user.Achievements.Remove(userAchievements);
+            user.Achievements.Remove(userAchievement);
 
             await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<ReturnPagingInfo<ReadAchievementModel>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid userId)
         {
-            var page = await _userAchievementsRepository
+            var page = await _userAchievementRepository
                 .GetAllAchievementsByUserAsync(pagingInfo, userId);
 
             var readAchievementModel = page.Data.Select(i => _mapper.Map<ReadAchievementModel>(i)).ToList();
@@ -87,16 +99,16 @@ namespace Exoft.Gamification.Api.Services
 
         public async Task<ReadAchievementModel> GetSingleUserAchievementAsync(Guid userId, Guid achievementId)
         {
-            var userAchievement = await _userAchievementsRepository.GetSingleUserAchievementAsync(userId, achievementId);
+            var userAchievement = await _userAchievementRepository.GetSingleUserAchievementAsync(userId, achievementId);
 
             return _mapper.Map<ReadAchievementModel>(userAchievement);
         }
 
-        public async Task<ReadAchievementModel> GetUserAchievementsByIdAsync(Guid userAchievementsId)
+        public async Task<ReadUserAchievementModel> GetUserAchievementByIdAsync(Guid userAchievementId)
         {
-            var userAchievement = await _userAchievementsRepository.GetByIdAsync(userAchievementsId);
+            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementId);
 
-            return _mapper.Map<ReadAchievementModel>(userAchievement);
+            return _mapper.Map<ReadUserAchievementModel>(userAchievement);
         }
     }
 }

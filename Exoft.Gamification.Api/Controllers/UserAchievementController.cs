@@ -10,22 +10,22 @@ namespace Exoft.Gamification.Api.Controllers
     [Route("api/users")]
     [Authorize]
     [ApiController]
-    public class UserAchievementsController : GamificationController
+    public class UserAchievementController : GamificationController
     {
         private readonly IUserService _userService;
         private readonly IAchievementService _achievementService;
-        private readonly IUserAchievementsService _userAchievementsService;
+        private readonly IUserAchievementService _userAchievementService;
 
-        public UserAchievementsController
+        public UserAchievementController
         (
             IUserService userService,
             IAchievementService achievementService,
-            IUserAchievementsService userAchievementsService
+            IUserAchievementService userAchievementsService
         )
         {
             _userService = userService;
             _achievementService = achievementService;
-            _userAchievementsService = userAchievementsService;
+            _userAchievementService = userAchievementsService;
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return NotFound();
             }
 
-            await _userAchievementsService.AddAsync(userId, achievementId);
+            await _userAchievementService.AddAsync(userId, achievementId);
             return Ok();
         }
 
@@ -62,13 +62,13 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpDelete("{userId}/achievements/{achievementId}")]
         public async Task<IActionResult> DeleteAchievementIntoUser(Guid userAchievementsId)
         {
-            var userAchievements = await _userAchievementsService.GetUserAchievementsByIdAsync(userAchievementsId);
+            var userAchievements = await _userAchievementService.GetUserAchievementByIdAsync(userAchievementsId);
             if(userAchievements == null)
             {
                 return NotFound();
             }
 
-            await _userAchievementsService.DeleteAsync(userAchievementsId);
+            await _userAchievementService.DeleteAsync(userAchievementsId);
 
             return NoContent();
         }
@@ -80,7 +80,7 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpGet("{userId}/achievements")]
         public async Task<IActionResult> GetUserAchievementsAsync(Guid userId, [FromQuery] PagingInfo pagingInfo)
         {
-            var item = await _userAchievementsService.GetAllAchievementsByUserAsync(pagingInfo, userId);
+            var item = await _userAchievementService.GetAllAchievementsByUserAsync(pagingInfo, userId);
 
             return Ok(item);
         }
@@ -93,7 +93,7 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpGet("{userId}/achievements/{achievementId}")]
         public async Task<IActionResult> GetAchievementByUserAsync(Guid userId, Guid achievementId)
         {
-            var model = await _userAchievementsService.GetSingleUserAchievementAsync(userId, achievementId);
+            var model = await _userAchievementService.GetSingleUserAchievementAsync(userId, achievementId);
             if (model == null)
             {
                 return NotFound();

@@ -5,9 +5,9 @@ using System;
 
 namespace Exoft.Gamification.Api.Data.Configurations
 {
-    public class UserAchievementsConfiguration : IEntityTypeConfiguration<UserAchievements>
+    public class UserAchievementConfiguration : IEntityTypeConfiguration<UserAchievement>
     {
-        public void Configure(EntityTypeBuilder<UserAchievements> builder)
+        public void Configure(EntityTypeBuilder<UserAchievement> builder)
         {
             builder.Property<Guid>("UserId");
             builder.Property<Guid>("AchievementId");

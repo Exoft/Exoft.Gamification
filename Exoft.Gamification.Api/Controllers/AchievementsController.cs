@@ -66,7 +66,7 @@ namespace Exoft.Gamification.Api.Controllers
             
             return CreatedAtRoute(
                 "GetAchievement",
-                new { achievementId = achievement.AchievementId },
+                new { achievementId = achievement.Id },
                 achievement);
         }
 

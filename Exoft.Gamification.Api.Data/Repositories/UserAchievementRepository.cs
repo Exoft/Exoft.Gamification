@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data.Repositories
 {
-    public class UserAchievementsRepository : Repository<UserAchievements>, IUserAchievementsRepository
+    public class UserAchievementRepository : Repository<UserAchievement>, IUserAchievementRepository
     {
-        public UserAchievementsRepository(UsersDbContext context) : base(context)
+        public UserAchievementRepository(UsersDbContext context) : base(context)
         {
         }
 
-        public async Task<ReturnPagingInfo<UserAchievements>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid UserId)
+        public async Task<ReturnPagingInfo<UserAchievement>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid UserId)
         {
             var list = IncludeAll()
                 .Where(o => o.User.Id == UserId)
@@ -28,7 +28,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
             int listCount = await list.CountAsync();
 
-            var result = new ReturnPagingInfo<UserAchievements>()
+            var result = new ReturnPagingInfo<UserAchievement>()
             {
                 CurrentPage = pagingInfo.CurrentPage,
                 PageSize = items.Count,
@@ -40,7 +40,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
             return result;
         }
 
-        public async Task<UserAchievements> GetSingleUserAchievementAsync(Guid userId, Guid achievementId)
+        public async Task<UserAchievement> GetSingleUserAchievementAsync(Guid userId, Guid achievementId)
         {
             return await IncludeAll()
                 .Where(o => o.User.Id == userId && o.Achievement.Id == achievementId)
@@ -48,7 +48,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
                 .SingleOrDefaultAsync();
         }
 
-        protected override IQueryable<UserAchievements> IncludeAll()
+        protected override IQueryable<UserAchievement> IncludeAll()
         {
             return DbSet
                 .Include(i => i.Achievement)
