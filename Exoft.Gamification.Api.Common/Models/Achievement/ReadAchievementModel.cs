@@ -4,7 +4,9 @@ namespace Exoft.Gamification.Api.Common.Models.Achievement
 {
     public class ReadAchievementModel
     {
-        public Guid Id { get; set; }
+        public Guid UserAchievementsId { get; set; }
+
+        public Guid AchievementId { get; set; }
 
         public string Name { get; set; }
 

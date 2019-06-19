@@ -12,7 +12,7 @@ namespace Exoft.Gamification.Api.Data.Configurations
             builder.Property<Guid>("UserId");
             builder.Property<Guid>("AchievementId");
 
-            builder.HasKey("UserId", "AchievementId");
+            builder.HasKey("Id");
             builder.HasOne(ua => ua.User).WithMany(u => u.Achievements);
 
             builder.HasOne(ua => ua.Achievement).WithMany();

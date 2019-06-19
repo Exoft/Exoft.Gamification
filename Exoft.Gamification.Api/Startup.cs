@@ -18,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
+using System.Collections.Generic;
 
 namespace Exoft.Gamification
 {
@@ -48,12 +49,14 @@ namespace Exoft.Gamification
             services.AddScoped<IAchievementService, AchievementService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IEventService, EventService>();
+            services.AddScoped<IUserAchievementsService, UserAchievementsService>();
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IAchievementRepository, AchievementRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
             services.AddTransient<IEventRepository, EventRepository>();
+            services.AddTransient<IUserAchievementsRepository, UserAchievementsRepository>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -77,9 +80,24 @@ namespace Exoft.Gamification
                 };
             });
 
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Gamification", Version = "0.0.0.1" });
+                
+                var security = new Dictionary<string, IEnumerable<string>>
+                {
+                    {"Bearer", new string[] { }},
+                };
+
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Description = "Example: \"Bearer {token}\"",
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
+                c.AddSecurityRequirement(security);
             });
         }
 

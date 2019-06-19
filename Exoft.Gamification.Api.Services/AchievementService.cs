@@ -135,30 +135,5 @@ namespace Exoft.Gamification.Api.Services
 
             return result;
         }
-        
-        public async Task<ReturnPagingInfo<ReadAchievementModel>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid userId)
-        {
-            var page = await _achievementRepository
-                .GetAllAchievementsByUserAsync(pagingInfo, userId);
-
-            var readAchievementModel = page.Data.Select(i => _mapper.Map<ReadAchievementModel>(i)).ToList();
-            var result = new ReturnPagingInfo<ReadAchievementModel>()
-            {
-                CurrentPage = page.CurrentPage,
-                PageSize = page.PageSize,
-                TotalItems = page.TotalItems,
-                TotalPages = page.TotalPages,
-                Data = readAchievementModel
-            };
-
-            return result;
-        }
-
-        public async Task<ReadAchievementModel> GetSingleUserAchievementAsync(Guid userId, Guid achievementId)
-        {
-            var achievement = await _achievementRepository.GetSingleUserAchievementAsync(userId, achievementId);
-            
-            return _mapper.Map<ReadAchievementModel>(achievement);
-        }
     }
 }

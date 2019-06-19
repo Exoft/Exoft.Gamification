@@ -51,35 +51,6 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         /// <summary>
-        /// Get paged list of achievements current user
-        /// </summary>
-        /// <responce code="200">Return all achievements current user</responce> 
-        [HttpGet("{userId}/achievements")]
-        public async Task<IActionResult> GetUserAchievementsAsync(Guid userId, [FromQuery] PagingInfo pagingInfo)
-        {
-            var item = await _achievementService.GetAllAchievementsByUserAsync(pagingInfo, userId);
-
-            return Ok(item);
-        }
-
-        /// <summary>
-        /// Get some achievements current user
-        /// </summary>
-        /// <responce code="200">Return some achievement current user</responce> 
-        /// <responce code="404">When the achievement does not exist</responce> 
-        [HttpGet("{userId}/achievements/{achievementId}")]
-        public async Task<IActionResult> GetAchievementByUserAsync(Guid userId, Guid achievementId)
-        {
-            var model = await _achievementService.GetSingleUserAchievementAsync(userId, achievementId);
-            if(model == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-
-        /// <summary>
         /// Create a new achievement
         /// </summary>
         /// <response code="201">Return created achievement</response>
@@ -95,7 +66,7 @@ namespace Exoft.Gamification.Api.Controllers
             
             return CreatedAtRoute(
                 "GetAchievement",
-                new { achievementId = achievement.Id },
+                new { achievementId = achievement.AchievementId },
                 achievement);
         }
 
