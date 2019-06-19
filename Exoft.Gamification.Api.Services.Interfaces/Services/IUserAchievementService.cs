@@ -8,7 +8,7 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Services
 {
     public interface IUserAchievementService
     {
-        Task AddAsync(Guid userId, Guid achievementId);
+        Task AddAsync(Guid userId, Guid achievementId, string comment);
         Task DeleteAsync(Guid userAchievementsId);
         Task<ReadUserAchievementModel> GetUserAchievementByIdAsync(Guid userAchievementsId);
         Task<ReadUserAchievementModel> GetSingleUserAchievementAsync(Guid userId, Guid achievementId);

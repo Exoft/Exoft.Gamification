@@ -88,17 +88,20 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 context.UserAchievement.Add(new Core.Entities.UserAchievement()
                 {
                     User = user1,
-                    Achievement = achievement1
+                    Achievement = achievement1,
+                    Comment = "Some text"
                 });
                 context.UserAchievement.Add(new Core.Entities.UserAchievement()
                 {
                     User = user2,
-                    Achievement = achievement1
+                    Achievement = achievement1,
+                    Comment = "Some text"
                 });
                 context.UserAchievement.Add(new Core.Entities.UserAchievement()
                 {
                     User = user2,
-                    Achievement = achievement2
+                    Achievement = achievement2,
+                    Comment = "Some text"
                 });
                 context.SaveChanges();
             }

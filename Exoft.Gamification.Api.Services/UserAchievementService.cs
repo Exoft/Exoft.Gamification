@@ -8,6 +8,7 @@ using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services
@@ -39,7 +40,7 @@ namespace Exoft.Gamification.Api.Services
             _mapper = mapper;
         }
 
-        public async Task AddAsync(Guid userId, Guid achievementId)
+        public async Task AddAsync(Guid userId, Guid achievementId, string comment)
         {
             var user = await _userRepository.GetByIdAsync(userId);
 
@@ -48,16 +49,20 @@ namespace Exoft.Gamification.Api.Services
             var userAchievement = new UserAchievement()
             {
                 User = user,
-                Achievement = achievement
+                Achievement = achievement,
+                Comment = comment
             };
 
             user.Achievements.Add(userAchievement);
 
             await _userAchievementRepository.AddAsync(userAchievement);
 
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("Got achievement ");
+            stringBuilder.Append(achievement.Name);
             var eventEntity = new Event()
             {
-                Description = "Got achievement " + achievement.Name,
+                Description = stringBuilder.ToString(),
                 User = user,
                 Type = GamificationEnums.EventType.Records
             };

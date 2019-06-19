@@ -35,7 +35,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="404">When the achievement or user does not exist</responce> 
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost("{userId}/achievements/")]
-        public async Task<IActionResult> AddAchievementToUser([FromQuery] Guid achievementId, Guid userId)
+        public async Task<IActionResult> AddAchievementToUser([FromQuery] Guid achievementId, Guid userId, string comment)
         {
             var user = await _userService.GetFullUserByIdAsync(userId);
             if (user == null)
@@ -49,7 +49,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return NotFound();
             }
 
-            await _userAchievementService.AddAsync(userId, achievementId);
+            await _userAchievementService.AddAsync(userId, achievementId, comment);
             return Ok();
         }
 
