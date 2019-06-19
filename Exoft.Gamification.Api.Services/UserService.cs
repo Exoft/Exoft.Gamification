@@ -71,11 +71,18 @@ namespace Exoft.Gamification.Api.Services
             return result;
         }
 
-        public async Task<ReadFullUserModel> GetUserByIdAsync(Guid Id)
+        public async Task<ReadFullUserModel> GetFullUserByIdAsync(Guid Id)
         {
             var user = await _userRepository.GetByIdAsync(Id);
 
             return _mapper.Map<ReadFullUserModel>(user);
+        }
+
+        public async Task<ReadShortUserModel> GetShortUserByIdAsync(Guid Id)
+        {
+            var user = await _userRepository.GetByIdAsync(Id);
+
+            return _mapper.Map<ReadShortUserModel>(user);
         }
 
         public async Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid Id)

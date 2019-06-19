@@ -26,19 +26,13 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpGet("current-user-info")]
         public async Task<IActionResult> GetCurrentUserInfo()
         {
-            var user = await _userService.GetUserByIdAsync(UserId);
+            var user = await _userService.GetShortUserByIdAsync(UserId);
             if(user == null)
             {
                 return NotFound();
             }
 
-            return Ok(new
-            {
-                user.FirstName,
-                user.LastName,
-                user.AvatarId,
-                user.XP
-            });
+            return Ok(user);
         }
 
         /// <summary>
@@ -49,7 +43,7 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpGet("current-user")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var user = await _userService.GetUserByIdAsync(UserId);
+            var user = await _userService.GetFullUserByIdAsync(UserId);
             if (user == null)
             {
                 return NotFound();
@@ -72,7 +66,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity();
             }
 
-            var user = await _userService.GetUserByIdAsync(UserId);
+            var user = await _userService.GetFullUserByIdAsync(UserId);
             if(user == null)
             {
                 return NotFound();

@@ -40,7 +40,7 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpGet("{userId}", Name = "GetUser")]
         public async Task<IActionResult> GetUserByIdAsync(Guid userId)
         {
-            var item = await _userService.GetUserByIdAsync(userId);
+            var item = await _userService.GetFullUserByIdAsync(userId);
             if(item == null)
             {
                 return NotFound();
@@ -83,7 +83,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var user = await _userService.GetUserByIdAsync(userId);
+            var user = await _userService.GetFullUserByIdAsync(userId);
             if(user == null)
             {
                 return NotFound();
@@ -102,7 +102,7 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUserAsync(Guid userId)
         {
-            var user = await _userService.GetUserByIdAsync(userId);
+            var user = await _userService.GetFullUserByIdAsync(userId);
             if(user == null)
             {
                 return NotFound();
