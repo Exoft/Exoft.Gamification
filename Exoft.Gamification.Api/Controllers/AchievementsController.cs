@@ -1,7 +1,7 @@
-﻿using Exoft.Gamification.Api.Common.Models;
-using Exoft.Gamification.Api.Common.Models.Achievement;
+﻿using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Exoft.Gamification.Api.Controllers
 {
     [Route("api/achievements")]
-    //[Authorize]
+    [Authorize]
     [ApiController]
     public class AchievementsController : GamificationController
     {
@@ -26,7 +26,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of achievements</responce> 
         [HttpGet]
-        public async Task<IActionResult> GetAchievementsAsync([FromQuery]PagingInfo pagingInfo)
+        public async Task<IActionResult> GetAchievementsAsync([FromQuery] PagingInfo pagingInfo)
         {
             var allItems = await _achievementService.GetAllAchievementsAsync(pagingInfo);
 
@@ -55,7 +55,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="200">Return all achievements current user</responce> 
         [HttpGet("{userId}/achievements")]
-        public async Task<IActionResult> GetUserAchievementsAsync(Guid userId, [FromQuery]PagingInfo pagingInfo)
+        public async Task<IActionResult> GetUserAchievementsAsync(Guid userId, [FromQuery] PagingInfo pagingInfo)
         {
             var item = await _achievementService.GetAllAchievementsByUserAsync(pagingInfo, userId);
 

@@ -1,6 +1,7 @@
 ﻿using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 namespace Exoft.Gamification.Api.Controllers
 {
     [Route("api/users")]
-    //[Authorize]
+    [Authorize]
     [ApiController]
     public class UsersController : GamificationController
     {
@@ -39,7 +40,7 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpGet("{userId}", Name = "GetUser")]
         public async Task<IActionResult> GetUserByIdAsync(Guid userId)
         {
-            var item = await _userService.GetUserByIdAsync(userId);
+            var item = await _userService.GetFullUserByIdAsync(userId);
             if(item == null)
             {
                 return NotFound();
@@ -54,7 +55,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="201">Return created user</responce> 
         /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpPost]
-        public async Task<IActionResult> AddUserAsync([FromForm] CreateUserModel model)
+        public async Task<IActionResult> AddUserAsync([FromBody] CreateUserModel model)
         {
             if(!ModelState.IsValid)
             {
@@ -75,14 +76,14 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="404">When the user does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateUserModel model, Guid userId)
+        public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserModel model, Guid userId)
         {
             if(!ModelState.IsValid)
             {
                 return UnprocessableEntity(ModelState);
             }
 
-            var user = await _userService.GetUserByIdAsync(userId);
+            var user = await _userService.GetFullUserByIdAsync(userId);
             if(user == null)
             {
                 return NotFound();
@@ -101,7 +102,7 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUserAsync(Guid userId)
         {
-            var user = await _userService.GetUserByIdAsync(userId);
+            var user = await _userService.GetFullUserByIdAsync(userId);
             if(user == null)
             {
                 return NotFound();
