@@ -6,7 +6,7 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
     {
         public UserAchievement()
         {
-            AddedTime = DateTime.Now;   
+            AddedTime = DateTime.UtcNow;
         }
 
         public User User { get; set; }
