@@ -3,5 +3,7 @@
     public interface IJwtSecret
     {
         byte[] Secret { get; }
+        string ExpireToken { get; }
+        string ExpireRefreshToken { get; }
     }
 }

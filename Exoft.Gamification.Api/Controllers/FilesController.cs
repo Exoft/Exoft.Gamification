@@ -17,7 +17,7 @@ namespace Exoft.Gamification.Api.Controllers
         {
             _fileService = fileService;
         }
-
+        
         [HttpGet("{fileId}")]
         public async Task<IActionResult> GetFile(Guid fileId)
         {

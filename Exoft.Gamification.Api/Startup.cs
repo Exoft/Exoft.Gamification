@@ -43,13 +43,18 @@ namespace Exoft.Gamification
 
             // configure DI for application services
             var jwtSecret = new JwtSecret(Configuration);
+            services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+            // services
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAchievementService, AchievementService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IEventService, EventService>();
-            services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+            // repositories
+            services.AddTransient<IAuthRepository, AuthRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IAchievementRepository, AchievementRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
@@ -73,7 +78,8 @@ namespace Exoft.Gamification
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(jwtSecret.Secret),
                     ValidateIssuer = false,
-                    ValidateAudience = false
+                    ValidateAudience = false,
+                    ValidateLifetime = true
                 };
             });
 

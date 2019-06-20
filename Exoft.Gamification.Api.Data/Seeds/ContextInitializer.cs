@@ -15,7 +15,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 LastName = "Roik",
                 Email = "ostap2308@gmail.com",
                 UserName = "OstapRoik",
-                Password = "password",
+                Password = "password".GetMD5Hash(),
                 Status = "Status bla bla bla",
                 XP = 10
             };
@@ -25,7 +25,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 LastName = "Gogina",
                 Email = "tanya@gmail.com",
                 UserName = "TanyaGogina",
-                Password = "password",
+                Password = "password".GetMD5Hash(),
                 Status = "Status 123",
                 XP = 40
             };

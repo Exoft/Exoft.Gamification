@@ -14,6 +14,12 @@ namespace Exoft.Gamification.Api.Data.Repositories
         {
         }
 
+        public override Task AddAsync(User entity)
+        {
+            entity.Password = entity.Password.GetMD5Hash();
+            return base.AddAsync(entity);
+        }
+
         public override async Task<ReturnPagingInfo<User>> GetAllDataAsync(PagingInfo pagingInfo)
         {
             var items = await IncludeAll()
