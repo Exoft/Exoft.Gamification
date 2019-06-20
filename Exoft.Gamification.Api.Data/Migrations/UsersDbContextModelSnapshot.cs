@@ -118,8 +118,6 @@ namespace Exoft.Gamification.Api.Data.Migrations
 
                     b.Property<DateTime>("AddedTime");
 
-                    b.Property<string>("Comment");
-
                     b.Property<Guid>("UserId");
 
                     b.HasKey("Id");

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Models;
-using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
@@ -40,7 +39,7 @@ namespace Exoft.Gamification.Api.Services
             _mapper = mapper;
         }
 
-        public async Task AddAsync(Guid userId, Guid achievementId, string comment)
+        public async Task AddAsync(Guid userId, Guid achievementId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
 
@@ -49,8 +48,7 @@ namespace Exoft.Gamification.Api.Services
             var userAchievement = new UserAchievement()
             {
                 User = user,
-                Achievement = achievement,
-                Comment = comment
+                Achievement = achievement
             };
 
             user.Achievements.Add(userAchievement);

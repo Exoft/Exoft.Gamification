@@ -14,7 +14,5 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
         public Achievement Achievement { get; set; }
 
         public DateTime AddedTime { get; private set; }
-
-        public string Comment { get; set; }
     }
 }
