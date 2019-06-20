@@ -83,19 +83,19 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 context.SaveChanges();
             }
 
-            if (!context.UserAchievements.Any())
+            if (!context.UserAchievement.Any())
             {
-                context.UserAchievements.Add(new Core.Entities.UserAchievements()
+                context.UserAchievement.Add(new Core.Entities.UserAchievement()
                 {
                     User = user1,
                     Achievement = achievement1
                 });
-                context.UserAchievements.Add(new Core.Entities.UserAchievements()
+                context.UserAchievement.Add(new Core.Entities.UserAchievement()
                 {
                     User = user2,
                     Achievement = achievement1
                 });
-                context.UserAchievements.Add(new Core.Entities.UserAchievements()
+                context.UserAchievement.Add(new Core.Entities.UserAchievement()
                 {
                     User = user2,
                     Achievement = achievement2

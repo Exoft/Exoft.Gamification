@@ -7,7 +7,7 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
     {
         public Event()
         {
-            CreatedTime = DateTime.Now;
+            CreatedTime = DateTime.UtcNow;
         }
 
         public string Description { get; set; }

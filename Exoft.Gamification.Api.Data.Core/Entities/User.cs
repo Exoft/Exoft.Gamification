@@ -7,7 +7,7 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
     {
         public User()
         {
-            Achievements = new List<UserAchievements>();
+            Achievements = new List<UserAchievement>();
             Roles = new List<UserRoles>();
         }
 
@@ -29,6 +29,6 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
 
         public ICollection<UserRoles> Roles { get; set; }
 
-        public ICollection<UserAchievements> Achievements { get; set; }
+        public ICollection<UserAchievement> Achievements { get; set; }
     }
 }

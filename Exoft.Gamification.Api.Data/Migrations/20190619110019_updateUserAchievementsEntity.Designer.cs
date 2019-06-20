@@ -4,14 +4,16 @@ using Exoft.Gamification.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Exoft.Gamification.Api.Data.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    partial class UsersDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190619110019_updateUserAchievementsEntity")]
+    partial class updateUserAchievementsEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -109,24 +111,19 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.UserAchievement", b =>
+            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.UserAchievements", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
+                    b.Property<Guid>("UserId");
 
                     b.Property<Guid>("AchievementId");
 
-                    b.Property<DateTime>("AddedTime");
+                    b.Property<Guid>("Id");
 
-                    b.Property<Guid>("UserId");
-
-                    b.HasKey("Id");
+                    b.HasKey("UserId", "AchievementId");
 
                     b.HasIndex("AchievementId");
 
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserAchievement");
+                    b.ToTable("UserAchievements");
                 });
 
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.UserRoles", b =>
@@ -149,7 +146,7 @@ namespace Exoft.Gamification.Api.Data.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.UserAchievement", b =>
+            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.UserAchievements", b =>
                 {
                     b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.Achievement", "Achievement")
                         .WithMany()
