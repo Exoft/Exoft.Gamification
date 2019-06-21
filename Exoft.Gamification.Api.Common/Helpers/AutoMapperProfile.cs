@@ -44,6 +44,8 @@ namespace Exoft.Gamification.Api.Common.Helpers
                 .ForMember(s => s.Type, o => o.MapFrom(d => d.Type.ToString()))
                 .ForMember(s => s.CreatedTime, o => o.MapFrom(d => d.CreatedTime.ConvertToIso8601DateTimeUtc()));
 
+            CreateMap<User, JwtTokenModel>();
+
             // map to entity
 
             CreateMap<UpdateAchievementModel, Achievement>();

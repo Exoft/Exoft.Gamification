@@ -1,4 +1,5 @@
-﻿using Exoft.Gamification.Api.Common.Helpers;
+﻿using AutoMapper;
+using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
@@ -15,15 +16,18 @@ namespace Exoft.Gamification.Api.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IJwtSecret _jwtSecret;
+        private readonly IMapper _mapper;
 
         public AuthService
         (
             IUserRepository userRepository,
-            IJwtSecret jwtSecret
+            IJwtSecret jwtSecret,
+            IMapper mapper
         )
         {
             _userRepository = userRepository;
             _jwtSecret = jwtSecret;
+            _mapper = mapper;
         }
 
         public async Task<JwtTokenModel> Authenticate(string userName, string password)
@@ -61,11 +65,10 @@ namespace Exoft.Gamification.Api.Services
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
+            var jwtTokenModel = _mapper.Map<JwtTokenModel>(userEntity);
+            jwtTokenModel.Token = tokenHandler.WriteToken(token);
 
-            return new JwtTokenModel
-            {
-                Token = tokenHandler.WriteToken(token)
-            };
+            return jwtTokenModel;
         }
     }
 }
