@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
 {
-    [Authorize]
     [Route("api/authenticate")]
+    [Authorize]
     [ApiController]
     public class AuthController : GamificationController
     {

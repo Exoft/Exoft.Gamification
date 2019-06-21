@@ -17,6 +17,7 @@ namespace Exoft.Gamification.Api.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IFileRepository _fileRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
@@ -24,12 +25,14 @@ namespace Exoft.Gamification.Api.Services
         (
             IUserRepository userRepository,
             IFileRepository fileRepository,
+            IRoleRepository roleRepository,
             IMapper mapper,
             IUnitOfWork unitOfWork
         )
         {
             _userRepository = userRepository;
             _fileRepository = fileRepository;
+            _roleRepository = roleRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
@@ -37,6 +40,16 @@ namespace Exoft.Gamification.Api.Services
         public async Task<ReadFullUserModel> AddUserAsync(CreateUserModel model)
         {
             var user = _mapper.Map<User>(model);
+
+            var role = await _roleRepository.GetRoleByNameAsync(model.Role);
+
+            var userRole = new UserRoles()
+            {
+                Role = role,
+                User = user
+            };
+
+            user.Roles.Add(userRole);
 
             await _userRepository.AddAsync(user);
 
@@ -93,6 +106,17 @@ namespace Exoft.Gamification.Api.Services
             user.LastName = model.LastName;
             user.Status = model.Status;
             user.Email = model.Email;
+
+            var role = await _roleRepository.GetRoleByNameAsync(model.Role);
+
+            var userRole = new UserRoles()
+            {
+                Role = role,
+                User = user
+            };
+
+            user.Roles.Clear();
+            user.Roles.Add(userRole);
 
             if (model.Avatar != null)
             {
