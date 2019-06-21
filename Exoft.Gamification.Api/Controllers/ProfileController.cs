@@ -1,7 +1,9 @@
 ﻿using Exoft.Gamification.Api.Common.Models.User;
+using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
@@ -12,10 +14,16 @@ namespace Exoft.Gamification.Api.Controllers
     public class ProfileController : GamificationController
     {
         private readonly IUserService _userService;
+        private readonly IUserAchievementService _userAchievementService;
 
-        public ProfileController(IUserService userService)
+        public ProfileController
+        (
+            IUserService userService,
+            IUserAchievementService userAchievementService
+        )
         {
             _userService = userService;
+            _userAchievementService = userAchievementService;
         }
 
         /// <summary>
@@ -75,6 +83,18 @@ namespace Exoft.Gamification.Api.Controllers
             var newUser = await _userService.UpdateUserAsync(model, UserId);
 
             return Ok(newUser);
+        }
+
+        /// <summary>
+        /// Get paged list of achievements current user
+        /// </summary>
+        /// <responce code="200">Return all achievements current user</responce> 
+        [HttpGet("current-user/achievements")]
+        public async Task<IActionResult> GetUserAchievementsAsync([FromQuery] PagingInfo pagingInfo)
+        {
+            var item = await _userAchievementService.GetAllAchievementsByUserAsync(pagingInfo, UserId);
+
+            return Ok(item);
         }
     }
 }
