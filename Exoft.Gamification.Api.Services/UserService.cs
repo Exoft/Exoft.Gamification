@@ -103,9 +103,7 @@ namespace Exoft.Gamification.Api.Services
                     if(user.AvatarId != Guid.Empty)
                     {
                         var file = await _fileRepository.GetByIdAsync(user.AvatarId);
-                        file.Data = memory.ToArray();
-                        file.ContentType = model.Avatar.ContentType;
-                        _fileRepository.Update(file);
+                        _fileRepository.Delete(file);
                     }
                     else
                     {

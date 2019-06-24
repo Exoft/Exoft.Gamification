@@ -56,7 +56,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="201">Return created achievement</response>
         /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpPost]
-        public async Task<IActionResult> AddAchievementAsync([FromBody] CreateAchievementModel model)
+        public async Task<IActionResult> AddAchievementAsync([FromForm] CreateAchievementModel model)
         {
             if(!ModelState.IsValid)
             {
@@ -77,7 +77,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="404">When the achievement does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [HttpPut("{achievementId}")]
-        public async Task<IActionResult> UpdateAchievementAsync([FromBody] UpdateAchievementModel model, Guid achievementId)
+        public async Task<IActionResult> UpdateAchievementAsync([FromForm] UpdateAchievementModel model, Guid achievementId)
         {
             var achievement = await _achievementService.GetAchievementByIdAsync(achievementId);
             if(achievement == null)
