@@ -22,14 +22,14 @@ namespace Exoft.Gamification.Api.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class ErrorMessages {
+    public class ValidatorMessages {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal ErrorMessages() {
+        internal ValidatorMessages() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Exoft.Gamification.Api.Resources {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Exoft.Gamification.Api.Resources.ErrorMessages", typeof(ErrorMessages).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Exoft.Gamification.Api.Resources.ValidatorMessages", typeof(ValidatorMessages).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -99,18 +99,18 @@ namespace Exoft.Gamification.Api.Resources {
         /// <summary>
         ///   Looks up a localized string similar to The length of {PropertyName} must be {MaxLength} chars or fewer.
         /// </summary>
-        public static string ToLong {
+        public static string TooLong {
             get {
-                return ResourceManager.GetString("ToLong", resourceCulture);
+                return ResourceManager.GetString("TooLong", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to The length of {PropertyName} must be {MinLength} chars or more.
         /// </summary>
-        public static string ToShort {
+        public static string TooShort {
             get {
-                return ResourceManager.GetString("ToShort", resourceCulture);
+                return ResourceManager.GetString("TooShort", resourceCulture);
             }
         }
         

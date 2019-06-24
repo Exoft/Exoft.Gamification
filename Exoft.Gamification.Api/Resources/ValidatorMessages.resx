@@ -129,10 +129,10 @@
   <data name="PasswordUpperCaseLetter" xml:space="preserve">
     <value>Password must contains upper case letter</value>
   </data>
-  <data name="ToLong" xml:space="preserve">
+  <data name="TooLong" xml:space="preserve">
     <value>The length of {PropertyName} must be {MaxLength} chars or fewer</value>
   </data>
-  <data name="ToShort" xml:space="preserve">
+  <data name="TooShort" xml:space="preserve">
     <value>The length of {PropertyName} must be {MinLength} chars or more</value>
   </data>
   <data name="UniqueEmail" xml:space="preserve">

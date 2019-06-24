@@ -1,6 +1,8 @@
 ﻿using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
+using Exoft.Gamification.Api.Resources;
 using FluentValidation;
+using Microsoft.Extensions.Localization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,46 +12,49 @@ namespace Exoft.Gamification.Api.Validators
     {
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IStringLocalizer<ValidatorMessages> _stringLocalizer;
 
         public CreateUserModelValidator
         (
             IUserRepository userRepository,
-            IRoleRepository roleRepository
+            IRoleRepository roleRepository,
+            IStringLocalizer<ValidatorMessages> stringLocalizer
         )
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
+            _stringLocalizer = stringLocalizer;
 
             RuleFor(user => user.FirstName)
-                .NotEmpty().WithMessage(Resources.ErrorMessages.EmptyField)
-                .MaximumLength(32).WithMessage(Resources.ErrorMessages.ToLong);
+                .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
+                .MaximumLength(32).WithMessage(_stringLocalizer["TooLong"]);
 
             RuleFor(user => user.LastName)
-                .NotEmpty().WithMessage(Resources.ErrorMessages.EmptyField)
-                .MaximumLength(32).WithMessage(Resources.ErrorMessages.ToLong);
+                .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
+                .MaximumLength(32).WithMessage(_stringLocalizer["TooLong"]);
 
             RuleFor(user => user.Email)
-                .NotEmpty().WithMessage(Resources.ErrorMessages.EmptyField)
-                .MaximumLength(250).WithMessage(Resources.ErrorMessages.ToLong)
-                .EmailAddress().WithMessage(Resources.ErrorMessages.WrongEmail)
-                .MustAsync(CheckEmailAsync).WithMessage(Resources.ErrorMessages.UniqueEmail);
+                .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
+                .MaximumLength(250).WithMessage(_stringLocalizer["TooLong"])
+                .EmailAddress().WithMessage(_stringLocalizer["WrongEmail"])
+                .MustAsync(CheckEmailAsync).WithMessage(_stringLocalizer["UniqueEmail"]);
 
             RuleFor(user => user.Password)
-                .NotEmpty().WithMessage(Resources.ErrorMessages.EmptyField)
-                .MinimumLength(8).WithMessage(Resources.ErrorMessages.ToShort)
-                .MaximumLength(32).WithMessage(Resources.ErrorMessages.ToLong)
-                .Matches("[A-Z]").WithMessage(Resources.ErrorMessages.PasswordUpperCaseLetter)
-                .Matches("[a-z]").WithMessage(Resources.ErrorMessages.PasswordLowerCaseLetter)
-                .Matches("[0-9]").WithMessage(Resources.ErrorMessages.PasswordDigit);
+                .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
+                .MinimumLength(8).WithMessage(_stringLocalizer["TooShort"])
+                .MaximumLength(32).WithMessage(_stringLocalizer["TooLong"])
+                .Matches("[A-Z]").WithMessage(_stringLocalizer["PasswordUpperCaseLetter"])
+                .Matches("[a-z]").WithMessage(_stringLocalizer["PasswordLowerCaseLetter"])
+                .Matches("[0-9]").WithMessage(_stringLocalizer["PasswordDigit"]);
 
             RuleFor(user => user.Role)
-                .NotEmpty().WithMessage(Resources.ErrorMessages.EmptyField)
-                .MustAsync(CheckRoleAsync).WithMessage(Resources.ErrorMessages.WrongRole);
+                .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
+                .MustAsync(CheckRoleAsync).WithMessage(_stringLocalizer["WrongRole"]);
 
             RuleFor(user => user.UserName)
-                .NotEmpty().WithMessage(Resources.ErrorMessages.EmptyField)
-                .MaximumLength(32).WithMessage(Resources.ErrorMessages.ToLong)
-                .MustAsync(CheckUserNameAsync).WithMessage(Resources.ErrorMessages.UniqueUserName);
+                .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
+                .MaximumLength(32).WithMessage(_stringLocalizer["TooLong"])
+                .MustAsync(CheckUserNameAsync).WithMessage(_stringLocalizer["UniqueUserName"]);
         }
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)

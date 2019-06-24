@@ -4,8 +4,8 @@ using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Data.Repositories;
-using Exoft.Gamification.Api.Data.Seeds;
 using Exoft.Gamification.Api.Helpers;
+using Exoft.Gamification.Api.Resources;
 using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
@@ -15,6 +15,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -40,6 +41,10 @@ namespace Exoft.Gamification
         {
             services.AddCors();
             services.AddMvc()
+                .AddDataAnnotationsLocalization(options => {
+                    options.DataAnnotationLocalizerProvider = (type, factory) =>
+                        factory.Create(typeof(ValidatorMessages));
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
                 .AddFluentValidation();
 
@@ -52,6 +57,7 @@ namespace Exoft.Gamification
             var jwtSecret = new JwtSecret(Configuration);
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             // Services
             services.AddScoped<IAuthService, AuthService>();
@@ -95,7 +101,7 @@ namespace Exoft.Gamification
                 };
             });
 
-
+            // Swagger configuration
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Gamification", Version = "0.0.0.1" });
@@ -127,6 +133,7 @@ namespace Exoft.Gamification
                 //var context = scope.ServiceProvider.GetService<UsersDbContext>();
                 //ContextInitializer.Initialize(context);
             }
+            
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
