@@ -21,6 +21,11 @@ namespace Exoft.Gamification.Api.Data.Repositories
         protected DbSet<T> DbSet { get; }
         protected UsersDbContext Context { get; }
 
+        public T GetById(Guid id)
+        {
+            return IncludeAll().SingleOrDefault(i => i.Id == id);
+        }
+
         public async Task<T> GetByIdAsync(Guid id)
         {
             return await IncludeAll().SingleOrDefaultAsync(i => i.Id == id);

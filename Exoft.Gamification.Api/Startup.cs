@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
+using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
@@ -79,6 +80,8 @@ namespace Exoft.Gamification
             // Validators
             services.AddTransient<IValidator<CreateUserModel>, CreateUserModelValidator>();
             services.AddTransient<IValidator<UpdateUserModel>, UpdateUserModelValidator>();
+            services.AddTransient<IValidator<CreateAchievementModel>, CreateAchievementModelValidator>();
+            services.AddTransient<IValidator<UpdateAchievementModel>, UpdateAchievementModelValidator>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

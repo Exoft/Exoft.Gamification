@@ -129,6 +129,9 @@
   <data name="PasswordUpperCaseLetter" xml:space="preserve">
     <value>Password must contains upper case letter</value>
   </data>
+  <data name="SmallValue" xml:space="preserve">
+    <value>{PropertyName} must be greater than or equal to {ComparisonValue}</value>
+  </data>
   <data name="TooLong" xml:space="preserve">
     <value>The length of {PropertyName} must be {MaxLength} chars or fewer</value>
   </data>
@@ -137,6 +140,9 @@
   </data>
   <data name="UniqueEmail" xml:space="preserve">
     <value>Is not a unique email address</value>
+  </data>
+  <data name="UniqueName" xml:space="preserve">
+    <value>Is not a unique name</value>
   </data>
   <data name="UniqueUserName" xml:space="preserve">
     <value>Is not a unique userName</value>
