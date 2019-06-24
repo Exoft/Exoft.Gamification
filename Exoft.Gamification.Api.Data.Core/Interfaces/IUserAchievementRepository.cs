@@ -9,5 +9,6 @@ namespace Exoft.Gamification.Api.Data.Core.Interfaces
     {
         Task<UserAchievement> GetSingleUserAchievementAsync(Guid userId, Guid achievementId);
         Task<ReturnPagingInfo<UserAchievement>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid userId);
+        Task<int> GetCountAchievementsByUserAsync(Guid userId);
     }
 }

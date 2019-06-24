@@ -3,7 +3,6 @@ using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
@@ -95,6 +94,18 @@ namespace Exoft.Gamification.Api.Controllers
             var item = await _userAchievementService.GetAllAchievementsByUserAsync(pagingInfo, UserId);
 
             return Ok(item);
+        }
+
+        /// <summary>
+        /// Get info about achievements current user
+        /// </summary>
+        /// <responce code="200">Return info about achievements current user</responce> 
+        [HttpGet("current-user/achievements/info")]
+        public async Task<IActionResult> GetAchievementsInfo()
+        {
+            var achievementsInfo = await _userAchievementService.GetAchievementsInfoByUserAsync(UserId);
+
+            return Ok(achievementsInfo);
         }
     }
 }
