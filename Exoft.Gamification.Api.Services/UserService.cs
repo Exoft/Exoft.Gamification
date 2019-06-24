@@ -100,9 +100,9 @@ namespace Exoft.Gamification.Api.Services
                 {
                     await model.Avatar.CopyToAsync(memory);
 
-                    if(user.AvatarId != Guid.Empty)
+                    if(user.AvatarId != null)
                     {
-                        var file = await _fileRepository.GetByIdAsync(user.AvatarId);
+                        var file = await _fileRepository.GetByIdAsync(user.AvatarId.Value);
                         _fileRepository.Delete(file);
                     }
                     else

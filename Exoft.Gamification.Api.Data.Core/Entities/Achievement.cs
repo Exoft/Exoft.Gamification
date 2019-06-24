@@ -10,6 +10,6 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
 
         public int XP { get; set; }
 
-        public Guid IconId { get; set; }
+        public Guid? IconId { get; set; }
     }
 }

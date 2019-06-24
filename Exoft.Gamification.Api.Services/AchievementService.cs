@@ -94,9 +94,9 @@ namespace Exoft.Gamification.Api.Services
                 {
                     await model.Icon.CopyToAsync(memory);
 
-                    if(achievement.IconId != Guid.Empty)
+                    if(achievement.IconId != null)
                     {
-                        var file = await _fileRepository.GetByIdAsync(achievement.IconId);
+                        var file = await _fileRepository.GetByIdAsync(achievement.IconId.Value);
                         _fileRepository.Delete(file);
                     }
                     else
