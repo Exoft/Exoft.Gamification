@@ -12,6 +12,6 @@ namespace Exoft.Gamification.Api.Common.Models.Achievement
 
         public int XP { get; set; }
 
-        public Guid IconId { get; set; }
+        public Guid? IconId { get; set; }
     }
 }

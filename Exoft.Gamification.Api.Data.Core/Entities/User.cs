@@ -23,7 +23,7 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
 
         public string Status { get; set; }
 
-        public Guid AvatarId { get; set; }
+        public Guid? AvatarId { get; set; }
         
         public int XP { get; set; }
 

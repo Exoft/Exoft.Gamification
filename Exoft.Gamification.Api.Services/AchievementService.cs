@@ -94,22 +94,18 @@ namespace Exoft.Gamification.Api.Services
                 {
                     await model.Icon.CopyToAsync(memory);
 
-                    if(achievement.IconId != Guid.Empty)
+                    if(achievement.IconId != null)
                     {
-                        var file = await _fileRepository.GetByIdAsync(achievement.IconId);
-                        file.Data = memory.ToArray();
-                        file.ContentType = model.Icon.ContentType;
-                        _fileRepository.Update(file);
+                        await _fileRepository.Delete(achievement.IconId.Value);
                     }
-                    else
+                    
+                    var file = new File()
                     {
-                        var file = new File()
-                        {
-                            Data = memory.ToArray(),
-                            ContentType = model.Icon.ContentType
-                        };
-                        achievement.IconId = file.Id;
-                    }
+                        Data = memory.ToArray(),
+                        ContentType = model.Icon.ContentType
+                    };
+                    await _fileRepository.AddAsync(file);
+                    achievement.IconId = file.Id;
                 }
             }
             _achievementRepository.Update(achievement);

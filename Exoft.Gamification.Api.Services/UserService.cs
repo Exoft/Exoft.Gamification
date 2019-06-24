@@ -124,23 +124,18 @@ namespace Exoft.Gamification.Api.Services
                 {
                     await model.Avatar.CopyToAsync(memory);
 
-                    if(user.AvatarId != Guid.Empty)
+                    if(user.AvatarId != null)
                     {
-                        var file = await _fileRepository.GetByIdAsync(user.AvatarId);
-                        file.Data = memory.ToArray();
-                        file.ContentType = model.Avatar.ContentType;
-                        _fileRepository.Update(file);
-                    }
-                    else
+                        await _fileRepository.Delete(user.AvatarId.Value);
+                    }   
+
+                    var file = new File()
                     {
-                        var file = new File()
-                        {
-                            Data = memory.ToArray(),
-                            ContentType = model.Avatar.ContentType
-                        };
-                        await _fileRepository.AddAsync(file);
-                        user.AvatarId = file.Id;
-                    }
+                        Data = memory.ToArray(),
+                        ContentType = model.Avatar.ContentType
+                    };
+                    await _fileRepository.AddAsync(file);
+                    user.AvatarId = file.Id;
                 }
             }
             _userRepository.Update(user);

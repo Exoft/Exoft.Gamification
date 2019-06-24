@@ -14,6 +14,6 @@ namespace Exoft.Gamification.Api.Common.Models
 
         public string AddedTime { get; set; }
 
-        public Guid IconId { get; set; }
+        public Guid? IconId { get; set; }
     }
 }
