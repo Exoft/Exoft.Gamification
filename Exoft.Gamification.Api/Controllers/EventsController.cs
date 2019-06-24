@@ -1,11 +1,13 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
 {
     [Route("api/events")]
+    [Authorize]
     [ApiController]
     public class EventsController : GamificationController
     {

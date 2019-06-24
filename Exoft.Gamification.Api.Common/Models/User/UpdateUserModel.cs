@@ -14,6 +14,8 @@ namespace Exoft.Gamification.Api.Common.Models.User
 
         public string Status { get; set; }
 
+        public string Role { get; set; }
+
         public IFormFile Avatar { get; set; }
     }
 }

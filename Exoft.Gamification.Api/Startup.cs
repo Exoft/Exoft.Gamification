@@ -1,17 +1,23 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
+using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Data.Repositories;
-using Exoft.Gamification.Api.Data.Seeds;
 using Exoft.Gamification.Api.Helpers;
+using Exoft.Gamification.Api.Resources;
 using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using Exoft.Gamification.Api.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +41,13 @@ namespace Exoft.Gamification
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc()
+                .AddDataAnnotationsLocalization(options => {
+                    options.DataAnnotationLocalizerProvider = (type, factory) =>
+                        factory.Create(typeof(ValidatorMessages));
+                })
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+                .AddFluentValidation();
 
             services.AddDbContext<UsersDbContext>
             (
@@ -44,19 +56,29 @@ namespace Exoft.Gamification
 
             // configure DI for application services
             var jwtSecret = new JwtSecret(Configuration);
+            services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
+            // Services
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IAchievementService, AchievementService>();
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IEventService, EventService>();
             services.AddScoped<IUserAchievementService, UserAchievementService>();
-            services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+            // Repositories
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<IAchievementRepository, AchievementRepository>();
             services.AddTransient<IFileRepository, FileRepository>();
             services.AddTransient<IEventRepository, EventRepository>();
             services.AddTransient<IUserAchievementRepository, UserAchievementRepository>();
+            services.AddTransient<IRoleRepository, RoleRepository>();
+
+            // Validators
+            services.AddTransient<IValidator<CreateUserModel>, CreateUserModelValidator>();
+            services.AddTransient<IValidator<UpdateUserModel>, UpdateUserModelValidator>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -80,7 +102,7 @@ namespace Exoft.Gamification
                 };
             });
 
-
+            // Swagger configuration
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Gamification", Version = "0.0.0.1" });
@@ -112,6 +134,7 @@ namespace Exoft.Gamification
                 //var context = scope.ServiceProvider.GetService<UsersDbContext>();
                 //ContextInitializer.Initialize(context);
             }
+            
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>

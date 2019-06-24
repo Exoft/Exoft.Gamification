@@ -43,6 +43,13 @@ namespace Exoft.Gamification.Api.Data.Repositories
             return user;
         }
 
+        public async Task<bool> IsEmailExistsAsync(string email)
+        {
+            var result = await IncludeAll().AnyAsync(i => i.Email == email);
+
+            return result;
+        }
+
         protected override IQueryable<User> IncludeAll()
         {
             return DbSet
