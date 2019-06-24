@@ -2,7 +2,7 @@
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Resources;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Localization;
 using System;
 using System.Threading;
@@ -10,25 +10,23 @@ using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Validators
 {
-    public class UpdateUserModelValidator : AbstractValidator<UpdateUserModel>
+    public class UpdateUserModelValidator : BaseValidator<UpdateUserModel>
     {
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
-        private readonly IStringLocalizer<ValidatorMessages> _stringLocalizer;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IActionContextAccessor _actionContextAccessor;
 
         public UpdateUserModelValidator
         (
             IUserRepository userRepository,
             IRoleRepository roleRepository,
             IStringLocalizer<ValidatorMessages> stringLocalizer,
-            IHttpContextAccessor httpContextAccessor
-        )
+            IActionContextAccessor actionContextAccessor
+        ) : base(stringLocalizer)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
-            _stringLocalizer = stringLocalizer;
-            _httpContextAccessor = httpContextAccessor;
+            _actionContextAccessor = actionContextAccessor;
 
             RuleFor(user => user.FirstName)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
@@ -98,9 +96,7 @@ namespace Exoft.Gamification.Api.Validators
 
         private Guid GetUserId()
         {
-            var path = _httpContextAccessor.HttpContext.Request.Path.Value.ToString();
-            var count = path.LastIndexOf('/') + 1;
-            var userIdString = path.Substring(count);
+            var userIdString = _actionContextAccessor.ActionContext.RouteData.Values["userId"].ToString();
 
             return Guid.Parse(userIdString);
         }

@@ -8,22 +8,20 @@ using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Validators
 {
-    public class CreateUserModelValidator : AbstractValidator<CreateUserModel>
+    public class CreateUserModelValidator : BaseValidator<CreateUserModel>
     {
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
-        private readonly IStringLocalizer<ValidatorMessages> _stringLocalizer;
-
+        
         public CreateUserModelValidator
         (
             IUserRepository userRepository,
             IRoleRepository roleRepository,
             IStringLocalizer<ValidatorMessages> stringLocalizer
-        )
+        ) : base(stringLocalizer)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
-            _stringLocalizer = stringLocalizer;
 
             RuleFor(user => user.FirstName)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])

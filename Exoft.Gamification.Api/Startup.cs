@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,7 +58,7 @@ namespace Exoft.Gamification
             var jwtSecret = new JwtSecret(Configuration);
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
             services.AddTransient<IUnitOfWork, UnitOfWork>();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
             // Services
             services.AddScoped<IAuthService, AuthService>();
