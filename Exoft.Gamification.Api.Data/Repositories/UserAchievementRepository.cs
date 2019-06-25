@@ -43,9 +43,8 @@ namespace Exoft.Gamification.Api.Data.Repositories
         public async Task<int> GetCountAchievementsByThisMonthAsync(Guid userId)
         {
             return await IncludeAll()
-                .Where(i => i.AddedTime.Month == DateTime.UtcNow.Month &&
-                    i.User.Id == userId)
-                .CountAsync();
+                .CountAsync(i => i.AddedTime.Month == DateTime.UtcNow.Month &&
+                    i.User.Id == userId);
         }
 
         public async Task<int> GetCountAchievementsByUserAsync(Guid userId)
