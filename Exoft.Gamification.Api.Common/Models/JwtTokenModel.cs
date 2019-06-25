@@ -8,6 +8,6 @@ namespace Exoft.Gamification.Api.Common.Models
 
         public string RefreshToken { get; set; }
 
-        public DateTime TokenExpiration { get; set; }
+        public string TokenExpiration { get; set; }
     }
 }

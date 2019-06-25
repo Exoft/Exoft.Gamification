@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Data;
+using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Data.Repositories;
 using Exoft.Gamification.Api.Data.Seeds;
@@ -45,6 +46,7 @@ namespace Exoft.Gamification
             var jwtSecret = new JwtSecret(Configuration);
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IMD5Hash, MD5Hash>();
 
             // services
             services.AddScoped<IAuthService, AuthService>();
@@ -62,6 +64,9 @@ namespace Exoft.Gamification
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            // Cache
+            services.AddMemoryCache();
 
             // configure jwt authentication
             services.AddAuthentication(x =>
@@ -96,9 +101,9 @@ namespace Exoft.Gamification
             {
                 app.UseDeveloperExceptionPage();
 
-                //var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-                //var context = scope.ServiceProvider.GetService<UsersDbContext>();
-                //ContextInitializer.Initialize(context);
+                var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+                var context = scope.ServiceProvider.GetService<UsersDbContext>();
+                ContextInitializer.Initialize(context);
             }
 
             app.UseSwagger();

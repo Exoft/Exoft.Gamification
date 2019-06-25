@@ -71,24 +71,6 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.ToTable("Files");
                 });
 
-            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.RefreshToken", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("ExpiresUtc");
-
-                    b.Property<string>("Token");
-
-                    b.Property<Guid?>("UserId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RefreshTokens");
-                });
-
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Role", b =>
                 {
                     b.Property<Guid>("Id")
@@ -154,13 +136,6 @@ namespace Exoft.Gamification.Api.Data.Migrations
                 });
 
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Event", b =>
-                {
-                    b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.User", "User")
                         .WithMany()

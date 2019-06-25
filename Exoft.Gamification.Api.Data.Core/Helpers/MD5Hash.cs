@@ -1,11 +1,12 @@
-﻿using System.Security.Cryptography;
+﻿using Exoft.Gamification.Api.Data.Core.Interfaces;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Exoft.Gamification.Api.Data.Core.Helpers
 {
-    public static class MD5Hash
+    public class MD5Hash : IMD5Hash
     {
-        public static string GetMD5Hash(this string input)
+        public string GetMD5Hash(string input)
         {
             using (MD5 md5 = MD5.Create())
             {

@@ -1,7 +1,6 @@
 ﻿using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
-using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
@@ -20,19 +19,22 @@ namespace Exoft.Gamification.Api.Services
         private readonly IAuthRepository _authRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJwtSecret _jwtSecret;
+        private readonly IMD5Hash _MD5Hash;
 
         public AuthService
         (
             IUserRepository userRepository,
             IAuthRepository authRepository,
             IUnitOfWork unitOfWork,
-            IJwtSecret jwtSecret
+            IJwtSecret jwtSecret,
+            IMD5Hash MD5Hash
         )
         {
             _userRepository = userRepository;
             _authRepository = authRepository;
             _unitOfWork = unitOfWork;
             _jwtSecret = jwtSecret;
+            _MD5Hash = MD5Hash;
         }
 
         public async Task<JwtTokenModel> Authenticate(string userName, string password)
@@ -40,82 +42,54 @@ namespace Exoft.Gamification.Api.Services
             var userEntity = await _userRepository.GetByUserNameAsync(userName);
 
             // refresh token
-            var refreshTokenFromDB = await _authRepository.GetByUserIdAsync(userEntity.Id);
+            var refreshTokenFromDB = _authRepository.GetByUserId(userEntity.Id);
             if (refreshTokenFromDB != null)
             {
                 _authRepository.Delete(refreshTokenFromDB);
-                await _unitOfWork.SaveChangesAsync();
             }
 
             var newRefreshToken = new RefreshToken()
             {
-                ExpiresUtc = DateTime.Now.AddHours(Convert.ToDouble(_jwtSecret.ExpireRefreshToken)),
+                ExpiresUtc = DateTime.Now.AddSeconds(_jwtSecret.SecondsToExpireRefreshToken),
                 Token = Guid.NewGuid().ToString(),
-                User = userEntity
+                UserId = userEntity.Id
             };
-            await _authRepository.AddAsync(newRefreshToken);
-            await _unitOfWork.SaveChangesAsync();
+            _authRepository.Add(newRefreshToken);
             
-            if (userEntity == null || password.GetMD5Hash() != userEntity.Password)
+            if (userEntity == null || _MD5Hash.GetMD5Hash(password) != userEntity.Password.ToLower())
             {
                 return null;
             }
 
-            // authentication successful so generate jwt token
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, userEntity.Id.ToString())
-            };
-
-            foreach (var item in userEntity.Roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, item.Role.Name));
-            }
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(Convert.ToDouble(_jwtSecret.ExpireToken)),
-                SigningCredentials = new SigningCredentials
-                (
-                    new SymmetricSecurityKey(_jwtSecret.Secret),
-                    SecurityAlgorithms.HmacSha256Signature
-                )
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            
-            return new JwtTokenModel
-            {
-                Token = tokenHandler.WriteToken(token),
-                RefreshToken = newRefreshToken.Token,
-                TokenExpiration = token.ValidTo
-            };
+            return GetJwtToken(userEntity, newRefreshToken);
         }
 
         public async Task<JwtTokenModel> RefreshTokenAsync(RefreshTokenModel model)
         {
-            var refreshTokenFromDB = await _authRepository.GetByUserIdAsync(model.UserId);
+            var refreshTokenFromDB = _authRepository.GetByUserId(model.UserId);
             var userEntity = await _userRepository.GetByIdAsync(model.UserId);
             if(refreshTokenFromDB == null || userEntity == null)
             {
                 return null;
             }
-            if(refreshTokenFromDB.ExpiresUtc < DateTime.Now.ToUniversalTime())
+            if(refreshTokenFromDB.ExpiresUtc < DateTime.UtcNow)
             {
                 return null;
             }
 
-            // authentication successful so generate jwt token
+            return GetJwtToken(userEntity, refreshTokenFromDB);
+        }
+
+        private JwtTokenModel GetJwtToken(User user, RefreshToken refreshToken)
+        {
             var tokenHandler = new JwtSecurityTokenHandler();
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, userEntity.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
             };
 
-            foreach (var item in userEntity.Roles)
+            foreach (var item in user.Roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, item.Role.Name));
             }
@@ -123,7 +97,7 @@ namespace Exoft.Gamification.Api.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(Convert.ToDouble(_jwtSecret.ExpireToken)),
+                Expires = DateTime.UtcNow.AddSeconds(_jwtSecret.SecondsToExpireToken),
                 SigningCredentials = new SigningCredentials
                 (
                     new SymmetricSecurityKey(_jwtSecret.Secret),
@@ -135,8 +109,8 @@ namespace Exoft.Gamification.Api.Services
             return new JwtTokenModel
             {
                 Token = tokenHandler.WriteToken(token),
-                RefreshToken = refreshTokenFromDB.Token,
-                TokenExpiration = token.ValidTo
+                RefreshToken = refreshToken.Token,
+                TokenExpiration = token.ValidTo.ConvertToIso8601DateTimeUtc()
             };
         }
     }

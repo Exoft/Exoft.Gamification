@@ -1,29 +1,44 @@
-﻿using Exoft.Gamification.Api.Data.Core.Entities;
+﻿using Exoft.Gamification.Api.Common.Helpers;
+using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data.Repositories
 {
-    public class AuthRepository : Repository<RefreshToken>, IAuthRepository
+    public class AuthRepository : IAuthRepository
     {
-        public AuthRepository(UsersDbContext context) : base(context)
+        private readonly IMemoryCache _cache;
+        private readonly IJwtSecret _jwtSecret;
+
+        public AuthRepository
+        (
+            IMemoryCache cache,
+            IJwtSecret jwtSecret
+        )
         {
+            _cache = cache;
+            _jwtSecret = jwtSecret;
+        }
+        
+        public void Add(RefreshToken entity)
+        {
+            _cache.Set(entity.UserId, entity, new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_jwtSecret.SecondsToExpireRefreshToken)
+            });
         }
 
-        public async Task<RefreshToken> GetByUserIdAsync(Guid userId)
+        public void Delete(RefreshToken entity)
         {
-            var refreshToken = await IncludeAll().FirstOrDefaultAsync(i => i.User.Id == userId);
+            _cache.Remove(entity.UserId);
+        }
+
+        public RefreshToken GetByUserId(Guid userId)
+        {
+            var refreshToken = _cache.Get(userId) as RefreshToken;
 
             return refreshToken;
-        }
-
-        protected override IQueryable<RefreshToken> IncludeAll()
-        {
-            return DbSet
-                .Include(i => i.User);
         }
     }
 }

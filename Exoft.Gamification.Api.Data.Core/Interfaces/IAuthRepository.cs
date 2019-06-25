@@ -1,11 +1,12 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
 using System;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data.Core.Interfaces
 {
-    public interface IAuthRepository : IRepository<RefreshToken>
+    public interface IAuthRepository
     {
-        Task<RefreshToken> GetByUserIdAsync(Guid userId);
+        void Add(RefreshToken entity);
+        void Delete(RefreshToken entity);
+        RefreshToken GetByUserId(Guid userId);
     }
 }

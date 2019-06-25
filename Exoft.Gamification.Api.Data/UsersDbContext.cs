@@ -16,7 +16,6 @@ namespace Exoft.Gamification.Api.Data
         public DbSet<UserRoles> UserRoles { get; set; }
         public DbSet<File> Files { get; set; }
         public DbSet<Event> Events { get; set; }
-        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

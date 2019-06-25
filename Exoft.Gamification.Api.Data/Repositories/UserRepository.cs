@@ -10,13 +10,20 @@ namespace Exoft.Gamification.Api.Data.Repositories
 {
     public class UserRepository : Repository<User>, IUserRepository
     {
-        public UserRepository(UsersDbContext context) : base(context)
+        private readonly IMD5Hash _MD5Hash;
+
+        public UserRepository
+        ( 
+            IMD5Hash MD5Hash,
+            UsersDbContext context
+        ) : base(context)
         {
+            _MD5Hash = MD5Hash;
         }
 
         public override Task AddAsync(User entity)
         {
-            entity.Password = entity.Password.GetMD5Hash();
+            entity.Password = _MD5Hash.GetMD5Hash(entity.Password);
             return base.AddAsync(entity);
         }
 
