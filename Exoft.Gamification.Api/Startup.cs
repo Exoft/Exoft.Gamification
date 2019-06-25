@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
+using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
@@ -42,12 +43,12 @@ namespace Exoft.Gamification
         {
             services.AddCors();
             services.AddMvc()
-                .AddDataAnnotationsLocalization(options => {
+                .AddDataAnnotationsLocalization(options =>
+                {
                     options.DataAnnotationLocalizerProvider = (type, factory) =>
                         factory.Create(typeof(ValidatorMessages));
                 })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-                .AddFluentValidation();
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddDbContext<UsersDbContext>
             (
@@ -79,6 +80,8 @@ namespace Exoft.Gamification
             // Validators
             services.AddTransient<IValidator<CreateUserModel>, CreateUserModelValidator>();
             services.AddTransient<IValidator<UpdateUserModel>, UpdateUserModelValidator>();
+            services.AddTransient<IValidator<CreateAchievementModel>, CreateAchievementModelValidator>();
+            services.AddTransient<IValidator<UpdateAchievementModel>, UpdateAchievementModelValidator>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

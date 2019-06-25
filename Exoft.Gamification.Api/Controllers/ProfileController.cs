@@ -1,9 +1,10 @@
 ﻿using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
@@ -15,15 +16,18 @@ namespace Exoft.Gamification.Api.Controllers
     {
         private readonly IUserService _userService;
         private readonly IUserAchievementService _userAchievementService;
+        private readonly IValidator<UpdateUserModel> _updateUserModelValidator;
 
         public ProfileController
         (
             IUserService userService,
-            IUserAchievementService userAchievementService
+            IUserAchievementService userAchievementService,
+            IValidator<UpdateUserModel> updateUserModelValidator
         )
         {
             _userService = userService;
             _userAchievementService = userAchievementService;
+            _updateUserModelValidator = updateUserModelValidator;
         }
 
         /// <summary>
@@ -69,16 +73,20 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpPut("current-user")]
         public async Task<IActionResult> UpdateCurrentUser([FromForm] UpdateUserModel model)
         {
-            if(!ModelState.IsValid)
-            {
-                return UnprocessableEntity();
-            }
-
             var user = await _userService.GetFullUserByIdAsync(UserId);
             if(user == null)
             {
                 return NotFound();
             }
+
+            var resultValidation = await _updateUserModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if(!ModelState.IsValid)
+            {
+                return UnprocessableEntity();
+            }
+
 
             var newUser = await _userService.UpdateUserAsync(model, UserId);
 

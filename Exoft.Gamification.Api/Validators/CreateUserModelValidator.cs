@@ -12,7 +12,7 @@ namespace Exoft.Gamification.Api.Validators
     {
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
-        
+
         public CreateUserModelValidator
         (
             IUserRepository userRepository,

@@ -1,6 +1,8 @@
 ﻿using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,10 +16,19 @@ namespace Exoft.Gamification.Api.Controllers
     public class UsersController : GamificationController
     {
         private readonly IUserService _userService;
+        private readonly IValidator<CreateUserModel> _createUserModelValidator;
+        private readonly IValidator<UpdateUserModel> _updateUserModelValidator;
 
-        public UsersController(IUserService userService)
+        public UsersController
+        (
+            IUserService userService,
+            IValidator<CreateUserModel> createUserModelValidator,
+            IValidator<UpdateUserModel> updateUserModelValidator
+        )
         {
             _userService = userService;
+            _createUserModelValidator = createUserModelValidator;
+            _updateUserModelValidator = updateUserModelValidator;
         }
 
         /// <summary>
@@ -57,6 +68,9 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> AddUserAsync([FromBody] CreateUserModel model)
         {
+            var resultValidation = await _createUserModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
             if(!ModelState.IsValid)
             {
                 return UnprocessableEntity(ModelState);
@@ -78,15 +92,18 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpPut("{userId}")]
         public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateUserModel model, Guid userId)
         {
-            if(!ModelState.IsValid)
-            {
-                return UnprocessableEntity(ModelState);
-            }
-
             var user = await _userService.GetFullUserByIdAsync(userId);
             if(user == null)
             {
                 return NotFound();
+            }
+
+            var resultValidation = await _updateUserModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
             }
 
             var item = await _userService.UpdateUserAsync(model, userId);

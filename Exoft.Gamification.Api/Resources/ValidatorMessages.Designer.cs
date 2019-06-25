@@ -97,6 +97,15 @@ namespace Exoft.Gamification.Api.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {PropertyName} must be greater than or equal to {ComparisonValue}.
+        /// </summary>
+        public static string SmallValue {
+            get {
+                return ResourceManager.GetString("SmallValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The length of {PropertyName} must be {MaxLength} chars or fewer.
         /// </summary>
         public static string TooLong {
@@ -120,6 +129,15 @@ namespace Exoft.Gamification.Api.Resources {
         public static string UniqueEmail {
             get {
                 return ResourceManager.GetString("UniqueEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Is not a unique name.
+        /// </summary>
+        public static string UniqueName {
+            get {
+                return ResourceManager.GetString("UniqueName", resourceCulture);
             }
         }
         
