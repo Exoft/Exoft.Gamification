@@ -3,7 +3,6 @@ using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -40,18 +39,19 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
             return result;
         }
-        
+
+        public async Task<int> GetCountAchievementsByThisMonthAsync(Guid userId)
+        {
+            return await IncludeAll()
+                .Where(i => i.AddedTime.Month == DateTime.UtcNow.Month &&
+                    i.User.Id == userId)
+                .CountAsync();
+        }
+
         public async Task<int> GetCountAchievementsByUserAsync(Guid userId)
         {
             return await IncludeAll()
                 .CountAsync(o => o.User.Id == userId);
-        }
-
-        public IEnumerable<Achievement> GetFilteredAchievements(Func<UserAchievement, bool> predicate)
-        {
-            return IncludeAll()
-                .Where(predicate)
-                .Select(i => i.Achievement);
         }
 
         public async Task<UserAchievement> GetSingleUserAchievementAsync(Guid userAchievementId)
@@ -60,6 +60,13 @@ namespace Exoft.Gamification.Api.Data.Repositories
                 .Where(o => o.Id == userAchievementId)
                 .Select(i => i)
                 .SingleOrDefaultAsync();
+        }
+
+        public async Task<int> GetSummaryXpByUserAsync(Guid userId)
+        {
+            return await IncludeAll()
+                .Where(o => o.User.Id == userId)
+                .SumAsync(i => i.Achievement.XP);
         }
 
         protected override IQueryable<UserAchievement> IncludeAll()

@@ -85,25 +85,17 @@ namespace Exoft.Gamification.Api.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<AchievementsInfo> GetAchievementsInfoByUserAsync(Guid userId)
+        public async Task<AchievementsInfoModel> GetAchievementsInfoByUserAsync(Guid userId)
         {
-            var summaryXP = _userAchievementRepository.GetFilteredAchievements(i => i.User.Id == userId).Sum(i => i.XP);
-
             var countAchievements = await _userAchievementRepository.GetCountAchievementsByUserAsync(userId);
+            var summaryXP = await _userAchievementRepository.GetSummaryXpByUserAsync(userId);
+            var countAchievementsByThisMonth = await _userAchievementRepository.GetCountAchievementsByThisMonthAsync(userId);
 
-            var achievementsByThisMonth = _userAchievementRepository
-                .GetFilteredAchievements(i => 
-                {
-                    return i.User.Id == userId &&
-                        i.AddedTime.Month == DateTime.UtcNow.Month;
-                })
-                .Count();
-
-            return new AchievementsInfo()
+            return new AchievementsInfoModel()
             {
                 TotalXP = summaryXP,
                 TotalAchievements = countAchievements,
-                TotalAchievementsByThisMonth = achievementsByThisMonth
+                TotalAchievementsByThisMonth = countAchievementsByThisMonth
             };
         }
 

@@ -1,6 +1,6 @@
 ﻿namespace Exoft.Gamification.Api.Common.Models
 {
-    public class AchievementsInfo
+    public class AchievementsInfoModel
     {
         public int TotalAchievements { get; set; }
 
