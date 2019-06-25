@@ -2,7 +2,6 @@
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Resources;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Localization;
 using System;
@@ -54,15 +53,6 @@ namespace Exoft.Gamification.Api.Validators
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
                 .MaximumLength(32).WithMessage(_stringLocalizer["TooLong"])
                 .MustAsync(CheckUserNameAsync).WithMessage(_stringLocalizer["UniqueUserName"]);
-        }
-
-        protected override bool PreValidate(ValidationContext<UpdateUserModel> context, ValidationResult result)
-        {
-            var userIdString = _actionContextAccessor.ActionContext.RouteData.Values["userId"].ToString();
-            var userId = Guid.Parse(userIdString);
-
-            var user = _userRepository.GetById(userId);
-            return user != null;
         }
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)

@@ -2,7 +2,6 @@
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Resources;
 using FluentValidation;
-using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Localization;
 using System;
@@ -41,15 +40,6 @@ namespace Exoft.Gamification.Api.Validators
 
             RuleFor(achievement => achievement.Icon)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"]);
-        }
-
-        protected override bool PreValidate(ValidationContext<UpdateAchievementModel> context, ValidationResult result)
-        {
-            var achievementIdString = _actionContextAccessor.ActionContext.RouteData.Values["achievementId"].ToString();
-            var achievementId = Guid.Parse(achievementIdString);
-
-            var achievement = _achievementRepository.GetById(achievementId);
-            return achievement != null;
         }
 
         private async Task<bool> CheckNameAsync(string name, CancellationToken cancellationToken)

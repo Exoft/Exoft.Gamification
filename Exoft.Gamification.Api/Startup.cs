@@ -43,12 +43,12 @@ namespace Exoft.Gamification
         {
             services.AddCors();
             services.AddMvc()
-                .AddDataAnnotationsLocalization(options => {
+                .AddDataAnnotationsLocalization(options =>
+                {
                     options.DataAnnotationLocalizerProvider = (type, factory) =>
                         factory.Create(typeof(ValidatorMessages));
                 })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-                .AddFluentValidation();
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             services.AddDbContext<UsersDbContext>
             (

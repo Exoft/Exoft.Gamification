@@ -1,6 +1,8 @@
 ﻿using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,10 +16,19 @@ namespace Exoft.Gamification.Api.Controllers
     public class AchievementsController : GamificationController
     {
         private readonly IAchievementService _achievementService;
+        private readonly IValidator<CreateAchievementModel> _createAchievementModelValidator;
+        private readonly IValidator<UpdateAchievementModel> _updateAchievementModelValidator;
 
-        public AchievementsController(IAchievementService achievementService)
+        public AchievementsController
+        (
+            IAchievementService achievementService,
+            IValidator<CreateAchievementModel> createAchievementModelValidator,
+            IValidator<UpdateAchievementModel> updateAchievementModelValidator
+        )
         {
             _achievementService = achievementService;
+            _createAchievementModelValidator = createAchievementModelValidator;
+            _updateAchievementModelValidator = updateAchievementModelValidator;
         }
 
 
@@ -58,6 +69,9 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> AddAchievementAsync([FromForm] CreateAchievementModel model)
         {
+            var resultValidation = await _createAchievementModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
             if(!ModelState.IsValid)
             {
                 return UnprocessableEntity(ModelState);
@@ -84,6 +98,9 @@ namespace Exoft.Gamification.Api.Controllers
             {
                 return NotFound();
             }
+
+            var resultValidation = await _updateAchievementModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
             {

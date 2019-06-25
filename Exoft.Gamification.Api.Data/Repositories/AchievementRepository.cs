@@ -15,7 +15,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public async Task<Achievement> GetAchievementByNameAsync(string name)
         {
-            var achievement = await IncludeAll().Where(i => i.Name == name).SingleOrDefaultAsync();
+            var achievement = await IncludeAll().SingleOrDefaultAsync(i => i.Name == name);
 
             return achievement;
         }
