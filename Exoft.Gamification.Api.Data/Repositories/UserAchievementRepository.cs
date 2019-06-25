@@ -3,6 +3,7 @@ using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -43,8 +44,14 @@ namespace Exoft.Gamification.Api.Data.Repositories
         public async Task<int> GetCountAchievementsByUserAsync(Guid userId)
         {
             return await IncludeAll()
-                .Where(o => o.User.Id == userId)
-                .CountAsync();
+                .CountAsync(o => o.User.Id == userId);
+        }
+
+        public IEnumerable<Achievement> GetFilteredAchievements(Func<UserAchievement, bool> predicate)
+        {
+            return IncludeAll()
+                .Where(predicate)
+                .Select(i => i.Achievement);
         }
 
         public async Task<UserAchievement> GetSingleUserAchievementAsync(Guid userAchievementId)

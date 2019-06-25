@@ -87,18 +87,16 @@ namespace Exoft.Gamification.Api.Services
 
         public async Task<AchievementsInfo> GetAchievementsInfoByUserAsync(Guid userId)
         {
-            var countAchievements = await _userAchievementRepository.GetCountAchievementsByUserAsync(userId);
-            PagingInfo pagingInfo = new PagingInfo()
-            {
-                CurrentPage = 1,
-                PageSize = countAchievements
-            };
+            var summaryXP = _userAchievementRepository.GetFilteredAchievements(i => i.User.Id == userId).Sum(i => i.XP);
 
-            var pagedList = await _userAchievementRepository.GetAllAchievementsByUserAsync(pagingInfo, userId);
-            var allAchievements = pagedList.Data;
-            var summaryXP = allAchievements.Select(i => i.Achievement.XP).Sum();
-            var achievementsByThisMonth = allAchievements
-                .Where(i => i.AddedTime.Month == DateTime.UtcNow.Month)
+            var countAchievements = await _userAchievementRepository.GetCountAchievementsByUserAsync(userId);
+
+            var achievementsByThisMonth = _userAchievementRepository
+                .GetFilteredAchievements(i => 
+                {
+                    return i.User.Id == userId &&
+                        i.AddedTime.Month == DateTime.UtcNow.Month;
+                })
                 .Count();
 
             return new AchievementsInfo()
