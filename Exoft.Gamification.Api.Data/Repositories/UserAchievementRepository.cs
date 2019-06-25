@@ -39,7 +39,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
             return result;
         }
-
+        
         public async Task<int> GetCountAchievementsByUserAsync(Guid userId)
         {
             return await IncludeAll()
@@ -47,10 +47,10 @@ namespace Exoft.Gamification.Api.Data.Repositories
                 .CountAsync();
         }
 
-        public async Task<UserAchievement> GetSingleUserAchievementAsync(Guid userId, Guid achievementId)
+        public async Task<UserAchievement> GetSingleUserAchievementAsync(Guid userAchievementId)
         {
             return await IncludeAll()
-                .Where(o => o.User.Id == userId && o.Achievement.Id == achievementId)
+                .Where(o => o.Id == userAchievementId)
                 .Select(i => i)
                 .SingleOrDefaultAsync();
         }
