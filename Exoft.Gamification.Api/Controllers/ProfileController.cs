@@ -104,5 +104,17 @@ namespace Exoft.Gamification.Api.Controllers
 
             return Ok(item);
         }
+
+        /// <summary>
+        /// Get info about achievements current user
+        /// </summary>
+        /// <responce code="200">Return info about achievements current user</responce> 
+        [HttpGet("current-user/achievements/info")]
+        public async Task<IActionResult> GetAchievementsInfo()
+        {
+            var achievementsInfo = await _userAchievementService.GetAchievementsInfoByUserAsync(UserId);
+
+            return Ok(achievementsInfo);
+        }
     }
 }

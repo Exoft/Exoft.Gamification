@@ -10,7 +10,8 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Services
         Task AddAsync(Guid userId, Guid achievementId);
         Task DeleteAsync(Guid userAchievementsId);
         Task<ReadUserAchievementModel> GetUserAchievementByIdAsync(Guid userAchievementsId);
-        Task<ReadUserAchievementModel> GetSingleUserAchievementAsync(Guid userId, Guid achievementId);
+        Task<ReadUserAchievementModel> GetSingleUserAchievementAsync(Guid userAchievementId);
         Task<ReturnPagingInfo<ReadUserAchievementModel>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid userId);
+        Task<AchievementsInfoModel> GetAchievementsInfoByUserAsync(Guid userId);
     }
 }

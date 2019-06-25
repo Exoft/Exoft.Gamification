@@ -40,12 +40,32 @@ namespace Exoft.Gamification.Api.Data.Repositories
             return result;
         }
 
-        public async Task<UserAchievement> GetSingleUserAchievementAsync(Guid userId, Guid achievementId)
+        public async Task<int> GetCountAchievementsByThisMonthAsync(Guid userId)
         {
             return await IncludeAll()
-                .Where(o => o.User.Id == userId && o.Achievement.Id == achievementId)
+                .CountAsync(i => i.AddedTime.Month == DateTime.UtcNow.Month &&
+                    i.User.Id == userId);
+        }
+
+        public async Task<int> GetCountAchievementsByUserAsync(Guid userId)
+        {
+            return await IncludeAll()
+                .CountAsync(o => o.User.Id == userId);
+        }
+
+        public async Task<UserAchievement> GetSingleUserAchievementAsync(Guid userAchievementId)
+        {
+            return await IncludeAll()
+                .Where(o => o.Id == userAchievementId)
                 .Select(i => i)
                 .SingleOrDefaultAsync();
+        }
+
+        public async Task<int> GetSummaryXpByUserAsync(Guid userId)
+        {
+            return await IncludeAll()
+                .Where(o => o.User.Id == userId)
+                .SumAsync(i => i.Achievement.XP);
         }
 
         protected override IQueryable<UserAchievement> IncludeAll()

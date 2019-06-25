@@ -16,7 +16,8 @@ namespace Exoft.Gamification.Api.Common.Helpers
             CreateMap<CreateAchievementModel, ReadAchievementModel>();
 
             CreateMap<UserAchievement, ReadUserAchievementModel>()
-                .ForMember(s => s.Id, o => o.MapFrom(d => d.Achievement.Id))
+                .ForMember(s => s.Id, o => o.MapFrom(d => d.Id))
+                .ForMember(s => s.AchievementId, o => o.MapFrom(d => d.Achievement.Id))
                 .ForMember(s => s.XP, o => o.MapFrom(d => d.Achievement.XP))
                 .ForMember(s => s.Name, o => o.MapFrom(d => d.Achievement.Name))
                 .ForMember(s => s.Description, o => o.MapFrom(d => d.Achievement.Description))
