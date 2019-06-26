@@ -1,5 +1,6 @@
 ﻿using Exoft.Gamification.Api.Common.Helpers;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Text;
 
 namespace Exoft.Gamification.Api.Helpers
@@ -10,15 +11,15 @@ namespace Exoft.Gamification.Api.Helpers
         {
             var secretSection = configuration.GetSection("Secrets");
             Secret = Encoding.ASCII.GetBytes(secretSection.GetValue<string>("TokenSecretString"));
-            SecondsToExpireToken = secretSection.GetValue<int>("SecondsToExpireToken");
-            SecondsToExpireRefreshToken = secretSection.GetValue<int>("SecondsToExpireRefreshToken");
+            SecondsToExpireToken = TimeSpan.FromSeconds(secretSection.GetValue<int>("SecondsToExpireToken"));
+            SecondsToExpireRefreshToken = TimeSpan.FromSeconds(secretSection.GetValue<int>("SecondsToExpireRefreshToken"));
         }
 
 
         public byte[] Secret { get; }
 
-        public int SecondsToExpireToken { get; }
+        public TimeSpan SecondsToExpireToken { get; }
 
-        public int SecondsToExpireRefreshToken { get; }
+        public TimeSpan SecondsToExpireRefreshToken { get; }
     }
 }

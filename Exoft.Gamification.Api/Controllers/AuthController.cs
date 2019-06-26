@@ -3,6 +3,7 @@ using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
@@ -26,9 +27,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="401">When userName or password is incorrent</responce>
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> AuthenticateAsync([FromForm]UserLoginModel userModel)
+        public async Task<IActionResult> AuthenticateAsync([FromBody] UserLoginModel userModel)
         {
-            var user = await _authService.Authenticate(userModel.UserName, userModel.Password);
+            var user = await _authService.AuthenticateAsync(userModel.UserName, userModel.Password);
 
             if (user == null)
             {
@@ -45,9 +46,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="401">When userName or password is incorrent</responce>
         [AllowAnonymous]
         [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshTokenAsync([FromForm] RefreshTokenModel model)
+        public async Task<IActionResult> RefreshTokenAsync([FromQuery] string refreshToken)
         {
-            var newToken = await _authService.RefreshTokenAsync(model);
+            var newToken = await _authService.RefreshTokenAsync(refreshToken);
             
             if (newToken == null)
             {

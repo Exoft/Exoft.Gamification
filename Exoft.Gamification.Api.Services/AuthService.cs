@@ -3,6 +3,7 @@ using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
+using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Microsoft.IdentityModel.Tokens;
@@ -17,66 +18,59 @@ namespace Exoft.Gamification.Api.Services
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IAuthRepository _authRepository;
+        private readonly IAuthCacheManager _authCacheManager;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IJwtSecret _jwtSecret;
-        private readonly IMD5Hash _MD5Hash;
+        private readonly IPasswordHasher _hasher;
         private readonly IMapper _mapper;
 
         public AuthService
         (
             IUserRepository userRepository,
-            IAuthRepository authRepository,
+            IAuthCacheManager authCacheManager,
             IUnitOfWork unitOfWork,
             IJwtSecret jwtSecret,
-            IMD5Hash MD5Hash,
+            IPasswordHasher hasher,
             IMapper mapper
         )
         {
             _userRepository = userRepository;
-            _authRepository = authRepository;
+            _authCacheManager = authCacheManager;
             _unitOfWork = unitOfWork;
             _jwtSecret = jwtSecret;
-            _MD5Hash = MD5Hash;
+            _hasher = hasher;
             _mapper = mapper;
         }
 
-        public async Task<JwtTokenModel> Authenticate(string userName, string password)
+        public async Task<JwtTokenModel> AuthenticateAsync(string userName, string password)
         {
             var userEntity = await _userRepository.GetByUserNameAsync(userName);
 
-            // refresh token
-            var refreshTokenFromDB = _authRepository.GetByUserId(userEntity.Id);
-            if (refreshTokenFromDB != null)
-            {
-                _authRepository.Delete(refreshTokenFromDB);
-            }
-
-            var newRefreshToken = new RefreshToken()
-            {
-                ExpiresUtc = DateTime.UtcNow.AddSeconds(_jwtSecret.SecondsToExpireRefreshToken),
-                Token = Guid.NewGuid().ToString(),
-                UserId = userEntity.Id
-            };
-            _authRepository.Add(newRefreshToken);
-            
-            if (userEntity == null || _MD5Hash.GetMD5Hash(password) != userEntity.Password.ToLower())
+            if (userEntity == null || !_hasher.Equals(password, userEntity.Password))
             {
                 return null;
             }
+            
+            var newRefreshToken = new RefreshToken()
+            {
+                Token = Guid.NewGuid().ToString(),
+                UserId = userEntity.Id
+            };
+            await _authCacheManager.AddAsync(newRefreshToken);
 
             return GetJwtToken(userEntity, newRefreshToken);
         }
 
-        public async Task<JwtTokenModel> RefreshTokenAsync(RefreshTokenModel model)
+        public async Task<JwtTokenModel> RefreshTokenAsync(string refreshToken)
         {
-            var refreshTokenFromDB = _authRepository.GetByUserId(model.UserId);
-            var userEntity = await _userRepository.GetByIdAsync(model.UserId);
-            if(refreshTokenFromDB == null || userEntity == null)
+            var refreshTokenFromDB = await _authCacheManager.GetByKeyAsync(refreshToken);
+            if(refreshTokenFromDB == null)
             {
                 return null;
             }
-            if(refreshTokenFromDB.ExpiresUtc < DateTime.UtcNow)
+
+            var userEntity = await _userRepository.GetByIdAsync(refreshTokenFromDB.UserId);
+            if(userEntity == null)
             {
                 return null;
             }
@@ -101,7 +95,7 @@ namespace Exoft.Gamification.Api.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddSeconds(_jwtSecret.SecondsToExpireToken),
+                Expires = DateTime.UtcNow.Add(_jwtSecret.SecondsToExpireToken),
                 SigningCredentials = new SigningCredentials
                 (
                     new SymmetricSecurityKey(_jwtSecret.Secret),

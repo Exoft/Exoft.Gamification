@@ -1,9 +1,11 @@
-﻿namespace Exoft.Gamification.Api.Common.Helpers
+﻿using System;
+
+namespace Exoft.Gamification.Api.Common.Helpers
 {
     public interface IJwtSecret
     {
         byte[] Secret { get; }
-        int SecondsToExpireToken { get; }
-        int SecondsToExpireRefreshToken { get; }
+        TimeSpan SecondsToExpireToken { get; }
+        TimeSpan SecondsToExpireRefreshToken { get; }
     }
 }

@@ -4,13 +4,18 @@ using System.Text;
 
 namespace Exoft.Gamification.Api.Data.Core.Helpers
 {
-    public class MD5Hash : IMD5Hash
+    public class PasswordHasher : IPasswordHasher
     {
-        public string GetMD5Hash(string input)
+        public bool Equals(string input, string valueToCompare)
         {
-            using (MD5 md5 = MD5.Create())
+            return GetHash(input) == valueToCompare;
+        }
+
+        public string GetHash(string input)
+        {
+            using (SHA512 algorithm = SHA512.Create())
             {
-                byte[] data = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
+                byte[] data = algorithm.ComputeHash(Encoding.UTF8.GetBytes(input));
 
                 StringBuilder sBuilder = new StringBuilder();
                 for (int i = 0; i < data.Length; i++)

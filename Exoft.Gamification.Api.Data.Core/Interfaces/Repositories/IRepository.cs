@@ -3,7 +3,7 @@ using Exoft.Gamification.Api.Data.Core.Helpers;
 using System;
 using System.Threading.Tasks;
 
-namespace Exoft.Gamification.Api.Data.Core.Interfaces
+namespace Exoft.Gamification.Api.Data.Core.Interfaces.Repositories
 {
     public interface IRepository<T> where T : Entity
     {

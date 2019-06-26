@@ -1,6 +1,6 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
-using Exoft.Gamification.Api.Data.Core.Interfaces;
+using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -10,21 +10,8 @@ namespace Exoft.Gamification.Api.Data.Repositories
 {
     public class UserRepository : Repository<User>, IUserRepository
     {
-        private readonly IMD5Hash _MD5Hash;
-
-        public UserRepository
-        ( 
-            IMD5Hash MD5Hash,
-            UsersDbContext context
-        ) : base(context)
+        public UserRepository(UsersDbContext context) : base(context)
         {
-            _MD5Hash = MD5Hash;
-        }
-
-        public override Task AddAsync(User entity)
-        {
-            entity.Password = _MD5Hash.GetMD5Hash(entity.Password);
-            return base.AddAsync(entity);
         }
 
         public override async Task<ReturnPagingInfo<User>> GetAllDataAsync(PagingInfo pagingInfo)

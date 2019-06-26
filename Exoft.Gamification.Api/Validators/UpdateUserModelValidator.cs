@@ -1,5 +1,5 @@
 ﻿using Exoft.Gamification.Api.Common.Models.User;
-using Exoft.Gamification.Api.Data.Core.Interfaces;
+using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Resources;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
