@@ -1,4 +1,5 @@
-﻿using Exoft.Gamification.Api.Common.Models.User;
+﻿using Exoft.Gamification.Api.Common.Models;
+using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,9 +19,14 @@ namespace Exoft.Gamification.Api.Controllers
             _authService = authService;
         }
 
+        /// <summary>
+        /// Get jwt
+        /// </summary>
+        /// <responce code="200">Return token</responce>
+        /// <responce code="401">When userName or password is incorrent</responce>
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> AuthenticateAsync([FromBody]UserLoginModel userModel)
+        public async Task<IActionResult> AuthenticateAsync([FromForm]UserLoginModel userModel)
         {
             var user = await _authService.Authenticate(userModel.UserName, userModel.Password);
 
@@ -30,6 +36,25 @@ namespace Exoft.Gamification.Api.Controllers
             }
 
             return Ok(user);
+        }
+
+        /// <summary>
+        /// Get new jwt
+        /// </summary>
+        /// <responce code="200">Return new token</responce>
+        /// <responce code="401">When userName or password is incorrent</responce>
+        [AllowAnonymous]
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshTokenAsync([FromForm] RefreshTokenModel model)
+        {
+            var newToken = await _authService.RefreshTokenAsync(model);
+            
+            if (newToken == null)
+            {
+                return Unauthorized();
+            }
+            
+            return Ok(newToken);
         }
     }
 }

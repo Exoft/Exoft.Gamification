@@ -5,7 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20190619144514_addCommentFieldToUserAchievement.cs" />
+    <Compile Remove="Migrations\20190620084202_addRefreshTokenEntity.cs" />
+	<Compile Remove="Migrations\20190619144514_addCommentFieldToUserAchievement.cs" />
   </ItemGroup>
 
   <ItemGroup>

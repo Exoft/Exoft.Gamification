@@ -15,7 +15,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 LastName = "Roik",
                 Email = "ostap2308@gmail.com",
                 UserName = "OstapRoik",
-                Password = "password",
+                Password = "5F4DCC3B5AA765D61D8327DEB882CF99",
                 Status = "Status bla bla bla",
                 XP = 10
             };
@@ -25,7 +25,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 LastName = "Gogina",
                 Email = "tanya@gmail.com",
                 UserName = "TanyaGogina",
-                Password = "password",
+                Password = "5F4DCC3B5AA765D61D8327DEB882CF99",
                 Status = "Status 123",
                 XP = 40
             };
