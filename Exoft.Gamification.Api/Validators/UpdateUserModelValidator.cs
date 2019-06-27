@@ -65,7 +65,7 @@ namespace Exoft.Gamification.Api.Validators
                 return true;
             }
 
-            bool exists = await _userRepository.IsEmailExistsAsync(email);
+            bool exists = await _userRepository.DoesEmailExistsAsync(email);
             return !exists;
         }
 

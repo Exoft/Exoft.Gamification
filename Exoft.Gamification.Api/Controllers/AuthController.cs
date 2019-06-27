@@ -31,5 +31,18 @@ namespace Exoft.Gamification.Api.Controllers
 
             return Ok(user);
         }
+
+        [AllowAnonymous]
+        [HttpPost("reset")]
+        public async Task<IActionResult> ResetPasswordAsync([FromQuery] string email)
+        {
+            if(string.IsNullOrEmpty(email))
+            {
+                return BadRequest();
+            }
+
+            await _authService.ResetPasswordAsync(email);
+            return Ok();
+        }
     }
 }

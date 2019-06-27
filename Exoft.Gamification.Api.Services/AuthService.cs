@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services
@@ -15,17 +16,23 @@ namespace Exoft.Gamification.Api.Services
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IEmailService _emailService;
+        private readonly IUserService _userService;
         private readonly IJwtSecret _jwtSecret;
         private readonly IMapper _mapper;
 
         public AuthService
         (
             IUserRepository userRepository,
+            IEmailService emailService,
+            IUserService userService,
             IJwtSecret jwtSecret,
             IMapper mapper
         )
         {
             _userRepository = userRepository;
+            _emailService = emailService;
+            _userService = userService;
             _jwtSecret = jwtSecret;
             _mapper = mapper;
         }
@@ -69,6 +76,23 @@ namespace Exoft.Gamification.Api.Services
             jwtTokenModel.Token = tokenHandler.WriteToken(token);
 
             return jwtTokenModel;
+        }
+
+        public async Task ResetPasswordAsync(string email)
+        {
+            var userEntity = await _userRepository.GetByEmailAsync(email);
+            if(userEntity == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            var newPassword = await _userService.GenerateNewPasswordAsync(userEntity.Id);
+
+            StringBuilder builder = new StringBuilder();
+            builder.Append("Your new password: ");
+            builder.Append(newPassword);
+
+            await _emailService.SendEmailAsync(email, "Reset your password", builder.ToString());
         }
     }
 }

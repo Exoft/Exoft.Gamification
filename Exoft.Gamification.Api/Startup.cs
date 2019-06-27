@@ -68,6 +68,7 @@ namespace Exoft.Gamification
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IEventService, EventService>();
             services.AddScoped<IUserAchievementService, UserAchievementService>();
+            services.AddSingleton<IEmailService, EmailService>();
 
             // Repositories
             services.AddTransient<IUserRepository, UserRepository>();

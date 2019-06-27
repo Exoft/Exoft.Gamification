@@ -67,6 +67,17 @@ namespace Exoft.Gamification.Api.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
+        public async Task<string> GenerateNewPasswordAsync(Guid userId)
+        {
+            var newPassword = string.Join("", Guid.NewGuid().ToString().Take(8));
+
+            await _userRepository.UpdatePassword(userId, newPassword);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return newPassword;
+        }
+
         public async Task<ReturnPagingInfo<ReadShortUserModel>> GetAllUserAsync(PagingInfo pagingInfo)
         {
             var page = await _userRepository.GetAllDataAsync(pagingInfo);
