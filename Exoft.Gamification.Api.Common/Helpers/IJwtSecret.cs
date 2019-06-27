@@ -3,5 +3,9 @@
     public interface IJwtSecret
     {
         byte[] Secret { get; }
+
+        string EmailForSendMessage { get; }
+
+        string Password { get; }
     }
 }

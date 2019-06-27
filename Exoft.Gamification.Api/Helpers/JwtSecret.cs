@@ -10,9 +10,15 @@ namespace Exoft.Gamification.Api.Helpers
         {
             var secretSection = configuration.GetSection("Secrets");
             Secret = Encoding.ASCII.GetBytes(secretSection.GetValue<string>("TokenSecretString"));
+            EmailForSendMessage = secretSection.GetValue<string>("EmailForSendMessage");
+            Password = secretSection.GetValue<string>("Password");
         }
 
 
         public byte[] Secret { get; }
-    }
+
+        public string EmailForSendMessage { get; }
+
+        public string Password { get; }
+}
 }

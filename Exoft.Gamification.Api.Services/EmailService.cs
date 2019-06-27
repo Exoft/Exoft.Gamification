@@ -1,4 +1,5 @@
-﻿using Exoft.Gamification.Api.Services.Interfaces.Services;
+﻿using Exoft.Gamification.Api.Common.Helpers;
+using Exoft.Gamification.Api.Services.Interfaces.Services;
 using MailKit.Net.Smtp;
 using MimeKit;
 using System.Threading.Tasks;
@@ -7,10 +8,17 @@ namespace Exoft.Gamification.Api.Services
 {
     public class EmailService : IEmailService
     {
+        private readonly IJwtSecret _jwtSecret;
+
+        public EmailService(IJwtSecret jwtSecret)
+        {
+            _jwtSecret = jwtSecret;
+        }
+
         public async Task SendEmailAsync(string email, string subject, string message)
         {
-            string emailAdmin = "yelyzaveta.brednieva.pz.2016@lpnu.ua";
-            string passwordAdmin = "03.02.1999";
+            string emailAdmin = _jwtSecret.EmailForSendMessage;
+            string passwordAdmin = _jwtSecret.Password;
 
             var emailMessage = new MimeMessage();
 
