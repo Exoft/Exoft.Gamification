@@ -16,17 +16,20 @@ namespace Exoft.Gamification.Api.Controllers
     {
         private readonly IUserService _userService;
         private readonly IUserAchievementService _userAchievementService;
+        private readonly IThankService _thankService;
         private readonly IValidator<UpdateUserModel> _updateUserModelValidator;
 
         public ProfileController
         (
             IUserService userService,
             IUserAchievementService userAchievementService,
+            IThankService thankService,
             IValidator<UpdateUserModel> updateUserModelValidator
         )
         {
             _userService = userService;
             _userAchievementService = userAchievementService;
+            _thankService = thankService;
             _updateUserModelValidator = updateUserModelValidator;
         }
 
@@ -62,6 +65,18 @@ namespace Exoft.Gamification.Api.Controllers
             }
 
             return Ok(user);
+        }
+
+        [HttpGet("current-user/thanks")]
+        public async Task<IActionResult> GetCurrentUserThanks()
+        {
+            var thank = await _thankService.GetThankAsync(UserId);
+            if(thank == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(thank);   
         }
 
         /// <summary>

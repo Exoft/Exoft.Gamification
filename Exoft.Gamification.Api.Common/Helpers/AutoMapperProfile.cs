@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
+using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Entities;
 
@@ -47,11 +48,15 @@ namespace Exoft.Gamification.Api.Common.Helpers
 
             CreateMap<User, JwtTokenModel>();
 
+            CreateMap<Thank, ReadThankModel>();
+
             // map to entity
 
             CreateMap<UpdateAchievementModel, Achievement>();
 
             CreateMap<CreateUserModel, User>();
+
+            CreateMap<CreateThankModel, Thank>();
         }
     }
 }

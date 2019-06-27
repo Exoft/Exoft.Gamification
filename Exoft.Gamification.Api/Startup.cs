@@ -5,6 +5,7 @@ using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Data.Repositories;
+using Exoft.Gamification.Api.Data.Seeds;
 using Exoft.Gamification.Api.Helpers;
 using Exoft.Gamification.Api.Resources;
 using Exoft.Gamification.Api.Services;
@@ -68,6 +69,7 @@ namespace Exoft.Gamification
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IEventService, EventService>();
             services.AddScoped<IUserAchievementService, UserAchievementService>();
+            services.AddScoped<IThankService, ThankService>();
 
             // Repositories
             services.AddTransient<IUserRepository, UserRepository>();
@@ -76,6 +78,7 @@ namespace Exoft.Gamification
             services.AddTransient<IEventRepository, EventRepository>();
             services.AddTransient<IUserAchievementRepository, UserAchievementRepository>();
             services.AddTransient<IRoleRepository, RoleRepository>();
+            services.AddTransient<IThankRepository, ThankRepository>();
 
             // Validators
             services.AddTransient<IValidator<CreateUserModel>, CreateUserModelValidator>();
