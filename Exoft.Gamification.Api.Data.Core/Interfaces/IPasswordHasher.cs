@@ -3,6 +3,6 @@
     public interface IPasswordHasher
     {
         string GetHash(string input);
-        bool Equals(string input, string valueToCompare);
+        bool Compare(string password, string hashedPassword);
     }
 }

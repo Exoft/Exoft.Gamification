@@ -11,15 +11,15 @@ namespace Exoft.Gamification.Api.Helpers
         {
             var secretSection = configuration.GetSection("Secrets");
             Secret = Encoding.ASCII.GetBytes(secretSection.GetValue<string>("TokenSecretString"));
-            SecondsToExpireToken = TimeSpan.FromSeconds(secretSection.GetValue<int>("SecondsToExpireToken"));
-            SecondsToExpireRefreshToken = TimeSpan.FromSeconds(secretSection.GetValue<int>("SecondsToExpireRefreshToken"));
+            TimeToExpireToken = TimeSpan.FromSeconds(secretSection.GetValue<int>("SecondsToExpireToken"));
+            TimeToExpireRefreshToken = TimeSpan.FromSeconds(secretSection.GetValue<int>("SecondsToExpireRefreshToken"));
         }
 
 
         public byte[] Secret { get; }
 
-        public TimeSpan SecondsToExpireToken { get; }
+        public TimeSpan TimeToExpireToken { get; }
 
-        public TimeSpan SecondsToExpireRefreshToken { get; }
+        public TimeSpan TimeToExpireRefreshToken { get; }
     }
 }

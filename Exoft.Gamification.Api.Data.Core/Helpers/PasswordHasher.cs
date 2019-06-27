@@ -6,9 +6,9 @@ namespace Exoft.Gamification.Api.Data.Core.Helpers
 {
     public class PasswordHasher : IPasswordHasher
     {
-        public bool Equals(string input, string valueToCompare)
+        public bool Compare(string password, string hashedPassword)
         {
-            return GetHash(input) == valueToCompare;
+            return GetHash(password) == hashedPassword;
         }
 
         public string GetHash(string input)

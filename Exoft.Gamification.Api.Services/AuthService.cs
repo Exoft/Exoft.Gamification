@@ -4,7 +4,6 @@ using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
-using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -18,27 +17,24 @@ namespace Exoft.Gamification.Api.Services
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IAuthCacheManager _authCacheManager;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IJwtSecret _jwtSecret;
+        private readonly IRefreshTokenProvider _refreshTokenProvider;
         private readonly IPasswordHasher _hasher;
+        private readonly IJwtSecret _jwtSecret;
         private readonly IMapper _mapper;
 
         public AuthService
         (
             IUserRepository userRepository,
-            IAuthCacheManager authCacheManager,
-            IUnitOfWork unitOfWork,
-            IJwtSecret jwtSecret,
+            IRefreshTokenProvider authCacheManager,
             IPasswordHasher hasher,
+            IJwtSecret jwtSecret,
             IMapper mapper
         )
         {
             _userRepository = userRepository;
-            _authCacheManager = authCacheManager;
-            _unitOfWork = unitOfWork;
-            _jwtSecret = jwtSecret;
+            _refreshTokenProvider = authCacheManager;
             _hasher = hasher;
+            _jwtSecret = jwtSecret;
             _mapper = mapper;
         }
 
@@ -46,30 +42,31 @@ namespace Exoft.Gamification.Api.Services
         {
             var userEntity = await _userRepository.GetByUserNameAsync(userName);
 
-            if (userEntity == null || !_hasher.Equals(password, userEntity.Password))
+            if (userEntity == null || !_hasher.Compare(password, userEntity.Password))
             {
                 return null;
             }
             
-            var newRefreshToken = new RefreshToken()
+            var refreshToken = new RefreshToken()
             {
                 Token = Guid.NewGuid().ToString(),
                 UserId = userEntity.Id
             };
-            await _authCacheManager.AddAsync(newRefreshToken);
+            await _refreshTokenProvider.AddAsync(refreshToken);
 
-            return GetJwtToken(userEntity, newRefreshToken);
+            return GetJwtToken(userEntity, refreshToken);
         }
 
         public async Task<JwtTokenModel> RefreshTokenAsync(string refreshToken)
         {
-            var refreshTokenFromDB = await _authCacheManager.GetByKeyAsync(refreshToken);
+            var refreshTokenFromDB = await _refreshTokenProvider.GetRefreshTokenInfo(refreshToken);
             if(refreshTokenFromDB == null)
             {
                 return null;
             }
-
-            var userEntity = await _userRepository.GetByIdAsync(refreshTokenFromDB.UserId);
+            
+            var userId = refreshTokenFromDB.UserId;
+            var userEntity = await _userRepository.GetByIdAsync(userId);
             if(userEntity == null)
             {
                 return null;
@@ -95,7 +92,7 @@ namespace Exoft.Gamification.Api.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.Add(_jwtSecret.SecondsToExpireToken),
+                Expires = DateTime.UtcNow.Add(_jwtSecret.TimeToExpireToken),
                 SigningCredentials = new SigningCredentials
                 (
                     new SymmetricSecurityKey(_jwtSecret.Secret),
