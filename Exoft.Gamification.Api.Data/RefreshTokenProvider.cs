@@ -46,7 +46,7 @@ namespace Exoft.Gamification.Api.Data
             }
 
             var cacheObject = await _cacheManager.GetByKeyAsync(token);
-            if (cacheObject == null)
+            if (cacheObject == default(Guid))
             {
                 return null;
             }
