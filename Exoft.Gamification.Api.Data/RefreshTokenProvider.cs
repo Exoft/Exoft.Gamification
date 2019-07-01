@@ -9,12 +9,12 @@ namespace Exoft.Gamification.Api.Data
     public class RefreshTokenProvider : IRefreshTokenProvider
     {
         private readonly IJwtSecret _jwtSecret;
-        private readonly ICacheManager<CacheObject> _cacheManager;
+        private readonly ICacheManager<Guid> _cacheManager;
 
         public RefreshTokenProvider
         (
             IJwtSecret jwtSecret,
-            ICacheManager<CacheObject> cacheManager
+            ICacheManager<Guid> cacheManager
         )
         {
             _jwtSecret = jwtSecret;
@@ -23,10 +23,10 @@ namespace Exoft.Gamification.Api.Data
 
         public async Task AddAsync(RefreshToken refreshToken)
         {
-            var cacheObject = new CacheObject()
+            var cacheObject = new CacheObject<Guid>()
             {
                 Key = refreshToken.Token,
-                Value = refreshToken.UserId.ToString(),
+                Value = refreshToken.UserId,
                 TimeToExpire = _jwtSecret.TimeToExpireRefreshToken
             };
 
@@ -35,9 +35,7 @@ namespace Exoft.Gamification.Api.Data
 
         public async Task DeleteAsync(RefreshToken refreshToken)
         {
-            var cacheObject = await _cacheManager.GetByKeyAsync(refreshToken.Token);
-
-            await _cacheManager.DeleteAsync(cacheObject);
+            await _cacheManager.DeleteAsync(refreshToken.Token);
         }
 
         public async Task<RefreshToken> GetRefreshTokenInfo(string token)
@@ -56,7 +54,7 @@ namespace Exoft.Gamification.Api.Data
             return new RefreshToken()
             {
                 Token = token,
-                UserId = Guid.Parse(cacheObject)
+                UserId = cacheObject
             };
         }
     }

@@ -3,7 +3,6 @@ using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data;
-using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
@@ -64,7 +63,7 @@ namespace Exoft.Gamification
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddTransient<IPasswordHasher, PasswordHasher>();
             services.AddTransient<IRefreshTokenProvider, RefreshTokenProvider>();
-            services.AddTransient<ICacheManager<CacheObject>, CacheManager<CacheObject>>();
+            services.AddTransient(typeof(ICacheManager<>), typeof(CacheManager<>));
 
             // Services
             services.AddScoped<IAuthService, AuthService>();
@@ -92,15 +91,7 @@ namespace Exoft.Gamification
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             // Cache
-            //services.AddDistributedRedisCache(options =>
-            //{
-            //    options.Configuration = "127.0.0.1";
-            //    options.InstanceName = "master";
-            //});
-            services.AddDistributedMemoryCache(options =>
-            {
-                options.SizeLimit = 100;
-            });
+            services.AddDistributedMemoryCache();
 
             // configure jwt authentication
             services.AddAuthentication(x =>
