@@ -147,6 +147,9 @@
   <data name="UniqueUserName" xml:space="preserve">
     <value>Is not a unique userName</value>
   </data>
+  <data name="UserNotFound" xml:space="preserve">
+    <value>User not found</value>
+  </data>
   <data name="WrongEmail" xml:space="preserve">
     <value>Is not a valid email address</value>
   </data>

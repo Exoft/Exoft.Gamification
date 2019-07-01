@@ -13,15 +13,17 @@ namespace Exoft.Gamification.Api.Data.Repositories
         {
         }
 
-        public async Task<Thank> GetThankAsync(Guid toUserId)
+        public async Task<Thank> GetLastThankAsync(Guid toUserId)
         {
             return await IncludeAll()
-                .SingleOrDefaultAsync(i => i.ToUserId == toUserId);
+                .OrderByDescending(i => i.AddedTime)
+                .FirstOrDefaultAsync(i => i.ToUserId == toUserId);
         }
 
         protected override IQueryable<Thank> IncludeAll()
         {
-            return DbSet;
+            return DbSet
+                .Include(i => i.FromUser);
         }
     }
 }

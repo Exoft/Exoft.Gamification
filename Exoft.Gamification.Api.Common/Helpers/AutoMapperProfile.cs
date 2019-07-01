@@ -48,7 +48,10 @@ namespace Exoft.Gamification.Api.Common.Helpers
 
             CreateMap<User, JwtTokenModel>();
 
-            CreateMap<Thank, ReadThankModel>();
+            CreateMap<Thank, ReadThankModel>()
+                .ForMember(s => s.FirstName, o => o.MapFrom(d => d.FromUser.FirstName))
+                .ForMember(s => s.LastName, o => o.MapFrom(d => d.FromUser.LastName))
+                .ForMember(s => s.AvatarId, o => o.MapFrom(d => d.FromUser.AvatarId));
 
             // map to entity
 

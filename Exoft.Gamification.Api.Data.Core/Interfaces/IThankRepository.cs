@@ -6,6 +6,6 @@ namespace Exoft.Gamification.Api.Data.Core.Interfaces
 {
     public interface IThankRepository : IRepository<Thank>
     {
-        Task<Thank> GetThankAsync(Guid toUserId);
+        Task<Thank> GetLastThankAsync(Guid toUserId);
     }
 }

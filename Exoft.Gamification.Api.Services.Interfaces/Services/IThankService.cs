@@ -7,6 +7,6 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Services
     public interface IThankService
     {
         Task AddAsync(CreateThankModel model, Guid fromUserId);
-        Task<ReadThankModel> GetThankAsync(Guid toUserId);
+        Task<ReadThankModel> GetLastThankAsync(Guid toUserId);
     }
 }

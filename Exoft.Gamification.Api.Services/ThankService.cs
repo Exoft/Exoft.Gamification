@@ -11,17 +11,20 @@ namespace Exoft.Gamification.Api.Services
 {
     public class ThankService : IThankService
     {
+        private readonly IUserRepository _userRepository;
         private readonly IThankRepository _thankRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
         public ThankService
         (
+            IUserRepository userRepository,
             IThankRepository thankRepository,
             IMapper mapper,
             IUnitOfWork unitOfWork
         )
         {
+            _userRepository = userRepository;
             _thankRepository = thankRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -29,22 +32,16 @@ namespace Exoft.Gamification.Api.Services
 
         public async Task AddAsync(CreateThankModel model, Guid fromUserId)
         {
-            var thankEntity = await _thankRepository.GetThankAsync(model.ToUserId);
-            if(thankEntity != null)
-            {
-                _thankRepository.Delete(thankEntity);
-            }
-
             var thank = _mapper.Map<Thank>(model);
-            thank.FromUserId = fromUserId;
+            thank.FromUser = await _userRepository.GetByIdAsync(fromUserId);
             await _thankRepository.AddAsync(thank);
 
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<ReadThankModel> GetThankAsync(Guid toUserId)
+        public async Task<ReadThankModel> GetLastThankAsync(Guid toUserId)
         {
-            var thankEntity = await _thankRepository.GetThankAsync(toUserId);
+            var thankEntity = await _thankRepository.GetLastThankAsync(toUserId);
             if(thankEntity == null)
             {
                 return null;
