@@ -3,6 +3,7 @@ using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Entities;
+using System;
 
 namespace Exoft.Gamification.Api.Common.Helpers
 {

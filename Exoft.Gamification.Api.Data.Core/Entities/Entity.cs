@@ -2,7 +2,7 @@
 
 namespace Exoft.Gamification.Api.Data.Core.Entities
 {
-    public class Entity
+    public abstract class Entity
     {
         public Entity()
         {

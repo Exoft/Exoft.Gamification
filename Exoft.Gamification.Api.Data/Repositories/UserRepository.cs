@@ -1,6 +1,6 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
-using Exoft.Gamification.Api.Data.Core.Interfaces;
+using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
@@ -36,18 +36,18 @@ namespace Exoft.Gamification.Api.Data.Repositories
             return result;
         }
 
-        public async Task<User> GetByUserNameAsync(string userName)
-        {
-            var user = await IncludeAll().SingleOrDefaultAsync(i => i.UserName == userName);
-
-            return user;
-        }
-
         public async Task<bool> IsEmailExistsAsync(string email)
         {
             var result = await IncludeAll().AnyAsync(i => i.Email == email);
 
             return result;
+        }
+
+        public async Task<User> GetByUserNameAsync(string userName)
+        {
+            var user = await IncludeAll().SingleOrDefaultAsync(i => i.UserName == userName);
+
+            return user;
         }
 
         protected override IQueryable<User> IncludeAll()

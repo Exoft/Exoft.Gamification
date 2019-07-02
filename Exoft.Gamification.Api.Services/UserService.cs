@@ -3,6 +3,7 @@ using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
+using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using System;
@@ -20,6 +21,7 @@ namespace Exoft.Gamification.Api.Services
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPasswordHasher _hasher;
 
         public UserService
         (
@@ -27,7 +29,8 @@ namespace Exoft.Gamification.Api.Services
             IFileRepository fileRepository,
             IRoleRepository roleRepository,
             IMapper mapper,
-            IUnitOfWork unitOfWork
+            IUnitOfWork unitOfWork,
+            IPasswordHasher hasher
         )
         {
             _userRepository = userRepository;
@@ -35,6 +38,7 @@ namespace Exoft.Gamification.Api.Services
             _roleRepository = roleRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _hasher = hasher;
         }
 
         public async Task<ReadFullUserModel> AddUserAsync(CreateUserModel model)
@@ -50,6 +54,8 @@ namespace Exoft.Gamification.Api.Services
             };
 
             user.Roles.Add(userRole);
+
+            user.Password = _hasher.GetHash(model.Password);
 
             await _userRepository.AddAsync(user);
 

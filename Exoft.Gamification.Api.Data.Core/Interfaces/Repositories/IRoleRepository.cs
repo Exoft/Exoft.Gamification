@@ -1,7 +1,7 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
 using System.Threading.Tasks;
 
-namespace Exoft.Gamification.Api.Data.Core.Interfaces
+namespace Exoft.Gamification.Api.Data.Core.Interfaces.Repositories
 {
     public interface IRoleRepository : IRepository<Role>
     {

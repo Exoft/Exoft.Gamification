@@ -3,8 +3,11 @@ using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data;
+using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
+using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Data.Repositories;
+using Exoft.Gamification.Api.Data.Seeds;
 using Exoft.Gamification.Api.Helpers;
 using Exoft.Gamification.Api.Resources;
 using Exoft.Gamification.Api.Services;
@@ -12,11 +15,9 @@ using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Validators;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -60,6 +61,9 @@ namespace Exoft.Gamification
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddTransient<IPasswordHasher, PasswordHasher>();
+            services.AddTransient<IRefreshTokenProvider, RefreshTokenProvider>();
+            services.AddTransient(typeof(ICacheManager<>), typeof(CacheManager<>));
 
             // Services
             services.AddScoped<IAuthService, AuthService>();
@@ -86,6 +90,9 @@ namespace Exoft.Gamification
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+            // Cache
+            services.AddDistributedMemoryCache();
+
             // configure jwt authentication
             services.AddAuthentication(x =>
             {
@@ -94,14 +101,14 @@ namespace Exoft.Gamification
             })
             .AddJwtBearer(x =>
             {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(jwtSecret.Secret),
+                    ValidateIssuerSigningKey = true,
                     ValidateIssuer = false,
-                    ValidateAudience = false
+                    ValidateAudience = false,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
                 };
             });
 
