@@ -4,7 +4,6 @@ using Exoft.Gamification.Api.Resources;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Localization;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +13,6 @@ namespace Exoft.Gamification.Api.Validators
     {
         private readonly IUserRepository _userRepository;
         private readonly IRoleRepository _roleRepository;
-        private readonly IActionContextAccessor _actionContextAccessor;
 
         public UpdateUserModelValidator
         (
@@ -22,11 +20,10 @@ namespace Exoft.Gamification.Api.Validators
             IRoleRepository roleRepository,
             IStringLocalizer<ValidatorMessages> stringLocalizer,
             IActionContextAccessor actionContextAccessor
-        ) : base(stringLocalizer)
+        ) : base(stringLocalizer, actionContextAccessor)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
-            _actionContextAccessor = actionContextAccessor;
 
             RuleFor(user => user.FirstName)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
@@ -57,8 +54,7 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
         {
-            var userId = GetUserId();
-            var user = await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetByIdAsync(CurrentUserId);
 
             if(user.Email == email)
             {
@@ -77,8 +73,7 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckUserNameAsync(string userName, CancellationToken cancellationToken)
         {
-            var userId = GetUserId();
-            var user = await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetByIdAsync(CurrentUserId);
 
             if (user.UserName == userName)
             {
@@ -92,13 +87,6 @@ namespace Exoft.Gamification.Api.Validators
             }
 
             return userEntity.Id == user.Id;
-        }
-
-        private Guid GetUserId()
-        {
-            var userIdString = _actionContextAccessor.ActionContext.RouteData.Values["userId"].ToString();
-
-            return Guid.Parse(userIdString);
         }
     }
 }

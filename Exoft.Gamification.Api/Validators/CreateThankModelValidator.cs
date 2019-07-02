@@ -5,7 +5,6 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Localization;
 using System;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,17 +13,15 @@ namespace Exoft.Gamification.Api.Validators
     public class CreateThankModelValidator : BaseValidator<CreateThankModel>
     {
         private readonly IUserRepository _userRepository;
-        private readonly IActionContextAccessor _actionContextAccessor;
 
         public CreateThankModelValidator
         (
             IUserRepository userRepository,
-            IActionContextAccessor actionContextAccessor,
-            IStringLocalizer<ValidatorMessages> stringLocalizer
-        ) : base(stringLocalizer)
+            IStringLocalizer<ValidatorMessages> stringLocalizer,
+            IActionContextAccessor actionContextAccessor
+        ) : base(stringLocalizer, actionContextAccessor)
         {
             _userRepository = userRepository;
-            _actionContextAccessor = actionContextAccessor;
 
             RuleFor(thank => thank.Text)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
@@ -37,15 +34,12 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> DoesUserExistAsync(Guid userId, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-
-            var currentUserId = Guid.Parse(_actionContextAccessor.ActionContext.HttpContext.User
-                .FindFirst(ClaimTypes.NameIdentifier).Value);
-
-            if (userId == currentUserId)
+            if (userId == CurrentUserId)
             {
                 return false;
             }
+
+            var user = await _userRepository.GetByIdAsync(userId);
 
             return user != null;
         }

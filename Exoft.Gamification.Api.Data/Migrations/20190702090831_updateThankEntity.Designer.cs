@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Exoft.Gamification.Api.Data.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    [Migration("20190701113436_updateThankEntity")]
+    [Migration("20190702090831_updateThankEntity")]
     partial class updateThankEntity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -92,7 +92,8 @@ namespace Exoft.Gamification.Api.Data.Migrations
 
                     b.Property<DateTime>("AddedTime");
 
-                    b.Property<Guid?>("FromUserId");
+                    b.Property<Guid?>("FromUserId")
+                        .IsRequired();
 
                     b.Property<string>("Text");
 
@@ -175,7 +176,8 @@ namespace Exoft.Gamification.Api.Data.Migrations
                 {
                     b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.User", "FromUser")
                         .WithMany()
-                        .HasForeignKey("FromUserId");
+                        .HasForeignKey("FromUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.UserAchievement", b =>

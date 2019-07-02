@@ -13,17 +13,15 @@ namespace Exoft.Gamification.Api.Validators
     public class UpdateAchievementModelValidator : BaseValidator<UpdateAchievementModel>
     {
         private readonly IAchievementRepository _achievementRepository;
-        private readonly IActionContextAccessor _actionContextAccessor;
 
         public UpdateAchievementModelValidator
         (
             IAchievementRepository achievementRepository,
-            IActionContextAccessor actionContextAccessor,
-            IStringLocalizer<ValidatorMessages> stringLocalizer
-        ) : base(stringLocalizer)
+            IStringLocalizer<ValidatorMessages> stringLocalizer,
+            IActionContextAccessor actionContextAccessor
+        ) : base(stringLocalizer, actionContextAccessor)
         {
             _achievementRepository = achievementRepository;
-            _actionContextAccessor = actionContextAccessor;
 
             RuleFor(achievement => achievement.Name)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])

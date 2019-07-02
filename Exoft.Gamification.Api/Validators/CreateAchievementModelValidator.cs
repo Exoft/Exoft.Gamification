@@ -2,6 +2,7 @@
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Resources;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Localization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,8 +16,9 @@ namespace Exoft.Gamification.Api.Validators
         public CreateAchievementModelValidator
         (
             IAchievementRepository achievementRepository,
-            IStringLocalizer<ValidatorMessages> stringLocalizer
-        ) : base(stringLocalizer)
+            IStringLocalizer<ValidatorMessages> stringLocalizer,
+            IActionContextAccessor actionContextAccessor
+        ) : base(stringLocalizer, actionContextAccessor)
         {
             _achievementRepository = achievementRepository;
 

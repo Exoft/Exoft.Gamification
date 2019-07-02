@@ -90,7 +90,8 @@ namespace Exoft.Gamification.Api.Data.Migrations
 
                     b.Property<DateTime>("AddedTime");
 
-                    b.Property<Guid?>("FromUserId");
+                    b.Property<Guid?>("FromUserId")
+                        .IsRequired();
 
                     b.Property<string>("Text");
 
@@ -173,7 +174,8 @@ namespace Exoft.Gamification.Api.Data.Migrations
                 {
                     b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.User", "FromUser")
                         .WithMany()
-                        .HasForeignKey("FromUserId");
+                        .HasForeignKey("FromUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.UserAchievement", b =>

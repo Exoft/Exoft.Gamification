@@ -27,6 +27,7 @@ namespace Exoft.Gamification.Api.Data
         {
             modelBuilder.ApplyConfiguration(new UserAchievementConfiguration());
             modelBuilder.ApplyConfiguration(new UserRolesConfiguration());
+            modelBuilder.ApplyConfiguration(new ThankConfiguration());
         }
     }
 }

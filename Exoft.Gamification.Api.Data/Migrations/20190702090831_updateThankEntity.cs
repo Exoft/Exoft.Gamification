@@ -7,12 +7,6 @@ namespace Exoft.Gamification.Api.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<Guid>(
-                name: "FromUserId",
-                table: "Thanks",
-                nullable: true,
-                oldClrType: typeof(Guid));
-
             migrationBuilder.AddColumn<DateTime>(
                 name: "AddedTime",
                 table: "Thanks",
@@ -30,7 +24,7 @@ namespace Exoft.Gamification.Api.Data.Migrations
                 column: "FromUserId",
                 principalTable: "Users",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
+                onDelete: ReferentialAction.Cascade);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -46,13 +40,6 @@ namespace Exoft.Gamification.Api.Data.Migrations
             migrationBuilder.DropColumn(
                 name: "AddedTime",
                 table: "Thanks");
-
-            migrationBuilder.AlterColumn<Guid>(
-                name: "FromUserId",
-                table: "Thanks",
-                nullable: false,
-                oldClrType: typeof(Guid),
-                oldNullable: true);
         }
     }
 }

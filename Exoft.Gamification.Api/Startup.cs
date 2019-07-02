@@ -14,11 +14,9 @@ using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Validators;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -142,7 +140,7 @@ namespace Exoft.Gamification
                 //var context = scope.ServiceProvider.GetService<UsersDbContext>();
                 //ContextInitializer.Initialize(context);
             }
-            
+
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
