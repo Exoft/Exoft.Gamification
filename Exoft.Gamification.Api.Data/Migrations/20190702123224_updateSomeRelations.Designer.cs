@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Exoft.Gamification.Api.Data.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    [Migration("20190702090831_updateThankEntity")]
-    partial class updateThankEntity
+    [Migration("20190702123224_updateSomeRelations")]
+    partial class updateSomeRelations
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -50,7 +50,8 @@ namespace Exoft.Gamification.Api.Data.Migrations
 
                     b.Property<int>("Type");
 
-                    b.Property<Guid?>("UserId");
+                    b.Property<Guid?>("UserId")
+                        .IsRequired();
 
                     b.HasKey("Id");
 
@@ -102,6 +103,8 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("FromUserId");
+
+                    b.HasIndex("ToUserId");
 
                     b.ToTable("Thanks");
                 });
@@ -169,7 +172,8 @@ namespace Exoft.Gamification.Api.Data.Migrations
                 {
                     b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Thank", b =>
@@ -177,6 +181,11 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.User", "FromUser")
                         .WithMany()
                         .HasForeignKey("FromUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.User")
+                        .WithMany()
+                        .HasForeignKey("ToUserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

@@ -8,7 +8,9 @@ namespace Exoft.Gamification.Api.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Thank> builder)
         {
-            builder.Property("FromUserId").IsRequired();
+            builder.HasOne(i => i.FromUser).WithMany().OnDelete(DeleteBehavior.Restrict).IsRequired();
+            
+            builder.HasOne<User>().WithMany().HasForeignKey(i => i.ToUserId).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
