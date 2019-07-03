@@ -117,46 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="EmptyField" xml:space="preserve">
-    <value>{PropertyName} should not be empty</value>
-  </data>
-  <data name="Error" xml:space="preserve">
-    <value>Unknown error</value>
-  </data>
-  <data name="PasswordDigit" xml:space="preserve">
-    <value>Password must contains digit</value>
-  </data>
-  <data name="PasswordLowerCaseLetter" xml:space="preserve">
-    <value>Password must contains lower case letter</value>
-  </data>
-  <data name="PasswordUpperCaseLetter" xml:space="preserve">
-    <value>Password must contains upper case letter</value>
-  </data>
-  <data name="SmallValue" xml:space="preserve">
-    <value>{PropertyName} must be greater than or equal to {ComparisonValue}</value>
-  </data>
-  <data name="TooLong" xml:space="preserve">
-    <value>The length of {PropertyName} must be {MaxLength} chars or fewer</value>
-  </data>
-  <data name="TooShort" xml:space="preserve">
-    <value>The length of {PropertyName} must be {MinLength} chars or more</value>
-  </data>
-  <data name="UniqueEmail" xml:space="preserve">
-    <value>Is not a unique email address</value>
-  </data>
-  <data name="UniqueName" xml:space="preserve">
-    <value>Is not a unique name</value>
-  </data>
-  <data name="UniqueUserName" xml:space="preserve">
-    <value>Is not a unique userName</value>
-  </data>
-  <data name="UserNotFound" xml:space="preserve">
-    <value>User not found</value>
-  </data>
-  <data name="WrongEmail" xml:space="preserve">
-    <value>Is not a valid email address</value>
-  </data>
-  <data name="WrongRole" xml:space="preserve">
-    <value>Is not a valid role</value>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="ForgotPasswordPage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>ForgotPasswordPage.html;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
 </root>

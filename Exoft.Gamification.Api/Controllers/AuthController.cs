@@ -1,9 +1,10 @@
 ﻿using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
@@ -14,10 +15,16 @@ namespace Exoft.Gamification.Api.Controllers
     public class AuthController : GamificationController
     {
         private readonly IAuthService _authService;
+        private readonly IValidator<ResetPasswordModel> _resetPasswordModel;
 
-        public AuthController(IAuthService authService)
+        public AuthController
+        (
+            IAuthService authService,
+            IValidator<ResetPasswordModel> resetPasswordModel
+        )
         {
             _authService = authService;
+            _resetPasswordModel = resetPasswordModel;
         }
 
         /// <summary>
@@ -38,7 +45,7 @@ namespace Exoft.Gamification.Api.Controllers
 
             return Ok(user);
         }
-
+        
         /// <summary>
         /// Get new jwt
         /// </summary>
@@ -49,13 +56,58 @@ namespace Exoft.Gamification.Api.Controllers
         public async Task<IActionResult> RefreshTokenAsync([FromQuery] string refreshToken)
         {
             var newToken = await _authService.RefreshTokenAsync(refreshToken);
-            
+
             if (newToken == null)
             {
                 return Unauthorized();
             }
-            
+
             return Ok(newToken);
+        }
+
+        /// <summary>
+        /// Send recover password link to email
+        /// </summary>
+        /// <responce code="200">If email successful sended</responce>
+        /// <responce code="400">When email null or empty</responce>
+        [AllowAnonymous]
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPasswordAsync([FromQuery] string email)
+        {
+            if(string.IsNullOrEmpty(email))
+            {
+                return BadRequest();
+            }
+
+            var result = await _authService.ForgotPasswordAsync(email);
+            if(result == -1)
+            {
+                return BadRequest();
+            }
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Set new password for user
+        /// </summary>
+        /// <responce code="200">If password successful update</responce>
+        /// <responce code="400">When newPassword or secretString null or empty</responce>
+        [AllowAnonymous]
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
+        {
+            var resultValidation = await _resetPasswordModel.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
+            await _authService.ResetPasswordAsync(model.secretString, model.newPassword);
+
+            return Ok();
         }
     }
 }

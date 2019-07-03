@@ -9,8 +9,10 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Exoft.Gamification.Api.Services
 {
@@ -19,23 +21,35 @@ namespace Exoft.Gamification.Api.Services
         private readonly IUserRepository _userRepository;
         private readonly IRefreshTokenProvider _refreshTokenProvider;
         private readonly IPasswordHasher _hasher;
+        private readonly IEmailService _emailService;
+        private readonly IUserService _userService;
         private readonly IJwtSecret _jwtSecret;
         private readonly IMapper _mapper;
+        private readonly ICacheManager<Guid> _cache;
+        private readonly IEmailSenderSettings _emailSenderSettings;
 
         public AuthService
         (
             IUserRepository userRepository,
             IRefreshTokenProvider authCacheManager,
             IPasswordHasher hasher,
+            IEmailService emailService,
+            IUserService userService,
             IJwtSecret jwtSecret,
-            IMapper mapper
+            IMapper mapper,
+            ICacheManager<Guid> cache,
+            IEmailSenderSettings emailSenderSettings
         )
         {
             _userRepository = userRepository;
             _refreshTokenProvider = authCacheManager;
             _hasher = hasher;
+            _emailService = emailService;
+            _userService = userService;
             _jwtSecret = jwtSecret;
             _mapper = mapper;
+            _cache = cache;
+            _emailSenderSettings = emailSenderSettings;
         }
 
         public async Task<JwtTokenModel> AuthenticateAsync(string userName, string password)
@@ -107,6 +121,56 @@ namespace Exoft.Gamification.Api.Services
             jwtTokenModel.TokenExpiration = token.ValidTo.ConvertToIso8601DateTimeUtc();
 
             return jwtTokenModel;
+        }
+
+        public async Task<int> ForgotPasswordAsync(string email)
+        {
+            var user = await _userRepository.GetByEmailAsync(email);
+            if(user == null)
+            {
+                return -1;
+            }
+
+            var temporaryRandomString = GetRandomString();
+            
+            var cacheObject = new CacheObject<Guid>()
+            {
+                Key = temporaryRandomString,
+                Value = user.Id,
+                TimeToExpire = TimeSpan.FromMinutes(10)
+            };
+            await _cache.AddAsync(cacheObject);
+            
+            var forgotPasswordPage = Resources.HtmlPages.ForgotPasswordPage;
+
+            var uriBuilder = new UriBuilder(_emailSenderSettings.ResetPasswordPage);
+            var query = HttpUtility.ParseQueryString(uriBuilder.Query);
+            query["secretString"] = temporaryRandomString;
+            uriBuilder.Query = query.ToString();
+
+            var pageWithParams = forgotPasswordPage.Replace("{link}", uriBuilder.ToString());
+
+            await _emailService.SendEmailAsync(email, "Reset your password", pageWithParams);
+            return 0;
+        }
+
+        public async Task ResetPasswordAsync(string secretString, string newPassword)
+        {
+            var userId = await _cache.GetByKeyAsync(secretString);
+            if(userId == default(Guid))
+            {
+                throw new ArgumentNullException();
+            }
+            await _cache.DeleteAsync(secretString);
+            
+            await _userService.UpdatePasswordAsync(userId, newPassword);
+        }
+
+        private string GetRandomString()
+        {
+            var randomString = _hasher.GetHash(Guid.NewGuid().ToString());
+
+            return string.Join("", randomString.Take(12));
         }
     }
 }
