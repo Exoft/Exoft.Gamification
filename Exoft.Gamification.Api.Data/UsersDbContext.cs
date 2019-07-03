@@ -16,6 +16,7 @@ namespace Exoft.Gamification.Api.Data
         public DbSet<UserRoles> UserRoles { get; set; }
         public DbSet<File> Files { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<Thank> Thanks { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -26,6 +27,8 @@ namespace Exoft.Gamification.Api.Data
         {
             modelBuilder.ApplyConfiguration(new UserAchievementConfiguration());
             modelBuilder.ApplyConfiguration(new UserRolesConfiguration());
+            modelBuilder.ApplyConfiguration(new ThankConfiguration());
+            modelBuilder.ApplyConfiguration(new EventConfiguration());
         }
     }
 }

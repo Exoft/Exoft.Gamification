@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models.Achievement;
+using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data;
 using Exoft.Gamification.Api.Data.Core.Helpers;
@@ -72,6 +73,7 @@ namespace Exoft.Gamification
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IEventService, EventService>();
             services.AddScoped<IUserAchievementService, UserAchievementService>();
+            services.AddScoped<IThankService, ThankService>();
 
             // Repositories
             services.AddTransient<IUserRepository, UserRepository>();
@@ -80,12 +82,14 @@ namespace Exoft.Gamification
             services.AddTransient<IEventRepository, EventRepository>();
             services.AddTransient<IUserAchievementRepository, UserAchievementRepository>();
             services.AddTransient<IRoleRepository, RoleRepository>();
+            services.AddTransient<IThankRepository, ThankRepository>();
 
             // Validators
             services.AddTransient<IValidator<CreateUserModel>, CreateUserModelValidator>();
             services.AddTransient<IValidator<UpdateUserModel>, UpdateUserModelValidator>();
             services.AddTransient<IValidator<CreateAchievementModel>, CreateAchievementModelValidator>();
             services.AddTransient<IValidator<UpdateAchievementModel>, UpdateAchievementModelValidator>();
+            services.AddTransient<IValidator<CreateThankModel>, CreateThankModelValidator>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -144,7 +148,7 @@ namespace Exoft.Gamification
                 //var context = scope.ServiceProvider.GetService<UsersDbContext>();
                 //ContextInitializer.Initialize(context);
             }
-            
+
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>

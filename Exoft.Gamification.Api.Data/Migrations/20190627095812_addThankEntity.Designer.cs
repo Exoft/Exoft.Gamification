@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Exoft.Gamification.Api.Data.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    [Migration("20190618142743_addEventEntity")]
-    partial class addEventEntity
+    [Migration("20190627095812_addThankEntity")]
+    partial class addThankEntity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -28,7 +28,7 @@ namespace Exoft.Gamification.Api.Data.Migrations
 
                     b.Property<string>("Description");
 
-                    b.Property<Guid>("IconId");
+                    b.Property<Guid?>("IconId");
 
                     b.Property<string>("Name");
 
@@ -85,12 +85,28 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.ToTable("Roles");
                 });
 
+            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Thank", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("FromUserId");
+
+                    b.Property<string>("Text");
+
+                    b.Property<Guid>("ToUserId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Thanks");
+                });
+
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid>("AvatarId");
+                    b.Property<Guid?>("AvatarId");
 
                     b.Property<string>("Email");
 
@@ -111,17 +127,24 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.UserAchievements", b =>
+            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.UserAchievement", b =>
                 {
-                    b.Property<Guid>("UserId");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<Guid>("AchievementId");
 
-                    b.HasKey("UserId", "AchievementId");
+                    b.Property<DateTime>("AddedTime");
+
+                    b.Property<Guid>("UserId");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("AchievementId");
 
-                    b.ToTable("UserAchievements");
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserAchievement");
                 });
 
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.UserRoles", b =>
@@ -144,7 +167,7 @@ namespace Exoft.Gamification.Api.Data.Migrations
                         .HasForeignKey("UserId");
                 });
 
-            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.UserAchievements", b =>
+            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.UserAchievement", b =>
                 {
                     b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.Achievement", "Achievement")
                         .WithMany()

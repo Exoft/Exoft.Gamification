@@ -13,7 +13,7 @@ namespace Exoft.Gamification.Api.Data.Configurations
             builder.Property<Guid>("RoleId");
 
             builder.HasKey("UserId", "RoleId");
-            builder.HasOne(ua => ua.User).WithMany(u => u.Roles);
+            builder.HasOne(ua => ua.User).WithMany(u => u.Roles).IsRequired();
 
             builder.HasOne(ua => ua.Role).WithMany();
         }
