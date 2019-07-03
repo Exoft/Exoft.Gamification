@@ -1,4 +1,5 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
+using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using System;
 using System.Threading.Tasks;
 
