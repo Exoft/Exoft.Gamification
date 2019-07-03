@@ -3,26 +3,36 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Exoft.Gamification.Api.Data.Migrations
 {
-    public partial class updateSomeRelations : Migration
+    public partial class addEventEntity : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Events_Users_UserId",
-                table: "Events");
-
             migrationBuilder.AddColumn<DateTime>(
                 name: "AddedTime",
                 table: "Thanks",
                 nullable: false,
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
-            migrationBuilder.AlterColumn<Guid>(
-                name: "UserId",
-                table: "Events",
-                nullable: false,
-                oldClrType: typeof(Guid),
-                oldNullable: true);
+            migrationBuilder.CreateTable(
+                name: "Events",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    Description = table.Column<string>(nullable: true),
+                    CreatedTime = table.Column<DateTime>(nullable: false),
+                    Type = table.Column<int>(nullable: false),
+                    UserId = table.Column<Guid>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Events", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Events_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Thanks_FromUserId",
@@ -34,13 +44,10 @@ namespace Exoft.Gamification.Api.Data.Migrations
                 table: "Thanks",
                 column: "ToUserId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Events_Users_UserId",
+            migrationBuilder.CreateIndex(
+                name: "IX_Events_UserId",
                 table: "Events",
-                column: "UserId",
-                principalTable: "Users",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                column: "UserId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Thanks_Users_FromUserId",
@@ -62,16 +69,15 @@ namespace Exoft.Gamification.Api.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Events_Users_UserId",
-                table: "Events");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_Thanks_Users_FromUserId",
                 table: "Thanks");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_Thanks_Users_ToUserId",
                 table: "Thanks");
+
+            migrationBuilder.DropTable(
+                name: "Events");
 
             migrationBuilder.DropIndex(
                 name: "IX_Thanks_FromUserId",
@@ -84,20 +90,6 @@ namespace Exoft.Gamification.Api.Data.Migrations
             migrationBuilder.DropColumn(
                 name: "AddedTime",
                 table: "Thanks");
-
-            migrationBuilder.AlterColumn<Guid>(
-                name: "UserId",
-                table: "Events",
-                nullable: true,
-                oldClrType: typeof(Guid));
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Events_Users_UserId",
-                table: "Events",
-                column: "UserId",
-                principalTable: "Users",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
         }
     }
 }

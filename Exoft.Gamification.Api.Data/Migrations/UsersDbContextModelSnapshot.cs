@@ -48,7 +48,8 @@ namespace Exoft.Gamification.Api.Data.Migrations
 
                     b.Property<int>("Type");
 
-                    b.Property<Guid>("UserId");
+                    b.Property<Guid?>("UserId")
+                        .IsRequired();
 
                     b.HasKey("Id");
 

@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Exoft.Gamification.Api.Data.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    [Migration("20190702123224_updateSomeRelations")]
-    partial class updateSomeRelations
+    [Migration("20190703095056_addEventEntity")]
+    partial class addEventEntity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

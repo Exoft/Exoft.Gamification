@@ -9,7 +9,6 @@ namespace Exoft.Gamification.Api.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Event> builder)
         {
-            builder.Property<Guid>("UserId");
             builder.HasOne(i => i.User).WithMany().IsRequired();
         }
     }
