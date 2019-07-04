@@ -4,17 +4,17 @@
     {
         public enum EventType
         {
-            Race,
-            Records,
-            Challenge,
-            Upload
+            Race = 0,
+            Records = 1,
+            Challenge = 2,
+            Upload = 3
         }
 
         public enum ResponseType
         {
-            Ok,
-            NotFound,
-            UnknownError
+            Ok = 0,
+            NotFound = 1,
+            UnknownError = 2
         }
     }
 }
