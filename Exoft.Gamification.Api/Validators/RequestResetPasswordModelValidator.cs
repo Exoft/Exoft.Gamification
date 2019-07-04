@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Validators
 {
-    public class EmailModelValidator : BaseValidator<EmailModel>
+    public class RequestResetPasswordModelValidator : BaseValidator<RequestResetPasswordModel>
     {
         private readonly IUserRepository _userRepository;
 
-        public EmailModelValidator
+        public RequestResetPasswordModelValidator
         (
             IUserRepository userRepository,
             IStringLocalizer<ValidatorMessages> stringLocalizer, 
@@ -26,6 +26,9 @@ namespace Exoft.Gamification.Api.Validators
                 .NotEmpty().WithMessage(_stringLocalizer["EmtpyField"])
                 .EmailAddress().WithMessage(_stringLocalizer["WrongEmail"])
                 .MustAsync(CheckEmailAsync).WithMessage(_stringLocalizer["NotFound"]);
+
+            RuleFor(model => model.ResetPasswordPageLink)
+                .NotEmpty().WithMessage(_stringLocalizer["EmtpyField"]);
         }
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)

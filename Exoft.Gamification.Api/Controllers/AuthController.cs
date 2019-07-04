@@ -17,18 +17,18 @@ namespace Exoft.Gamification.Api.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IValidator<ResetPasswordModel> _resetPasswordModelValidator;
-        private readonly IValidator<EmailModel> _emailModelValidator;
+        private readonly IValidator<RequestResetPasswordModel> _requestResetPasswordModelValidator;
 
         public AuthController
         (
             IAuthService authService,
             IValidator<ResetPasswordModel> resetPasswordModel,
-            IValidator<EmailModel> emailModelValidator
+            IValidator<RequestResetPasswordModel> requestResetPasswordModelValidator
         )
         {
             _authService = authService;
             _resetPasswordModelValidator = resetPasswordModel;
-            _emailModelValidator = emailModelValidator;
+            _requestResetPasswordModelValidator = requestResetPasswordModelValidator;
         }
 
         /// <summary>
@@ -81,9 +81,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="400">When email null or empty</responce>
         [AllowAnonymous]
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPasswordAsync([FromBody] EmailModel model)
+        public async Task<IActionResult> ForgotPasswordAsync([FromBody] RequestResetPasswordModel model)
         {
-            var resultValidation = await _emailModelValidator.ValidateAsync(model);
+            var resultValidation = await _requestResetPasswordModelValidator.ValidateAsync(model);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -91,7 +91,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var result = await _authService.SendForgotPasswordAsync(model.Email);
+            var result = await _authService.SendForgotPasswordAsync(model.Email, model.ResetPasswordPageLink);
             if(result.Type == Data.Core.Helpers.GamificationEnums.ResponseType.NotFound)
             {
                 return NotFound(result.Message);
