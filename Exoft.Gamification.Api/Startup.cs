@@ -62,6 +62,7 @@ namespace Exoft.Gamification
             var jwtSecret = new JwtSecret(Configuration);
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
             services.AddScoped<IEmailSenderSettings, EmailSenderSettings>();
+            services.AddScoped<IResetPasswordSettings, ResetPasswordSettings>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddTransient<IPasswordHasher, PasswordHasher>();

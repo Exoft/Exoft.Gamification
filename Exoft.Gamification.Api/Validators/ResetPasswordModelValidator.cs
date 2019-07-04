@@ -34,7 +34,7 @@ namespace Exoft.Gamification.Api.Validators
 
             RuleFor(model => model.SecretString)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
-                .MustAsync(CheckSecretString).WithMessage(_stringLocalizer["Error"]);
+                .MustAsync(CheckSecretString).WithMessage(_stringLocalizer["UnknownSecretString"]);
         }
 
         private async Task<bool> CheckSecretString(string secretString, CancellationToken cancellationToken)

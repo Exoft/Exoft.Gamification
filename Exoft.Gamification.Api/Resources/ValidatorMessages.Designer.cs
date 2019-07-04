@@ -70,15 +70,6 @@ namespace Exoft.Gamification.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unknown error.
-        /// </summary>
-        public static string Error {
-            get {
-                return ResourceManager.GetString("Error", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Password must contains digit.
         /// </summary>
         public static string PasswordDigit {
@@ -156,6 +147,15 @@ namespace Exoft.Gamification.Api.Resources {
         public static string UniqueUserName {
             get {
                 return ResourceManager.GetString("UniqueUserName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current secretString expired or not found.
+        /// </summary>
+        public static string UnknownSecretString {
+            get {
+                return ResourceManager.GetString("UnknownSecretString", resourceCulture);
             }
         }
         

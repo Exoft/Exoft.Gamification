@@ -7,7 +7,7 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Services
     {
         Task<JwtTokenModel> AuthenticateAsync(string login, string password);
         Task<JwtTokenModel> RefreshTokenAsync(string refreshToken);
-        Task ForgotPasswordAsync(string email);
-        Task ResetPasswordAsync(string secretString, string newPassword);
+        Task<IResponse> SendForgotPasswordAsync(string email);
+        Task<IResponse> ResetPasswordAsync(string secretString, string newPassword);
     }
 }

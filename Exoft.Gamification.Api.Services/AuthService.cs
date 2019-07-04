@@ -4,6 +4,8 @@ using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
+using Exoft.Gamification.Api.Services.Helpers;
+using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Services.Resources;
 using Microsoft.Extensions.Localization;
@@ -11,7 +13,6 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
@@ -28,7 +29,7 @@ namespace Exoft.Gamification.Api.Services
         private readonly IJwtSecret _jwtSecret;
         private readonly IMapper _mapper;
         private readonly ICacheManager<Guid> _cache;
-        private readonly IEmailSenderSettings _emailSenderSettings;
+        private readonly IResetPasswordSettings _resetPasswordSettings;
         private readonly IStringLocalizer<HtmlPages> _stringLocalizer;
 
         public AuthService
@@ -41,7 +42,7 @@ namespace Exoft.Gamification.Api.Services
             IJwtSecret jwtSecret,
             IMapper mapper,
             ICacheManager<Guid> cache,
-            IEmailSenderSettings emailSenderSettings,
+            IResetPasswordSettings resetPasswordSettings,
             IStringLocalizer<HtmlPages> stringLocalizer
         )
         {
@@ -53,7 +54,7 @@ namespace Exoft.Gamification.Api.Services
             _jwtSecret = jwtSecret;
             _mapper = mapper;
             _cache = cache;
-            _emailSenderSettings = emailSenderSettings;
+            _resetPasswordSettings = resetPasswordSettings;
             _stringLocalizer = stringLocalizer;
         }
 
@@ -128,12 +129,12 @@ namespace Exoft.Gamification.Api.Services
             return jwtTokenModel;
         }
 
-        public async Task ForgotPasswordAsync(string email)
+        public async Task<IResponse> SendForgotPasswordAsync(string email)
         {
             var user = await _userRepository.GetByEmailAsync(email);
             if(user == null)
             {
-                throw new NullReferenceException();
+                return new NotFoundResponse("Email is not found!");
             }
 
             var temporaryRandomString = Guid.NewGuid().ToString();
@@ -142,32 +143,36 @@ namespace Exoft.Gamification.Api.Services
             {
                 Key = temporaryRandomString,
                 Value = user.Id,
-                TimeToExpire = _emailSenderSettings.TimeToExpireSecretString
+                TimeToExpire = _resetPasswordSettings.TimeToExpireSecretString
             };
             await _cache.AddAsync(cacheObject);
             
-            var forgotPasswordPage = _stringLocalizer["ForgotPasswordPage"].ToString();
-
-            var uriBuilder = new UriBuilder(_emailSenderSettings.ResetPasswordPage);
+            var uriBuilder = new UriBuilder(_resetPasswordSettings.ResetPasswordPage);
             var query = HttpUtility.ParseQueryString(uriBuilder.Query);
             query["secretString"] = temporaryRandomString;
             uriBuilder.Query = query.ToString();
 
+            var forgotPasswordPage = _stringLocalizer["ForgotPasswordPage"].ToString();
+
             var pageWithParams = forgotPasswordPage.Replace("{link}", uriBuilder.ToString());
 
             await _emailService.SendEmailAsync(email, "Reset your password", pageWithParams);
+
+            return new OkResponse();
         }
 
-        public async Task ResetPasswordAsync(string secretString, string newPassword)
+        public async Task<IResponse> ResetPasswordAsync(string secretString, string newPassword)
         {
             var userId = await _cache.GetByKeyAsync(secretString);
             if(userId == default(Guid))
             {
-                throw new NullReferenceException();
+                return new NotFoundResponse("Current secretString expired or not found!");
             }
             await _cache.DeleteAsync(secretString);
             
             await _userService.UpdatePasswordAsync(userId, newPassword);
+
+            return new OkResponse();
         }
     }
 }

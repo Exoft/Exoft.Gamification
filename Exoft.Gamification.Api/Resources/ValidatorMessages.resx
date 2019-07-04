@@ -120,9 +120,6 @@
   <data name="EmptyField" xml:space="preserve">
     <value>{PropertyName} should not be empty</value>
   </data>
-  <data name="Error" xml:space="preserve">
-    <value>Unknown error</value>
-  </data>
   <data name="PasswordDigit" xml:space="preserve">
     <value>Password must contains digit</value>
   </data>
@@ -149,6 +146,9 @@
   </data>
   <data name="UniqueUserName" xml:space="preserve">
     <value>Is not a unique userName</value>
+  </data>
+  <data name="UnknownSecretString" xml:space="preserve">
+    <value>Current secretString expired or not found</value>
   </data>
   <data name="UserNotFound" xml:space="preserve">
     <value>User not found</value>

@@ -1,5 +1,6 @@
 ﻿using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.User;
+using Exoft.Gamification.Api.Services.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -79,13 +80,10 @@ namespace Exoft.Gamification.Api.Controllers
                 return BadRequest();
             }
 
-            try
+            var result = await _authService.SendForgotPasswordAsync(email);
+            if(!result.Success)
             {
-                await _authService.ForgotPasswordAsync(email);
-            }
-            catch (System.Exception)
-            {
-                return NotFound();
+                return NotFound(result.Error);
             }
 
             return Ok();
@@ -108,7 +106,11 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            await _authService.ResetPasswordAsync(model.SecretString, model.Password);
+            var result = await _authService.ResetPasswordAsync(model.SecretString, model.Password);
+            if(!result.Success)
+            {
+                return BadRequest(result.Error);
+            }
 
             return Ok();
         }

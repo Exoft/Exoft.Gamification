@@ -9,7 +9,7 @@ namespace Exoft.Gamification.Api.Helpers
     {
         public JwtSecret(IConfiguration configuration)
         {
-            var secretSection = configuration.GetSection("Secrets");
+            var secretSection = configuration.GetSection("AccessTokenSettings");
             Secret = Encoding.ASCII.GetBytes(secretSection.GetValue<string>("TokenSecretString"));
             TimeToExpireToken = TimeSpan.FromSeconds(secretSection.GetValue<int>("SecondsToExpireToken"));
             TimeToExpireRefreshToken = TimeSpan.FromSeconds(secretSection.GetValue<int>("SecondsToExpireRefreshToken"));
