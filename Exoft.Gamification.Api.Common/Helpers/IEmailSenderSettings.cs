@@ -1,4 +1,6 @@
-﻿namespace Exoft.Gamification.Api.Common.Helpers
+﻿using System;
+
+namespace Exoft.Gamification.Api.Common.Helpers
 {
     public interface IEmailSenderSettings
     {
@@ -12,6 +14,10 @@
 
         bool EnableSsl { get; }
 
+        string DisplayName { get; }
+
         string ResetPasswordPage { get; }
+
+        TimeSpan TimeToExpireSecretString { get; }
     }
 }

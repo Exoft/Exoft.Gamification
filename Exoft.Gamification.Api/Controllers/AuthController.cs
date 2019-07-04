@@ -79,10 +79,13 @@ namespace Exoft.Gamification.Api.Controllers
                 return BadRequest();
             }
 
-            var result = await _authService.ForgotPasswordAsync(email);
-            if(result == -1)
+            try
             {
-                return BadRequest();
+                await _authService.ForgotPasswordAsync(email);
+            }
+            catch (System.Exception)
+            {
+                return NotFound();
             }
 
             return Ok();
@@ -105,7 +108,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            await _authService.ResetPasswordAsync(model.secretString, model.newPassword);
+            await _authService.ResetPasswordAsync(model.SecretString, model.Password);
 
             return Ok();
         }

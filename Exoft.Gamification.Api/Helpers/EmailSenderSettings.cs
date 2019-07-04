@@ -1,5 +1,6 @@
 ﻿using Exoft.Gamification.Api.Common.Helpers;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace Exoft.Gamification.Api.Helpers
 {
@@ -14,7 +15,9 @@ namespace Exoft.Gamification.Api.Helpers
             SmtpClient = section.GetValue<string>("SmtpClient");
             Port = section.GetValue<int>("Port");
             EnableSsl = section.GetValue<bool>("EnableSsl");
+            DisplayName = section.GetValue<string>("DisplayName");
             ResetPasswordPage = section.GetValue<string>("ResetPasswordPage");
+            TimeToExpireSecretString = TimeSpan.Parse(section.GetValue<string>("TimeToExpireSecretString"));
         }
 
         public string Email { get; }
@@ -27,6 +30,10 @@ namespace Exoft.Gamification.Api.Helpers
 
         public bool EnableSsl { get; }
 
+        public string DisplayName { get; set; }
+
         public string ResetPasswordPage { get; }
+
+        public TimeSpan TimeToExpireSecretString { get; }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
-using MailKit.Net.Smtp;
-using MimeKit;
+using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services
@@ -17,31 +17,20 @@ namespace Exoft.Gamification.Api.Services
 
         public async Task SendEmailAsync(string email, string subject, string message)
         {
-            var emailMessage = new MimeMessage();
-            emailMessage.From.Add(new MailboxAddress("Exoft", _emailSenderSettings.Email));
-            emailMessage.To.Add(new MailboxAddress("", email));
-            emailMessage.Subject = subject;
-
-            var builder = new BodyBuilder
+            SmtpClient client = new SmtpClient(_emailSenderSettings.SmtpClient, _emailSenderSettings.Port)
             {
-                HtmlBody = message
+                Credentials = new NetworkCredential(_emailSenderSettings.Email, _emailSenderSettings.Password),
+                EnableSsl = _emailSenderSettings.EnableSsl
             };
-            emailMessage.Body = builder.ToMessageBody();
-                
 
-            using (var client = new SmtpClient())
-            {
-                await client.ConnectAsync(
-                    _emailSenderSettings.SmtpClient,
-                    _emailSenderSettings.Port,
-                    _emailSenderSettings.EnableSsl);
+            MailMessage mailMessage = new MailMessage();
+            mailMessage.From = new MailAddress(_emailSenderSettings.Email, _emailSenderSettings.DisplayName);
+            mailMessage.To.Add(email);
+            mailMessage.IsBodyHtml = true;
+            mailMessage.Body = message;
+            mailMessage.Subject = subject;
 
-                await client.AuthenticateAsync(_emailSenderSettings.Email, _emailSenderSettings.Password);
-
-                await client.SendAsync(emailMessage);
-
-                await client.DisconnectAsync(true);
-            }
+            await client.SendMailAsync(mailMessage);
         }
     }
 }

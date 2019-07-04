@@ -2,8 +2,8 @@
 {
     public class ResetPasswordModel
     {
-        public string newPassword { get; set; }
+        public string Password { get; set; }
 
-        public string secretString { get; set; }
+        public string SecretString { get; set; }
     }
 }

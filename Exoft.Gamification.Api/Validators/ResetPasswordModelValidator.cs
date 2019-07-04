@@ -24,7 +24,7 @@ namespace Exoft.Gamification.Api.Validators
         {
             _cache = cache;
 
-            RuleFor(model => model.newPassword)
+            RuleFor(model => model.Password)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
                 .MinimumLength(8).WithMessage(_stringLocalizer["TooShort"])
                 .MaximumLength(32).WithMessage(_stringLocalizer["TooLong"])
@@ -32,7 +32,7 @@ namespace Exoft.Gamification.Api.Validators
                 .Matches("[a-z]").WithMessage(_stringLocalizer["PasswordLowerCaseLetter"])
                 .Matches("[0-9]").WithMessage(_stringLocalizer["PasswordDigit"]);
 
-            RuleFor(model => model.secretString)
+            RuleFor(model => model.SecretString)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
                 .MustAsync(CheckSecretString).WithMessage(_stringLocalizer["Error"]);
         }

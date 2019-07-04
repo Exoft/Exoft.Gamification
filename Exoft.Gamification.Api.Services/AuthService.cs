@@ -5,6 +5,8 @@ using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using Exoft.Gamification.Api.Services.Resources;
+using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -27,6 +29,7 @@ namespace Exoft.Gamification.Api.Services
         private readonly IMapper _mapper;
         private readonly ICacheManager<Guid> _cache;
         private readonly IEmailSenderSettings _emailSenderSettings;
+        private readonly IStringLocalizer<HtmlPages> _stringLocalizer;
 
         public AuthService
         (
@@ -38,7 +41,8 @@ namespace Exoft.Gamification.Api.Services
             IJwtSecret jwtSecret,
             IMapper mapper,
             ICacheManager<Guid> cache,
-            IEmailSenderSettings emailSenderSettings
+            IEmailSenderSettings emailSenderSettings,
+            IStringLocalizer<HtmlPages> stringLocalizer
         )
         {
             _userRepository = userRepository;
@@ -50,6 +54,7 @@ namespace Exoft.Gamification.Api.Services
             _mapper = mapper;
             _cache = cache;
             _emailSenderSettings = emailSenderSettings;
+            _stringLocalizer = stringLocalizer;
         }
 
         public async Task<JwtTokenModel> AuthenticateAsync(string userName, string password)
@@ -123,25 +128,25 @@ namespace Exoft.Gamification.Api.Services
             return jwtTokenModel;
         }
 
-        public async Task<int> ForgotPasswordAsync(string email)
+        public async Task ForgotPasswordAsync(string email)
         {
             var user = await _userRepository.GetByEmailAsync(email);
             if(user == null)
             {
-                return -1;
+                throw new NullReferenceException();
             }
 
-            var temporaryRandomString = GetRandomString();
-            
+            var temporaryRandomString = Guid.NewGuid().ToString();
+
             var cacheObject = new CacheObject<Guid>()
             {
                 Key = temporaryRandomString,
                 Value = user.Id,
-                TimeToExpire = TimeSpan.FromMinutes(10)
+                TimeToExpire = _emailSenderSettings.TimeToExpireSecretString
             };
             await _cache.AddAsync(cacheObject);
             
-            var forgotPasswordPage = Resources.HtmlPages.ForgotPasswordPage;
+            var forgotPasswordPage = _stringLocalizer["ForgotPasswordPage"].ToString();
 
             var uriBuilder = new UriBuilder(_emailSenderSettings.ResetPasswordPage);
             var query = HttpUtility.ParseQueryString(uriBuilder.Query);
@@ -151,7 +156,6 @@ namespace Exoft.Gamification.Api.Services
             var pageWithParams = forgotPasswordPage.Replace("{link}", uriBuilder.ToString());
 
             await _emailService.SendEmailAsync(email, "Reset your password", pageWithParams);
-            return 0;
         }
 
         public async Task ResetPasswordAsync(string secretString, string newPassword)
@@ -159,18 +163,11 @@ namespace Exoft.Gamification.Api.Services
             var userId = await _cache.GetByKeyAsync(secretString);
             if(userId == default(Guid))
             {
-                throw new ArgumentNullException();
+                throw new NullReferenceException();
             }
             await _cache.DeleteAsync(secretString);
             
             await _userService.UpdatePasswordAsync(userId, newPassword);
-        }
-
-        private string GetRandomString()
-        {
-            var randomString = _hasher.GetHash(Guid.NewGuid().ToString());
-
-            return string.Join("", randomString.Take(12));
         }
     }
 }
