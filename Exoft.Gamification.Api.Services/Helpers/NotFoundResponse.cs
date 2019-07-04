@@ -1,4 +1,5 @@
-﻿using Exoft.Gamification.Api.Services.Interfaces;
+﻿using Exoft.Gamification.Api.Data.Core.Helpers;
+using Exoft.Gamification.Api.Services.Interfaces;
 
 namespace Exoft.Gamification.Api.Services.Helpers
 {
@@ -6,13 +7,13 @@ namespace Exoft.Gamification.Api.Services.Helpers
     {
         public NotFoundResponse(string message)
         {
-            Success = false;
+            Type = GamificationEnums.ResponseType.NotFound;
 
-            Error = message;
+            Message = message;
         }
 
-        public bool Success { get; }
+        public GamificationEnums.ResponseType Type { get; }
 
-        public string Error { get; }
+        public string Message { get; }
     }
 }

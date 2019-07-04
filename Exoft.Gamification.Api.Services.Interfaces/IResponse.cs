@@ -1,9 +1,11 @@
-﻿namespace Exoft.Gamification.Api.Services.Interfaces
+﻿using Exoft.Gamification.Api.Data.Core.Helpers;
+
+namespace Exoft.Gamification.Api.Services.Interfaces
 {
     public interface IResponse
     {
-        bool Success { get; }
+        GamificationEnums.ResponseType Type { get; }
 
-        string Error { get; }
+        string Message { get; }
     }
 }

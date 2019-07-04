@@ -16,16 +16,19 @@ namespace Exoft.Gamification.Api.Controllers
     public class AuthController : GamificationController
     {
         private readonly IAuthService _authService;
-        private readonly IValidator<ResetPasswordModel> _resetPasswordModel;
+        private readonly IValidator<ResetPasswordModel> _resetPasswordModelValidator;
+        private readonly IValidator<EmailModel> _emailModelValidator;
 
         public AuthController
         (
             IAuthService authService,
-            IValidator<ResetPasswordModel> resetPasswordModel
+            IValidator<ResetPasswordModel> resetPasswordModel,
+            IValidator<EmailModel> emailModelValidator
         )
         {
             _authService = authService;
-            _resetPasswordModel = resetPasswordModel;
+            _resetPasswordModelValidator = resetPasswordModel;
+            _emailModelValidator = emailModelValidator;
         }
 
         /// <summary>
@@ -54,9 +57,14 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="401">When userName or password is incorrent</responce>
         [AllowAnonymous]
         [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshTokenAsync([FromQuery] string refreshToken)
+        public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenModel model)
         {
-            var newToken = await _authService.RefreshTokenAsync(refreshToken);
+            if(!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
+            var newToken = await _authService.RefreshTokenAsync(model.RefreshToken);
 
             if (newToken == null)
             {
@@ -73,17 +81,20 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="400">When email null or empty</responce>
         [AllowAnonymous]
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPasswordAsync([FromQuery] string email)
+        public async Task<IActionResult> ForgotPasswordAsync([FromBody] EmailModel model)
         {
-            if(string.IsNullOrEmpty(email))
+            var resultValidation = await _emailModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return UnprocessableEntity(ModelState);
             }
 
-            var result = await _authService.SendForgotPasswordAsync(email);
-            if(!result.Success)
+            var result = await _authService.SendForgotPasswordAsync(model.Email);
+            if(result.Type == Data.Core.Helpers.GamificationEnums.ResponseType.NotFound)
             {
-                return NotFound(result.Error);
+                return NotFound(result.Message);
             }
 
             return Ok();
@@ -98,7 +109,7 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
         {
-            var resultValidation = await _resetPasswordModel.ValidateAsync(model);
+            var resultValidation = await _resetPasswordModelValidator.ValidateAsync(model);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -107,9 +118,9 @@ namespace Exoft.Gamification.Api.Controllers
             }
 
             var result = await _authService.ResetPasswordAsync(model.SecretString, model.Password);
-            if(!result.Success)
+            if(result.Type == Data.Core.Helpers.GamificationEnums.ResponseType.NotFound)
             {
-                return BadRequest(result.Error);
+                return BadRequest(result.Message);
             }
 
             return Ok();

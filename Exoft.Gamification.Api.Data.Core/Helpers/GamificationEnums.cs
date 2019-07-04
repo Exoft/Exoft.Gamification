@@ -9,5 +9,12 @@
             Challenge,
             Upload
         }
+
+        public enum ResponseType
+        {
+            Ok,
+            NotFound,
+            UnknownError
+        }
     }
 }

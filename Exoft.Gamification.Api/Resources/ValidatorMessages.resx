@@ -120,6 +120,9 @@
   <data name="EmptyField" xml:space="preserve">
     <value>{PropertyName} should not be empty</value>
   </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>{PropertyName} is not found</value>
+  </data>
   <data name="PasswordDigit" xml:space="preserve">
     <value>Password must contains digit</value>
   </data>
