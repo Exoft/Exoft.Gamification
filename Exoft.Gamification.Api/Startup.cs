@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
+using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Common.Models.User;
@@ -60,6 +61,8 @@ namespace Exoft.Gamification
             // configure DI for application services
             var jwtSecret = new JwtSecret(Configuration);
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
+            services.AddScoped<IEmailSenderSettings, EmailSenderSettings>();
+            services.AddScoped<IResetPasswordSettings, ResetPasswordSettings>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddTransient<IPasswordHasher, PasswordHasher>();
@@ -74,6 +77,7 @@ namespace Exoft.Gamification
             services.AddScoped<IEventService, EventService>();
             services.AddScoped<IUserAchievementService, UserAchievementService>();
             services.AddScoped<IThankService, ThankService>();
+            services.AddScoped<IEmailService, EmailService>();
 
             // Repositories
             services.AddTransient<IUserRepository, UserRepository>();
@@ -90,6 +94,8 @@ namespace Exoft.Gamification
             services.AddTransient<IValidator<CreateAchievementModel>, CreateAchievementModelValidator>();
             services.AddTransient<IValidator<UpdateAchievementModel>, UpdateAchievementModelValidator>();
             services.AddTransient<IValidator<CreateThankModel>, CreateThankModelValidator>();
+            services.AddTransient<IValidator<ResetPasswordModel>, ResetPasswordModelValidator>();
+            services.AddTransient<IValidator<EmailModel>, EmailModelValidator>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

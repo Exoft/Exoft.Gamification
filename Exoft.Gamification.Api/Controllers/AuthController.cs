@@ -1,9 +1,11 @@
 ﻿using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.User;
+using Exoft.Gamification.Api.Services.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
@@ -14,10 +16,19 @@ namespace Exoft.Gamification.Api.Controllers
     public class AuthController : GamificationController
     {
         private readonly IAuthService _authService;
+        private readonly IValidator<ResetPasswordModel> _resetPasswordModelValidator;
+        private readonly IValidator<EmailModel> _emailModelValidator;
 
-        public AuthController(IAuthService authService)
+        public AuthController
+        (
+            IAuthService authService,
+            IValidator<ResetPasswordModel> resetPasswordModel,
+            IValidator<EmailModel> emailModelValidator
+        )
         {
             _authService = authService;
+            _resetPasswordModelValidator = resetPasswordModel;
+            _emailModelValidator = emailModelValidator;
         }
 
         /// <summary>
@@ -38,7 +49,7 @@ namespace Exoft.Gamification.Api.Controllers
 
             return Ok(user);
         }
-
+        
         /// <summary>
         /// Get new jwt
         /// </summary>
@@ -46,16 +57,73 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="401">When userName or password is incorrent</responce>
         [AllowAnonymous]
         [HttpPost("refresh")]
-        public async Task<IActionResult> RefreshTokenAsync([FromQuery] string refreshToken)
+        public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenModel model)
         {
-            var newToken = await _authService.RefreshTokenAsync(refreshToken);
-            
+            if(!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
+            var newToken = await _authService.RefreshTokenAsync(model.RefreshToken);
+
             if (newToken == null)
             {
                 return Unauthorized();
             }
-            
+
             return Ok(newToken);
+        }
+
+        /// <summary>
+        /// Send recover password link to email
+        /// </summary>
+        /// <responce code="200">If email successful sended</responce>
+        /// <responce code="400">When email null or empty</responce>
+        [AllowAnonymous]
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPasswordAsync([FromBody] EmailModel model)
+        {
+            var resultValidation = await _emailModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
+            var result = await _authService.SendForgotPasswordAsync(model.Email);
+            if(result.Type == Data.Core.Helpers.GamificationEnums.ResponseType.NotFound)
+            {
+                return NotFound(result.Message);
+            }
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Set new password for user
+        /// </summary>
+        /// <responce code="200">If password successful update</responce>
+        /// <responce code="400">When newPassword or secretString null or empty</responce>
+        [AllowAnonymous]
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordModel model)
+        {
+            var resultValidation = await _resetPasswordModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
+            var result = await _authService.ResetPasswordAsync(model.SecretString, model.Password);
+            if(result.Type == Data.Core.Helpers.GamificationEnums.ResponseType.NotFound)
+            {
+                return BadRequest(result.Message);
+            }
+
+            return Ok();
         }
     }
 }

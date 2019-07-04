@@ -6,6 +6,7 @@ namespace Exoft.Gamification.Api.Data.Core.Interfaces.Repositories
     public interface IUserRepository : IRepository<User>
     {
         Task<User> GetByUserNameAsync(string userName);
-        Task<bool> IsEmailExistsAsync(string email);
+        Task<User> GetByEmailAsync(string email);
+        Task<bool> DoesEmailExistsAsync(string email);
     }
 }

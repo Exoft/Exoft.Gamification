@@ -59,7 +59,7 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
         {
-            bool exists = await _userRepository.IsEmailExistsAsync(email);
+            bool exists = await _userRepository.DoesEmailExistsAsync(email);
             return !exists;
         }
 

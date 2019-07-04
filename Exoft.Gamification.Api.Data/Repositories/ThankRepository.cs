@@ -1,5 +1,5 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
-using Exoft.Gamification.Api.Data.Core.Interfaces;
+using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
