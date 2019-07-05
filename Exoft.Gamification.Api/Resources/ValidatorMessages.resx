@@ -120,6 +120,9 @@
   <data name="EmptyField" xml:space="preserve">
     <value>{PropertyName} should not be empty</value>
   </data>
+  <data name="InvalidUri" xml:space="preserve">
+    <value>This uri is invalid</value>
+  </data>
   <data name="NotFound" xml:space="preserve">
     <value>{PropertyName} is not found</value>
   </data>
@@ -161,8 +164,5 @@
   </data>
   <data name="WrongRole" xml:space="preserve">
     <value>Is not a valid role</value>
-  </data>
-  <data name="WrongUri" xml:space="preserve">
-    <value>Is not a valid uri</value>
   </data>
 </root>

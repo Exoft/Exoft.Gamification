@@ -30,7 +30,7 @@ namespace Exoft.Gamification.Api.Validators
 
             RuleFor(model => model.ResetPasswordPageLink)
                 .NotEmpty().WithMessage(_stringLocalizer["EmtpyField"])
-                .Must(CheckUri).WithMessage(_stringLocalizer["WrongUri"]);
+                .Must(CheckUri).WithMessage(_stringLocalizer["InvalidUri"]);
         }
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
