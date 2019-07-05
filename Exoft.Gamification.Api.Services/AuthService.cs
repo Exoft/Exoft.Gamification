@@ -129,7 +129,7 @@ namespace Exoft.Gamification.Api.Services
             return jwtTokenModel;
         }
 
-        public async Task<IResponse> SendForgotPasswordAsync(string email, string resetPasswordPageLink)
+        public async Task<IResponse> SendForgotPasswordAsync(string email, Uri resetPasswordPageLink)
         {
             var user = await _userRepository.GetByEmailAsync(email);
             if(user == null)

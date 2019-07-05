@@ -194,5 +194,14 @@ namespace Exoft.Gamification.Api.Resources {
                 return ResourceManager.GetString("WrongRole", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Is not a valid uri.
+        /// </summary>
+        public static string WrongUri {
+            get {
+                return ResourceManager.GetString("WrongUri", resourceCulture);
+            }
+        }
     }
 }

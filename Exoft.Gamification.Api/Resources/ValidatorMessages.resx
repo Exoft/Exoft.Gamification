@@ -162,4 +162,7 @@
   <data name="WrongRole" xml:space="preserve">
     <value>Is not a valid role</value>
   </data>
+  <data name="WrongUri" xml:space="preserve">
+    <value>Is not a valid uri</value>
+  </data>
 </root>
