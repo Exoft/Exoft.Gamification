@@ -1,17 +1,25 @@
-﻿using log4net;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace Exoft.Gamification.Api.Helpers
 {
     public class ErrorHandlingFilter : ExceptionFilterAttribute
     {
-        private static ILog _logger = LogManager.GetLogger(typeof(ErrorHandlingFilter));
+        private readonly ILogger<ErrorHandlingFilter> _logger;
+
+        public ErrorHandlingFilter(ILogger<ErrorHandlingFilter> logger)
+        {
+            _logger = logger;
+        }
 
         public override void OnException(ExceptionContext context)
         {
-            var exception = context.Exception;
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append("\r\n Data: \r\n");
+            stringBuilder.Append(string.Join("\r\n ---> ", context.ModelState.Values));
 
-            _logger.Error("Unhandled exceptions", exception);
+            _logger.LogError(context.Exception, stringBuilder.ToString());
         }
     }
 }
