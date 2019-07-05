@@ -4,16 +4,17 @@ using Exoft.Gamification.Api.Resources;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Localization;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Validators
 {
-    public class EmailModelValidator : BaseValidator<EmailModel>
+    public class RequestResetPasswordModelValidator : BaseValidator<RequestResetPasswordModel>
     {
         private readonly IUserRepository _userRepository;
 
-        public EmailModelValidator
+        public RequestResetPasswordModelValidator
         (
             IUserRepository userRepository,
             IStringLocalizer<ValidatorMessages> stringLocalizer, 
@@ -26,12 +27,27 @@ namespace Exoft.Gamification.Api.Validators
                 .NotEmpty().WithMessage(_stringLocalizer["EmtpyField"])
                 .EmailAddress().WithMessage(_stringLocalizer["WrongEmail"])
                 .MustAsync(CheckEmailAsync).WithMessage(_stringLocalizer["NotFound"]);
+
+            RuleFor(model => model.ResetPasswordPageLink)
+                .NotEmpty().WithMessage(_stringLocalizer["EmtpyField"])
+                .Must(CheckUri).WithMessage(_stringLocalizer["InvalidUri"]);
         }
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
         {
             bool exists = await _userRepository.DoesEmailExistsAsync(email);
             return exists;
+        }
+
+        private bool CheckUri(Uri uri)
+        {
+            if (uri == null || string.IsNullOrEmpty(uri.ToString()))
+            {
+                return false;
+            }
+
+            return Uri.TryCreate(uri.ToString(), UriKind.Absolute, out Uri outUri)
+                && (outUri.Scheme == Uri.UriSchemeHttp || outUri.Scheme == Uri.UriSchemeHttps);
         }
     }
 }

@@ -129,7 +129,7 @@ namespace Exoft.Gamification.Api.Services
             return jwtTokenModel;
         }
 
-        public async Task<IResponse> SendForgotPasswordAsync(string email)
+        public async Task<IResponse> SendForgotPasswordAsync(string email, Uri resetPasswordPageLink)
         {
             var user = await _userRepository.GetByEmailAsync(email);
             if(user == null)
@@ -147,7 +147,7 @@ namespace Exoft.Gamification.Api.Services
             };
             await _cache.AddAsync(cacheObject);
             
-            var uriBuilder = new UriBuilder(_resetPasswordSettings.ResetPasswordPage);
+            var uriBuilder = new UriBuilder(resetPasswordPageLink);
             var query = HttpUtility.ParseQueryString(uriBuilder.Query);
             query["secretString"] = temporaryRandomString;
             uriBuilder.Query = query.ToString();

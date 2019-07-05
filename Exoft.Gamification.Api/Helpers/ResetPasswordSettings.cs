@@ -10,11 +10,8 @@ namespace Exoft.Gamification.Api.Helpers
         {
             var section = configuration.GetSection("ResetPasswordSettings");
             
-            ResetPasswordPage = section.GetValue<string>("ResetPasswordPage");
             TimeToExpireSecretString = TimeSpan.Parse(section.GetValue<string>("TimeToExpireSecretString"));
         }
-
-        public string ResetPasswordPage { get; }
 
         public TimeSpan TimeToExpireSecretString { get; }
     }

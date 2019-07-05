@@ -70,6 +70,15 @@ namespace Exoft.Gamification.Api.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This uri is invalid.
+        /// </summary>
+        public static string InvalidUri {
+            get {
+                return ResourceManager.GetString("InvalidUri", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {PropertyName} is not found.
         /// </summary>
         public static string NotFound {
