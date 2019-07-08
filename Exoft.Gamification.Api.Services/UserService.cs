@@ -115,9 +115,9 @@ namespace Exoft.Gamification.Api.Services
             return _mapper.Map<ReadShortUserModel>(user);
         }
 
-        public async Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid Id)
+        public async Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid userId)
         {
-            var user = await _userRepository.GetByIdAsync(Id);
+            var user = await _userRepository.GetByIdAsync(userId);
             user.UserName = model.UserName;
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
@@ -151,9 +151,9 @@ namespace Exoft.Gamification.Api.Services
             return _mapper.Map<ReadFullUserModel>(user);
         }
 
-        public async Task<ReadFullUserModel> UpdateUserAsync(UpdateFullUserModel model, Guid Id)
+        public async Task<ReadFullUserModel> UpdateUserAsync(UpdateFullUserModel model, Guid userId)
         {
-            var user = await _userRepository.GetByIdAsync(Id);
+            var user = await _userRepository.GetByIdAsync(userId);
             user.UserName = model.UserName;
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
