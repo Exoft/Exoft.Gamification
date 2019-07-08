@@ -25,7 +25,6 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
@@ -46,7 +45,10 @@ namespace Exoft.Gamification
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddMvc()
+            services.AddMvc(options =>
+            {
+                options.Filters.Add<ErrorHandlingFilter>();
+            })
                 .AddDataAnnotationsLocalization(options =>
                 {
                     options.DataAnnotationLocalizerProvider = (type, factory) =>
@@ -69,9 +71,6 @@ namespace Exoft.Gamification
             services.AddTransient<IPasswordHasher, PasswordHasher>();
             services.AddTransient<IRefreshTokenProvider, RefreshTokenProvider>();
             services.AddTransient(typeof(ICacheManager<>), typeof(CacheManager<>));
-
-            // Filters
-            services.AddSingleton<IConfigureOptions<MvcOptions>, ErrorHandlingFilterConfiguration>();
 
             // Services
             services.AddScoped<IAuthService, AuthService>();
