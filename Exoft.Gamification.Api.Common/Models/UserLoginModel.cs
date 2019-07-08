@@ -1,4 +1,4 @@
-﻿namespace Exoft.Gamification.Api.Common.Models.User
+﻿namespace Exoft.Gamification.Api.Common.Models
 {
     public class UserLoginModel
     {

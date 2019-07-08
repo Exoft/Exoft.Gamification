@@ -1,5 +1,4 @@
 ﻿using Exoft.Gamification.Api.Common.Models;
-using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;

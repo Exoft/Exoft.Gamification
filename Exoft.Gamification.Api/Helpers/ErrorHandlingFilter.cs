@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Text;
 
@@ -21,8 +22,6 @@ namespace Exoft.Gamification.Api.Helpers
         public override void OnException(ExceptionContext context)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append(string.Format("\r\n ---> Controller: {0}", context.RouteData.Values["controller"]));
-            stringBuilder.Append(string.Format("\r\n ---> Action: {0}", context.RouteData.Values["action"]));
             stringBuilder.Append(string.Format("\r\n ---> QueryString: {0}", 
                 string.Join("\r\n\t -->", context.HttpContext.Request.Query)));
             stringBuilder.Append(string.Format("\r\n ---> Params: {0}",
@@ -34,7 +33,12 @@ namespace Exoft.Gamification.Api.Helpers
             using (StreamReader stream = new StreamReader(context.HttpContext.Request.Body))
             {
                 string body = stream.ReadToEnd();
-                stringBuilder.Append(string.Format("\r\n ---> Body: {0}", body));
+                if(!string.IsNullOrEmpty(body))
+                {
+                    var jsonBody = JObject.Parse(body);
+                    jsonBody.Remove("password");
+                    stringBuilder.Append(string.Format("\r\n ---> Body: {0}", jsonBody.ToString()));
+                }
             }
             
             if(context.HttpContext.Request.HasFormContentType)
