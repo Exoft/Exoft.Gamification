@@ -115,15 +115,52 @@ namespace Exoft.Gamification.Api.Services
             return _mapper.Map<ReadShortUserModel>(user);
         }
 
-        public async Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid Id)
+        public async Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid userId)
         {
-            var user = await _userRepository.GetByIdAsync(Id);
+            var user = await _userRepository.GetByIdAsync(userId);
             user.UserName = model.UserName;
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
             user.Status = model.Status;
             user.Email = model.Email;
+            
+            if (model.Avatar != null)
+            {
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    await model.Avatar.CopyToAsync(memory);
 
+                    if(user.AvatarId != null)
+                    {
+                        await _fileRepository.Delete(user.AvatarId.Value);
+                    }   
+
+                    var file = new File()
+                    {
+                        Data = memory.ToArray(),
+                        ContentType = model.Avatar.ContentType
+                    };
+                    await _fileRepository.AddAsync(file);
+                    user.AvatarId = file.Id;
+                }
+            }
+            _userRepository.Update(user);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<ReadFullUserModel>(user);
+        }
+
+        public async Task<ReadFullUserModel> UpdateUserAsync(UpdateFullUserModel model, Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            user.UserName = model.UserName;
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.Status = model.Status;
+            user.Email = model.Email;
+            
+        
             var role = await _roleRepository.GetRoleByNameAsync(model.Role);
 
             var userRole = new UserRoles()
@@ -135,16 +172,17 @@ namespace Exoft.Gamification.Api.Services
             user.Roles.Clear();
             user.Roles.Add(userRole);
 
+
             if (model.Avatar != null)
             {
                 using (MemoryStream memory = new MemoryStream())
                 {
                     await model.Avatar.CopyToAsync(memory);
 
-                    if(user.AvatarId != null)
+                    if (user.AvatarId != null)
                     {
                         await _fileRepository.Delete(user.AvatarId.Value);
-                    }   
+                    }
 
                     var file = new File()
                     {

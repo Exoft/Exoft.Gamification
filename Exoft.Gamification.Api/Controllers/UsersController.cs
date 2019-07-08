@@ -17,18 +17,18 @@ namespace Exoft.Gamification.Api.Controllers
     {
         private readonly IUserService _userService;
         private readonly IValidator<CreateUserModel> _createUserModelValidator;
-        private readonly IValidator<UpdateUserModel> _updateUserModelValidator;
+        private readonly IValidator<UpdateFullUserModel> _updateFullUserModelValidator;
 
         public UsersController
         (
             IUserService userService,
             IValidator<CreateUserModel> createUserModelValidator,
-            IValidator<UpdateUserModel> updateUserModelValidator
+            IValidator<UpdateFullUserModel> updateFullUserModelValidator
         )
         {
             _userService = userService;
             _createUserModelValidator = createUserModelValidator;
-            _updateUserModelValidator = updateUserModelValidator;
+            _updateFullUserModelValidator = updateFullUserModelValidator;
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="404">When the user does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateUserModel model, Guid userId)
+        public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateFullUserModel model, Guid userId)
         {
             var user = await _userService.GetFullUserByIdAsync(userId);
             if(user == null)
@@ -98,7 +98,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return NotFound();
             }
 
-            var resultValidation = await _updateUserModelValidator.ValidateAsync(model);
+            var resultValidation = await _updateFullUserModelValidator.ValidateAsync(model);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
