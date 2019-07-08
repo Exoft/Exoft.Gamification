@@ -93,6 +93,7 @@ namespace Exoft.Gamification
 
             // Validators
             services.AddTransient<IValidator<CreateUserModel>, CreateUserModelValidator>();
+            services.AddTransient<IValidator<UpdateFullUserModel>, UpdateFullUserModelValidator>();
             services.AddTransient<IValidator<UpdateUserModel>, UpdateUserModelValidator>();
             services.AddTransient<IValidator<CreateAchievementModel>, CreateAchievementModelValidator>();
             services.AddTransient<IValidator<UpdateAchievementModel>, UpdateAchievementModelValidator>();

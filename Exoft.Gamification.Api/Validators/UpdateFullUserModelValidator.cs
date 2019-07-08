@@ -9,18 +9,21 @@ using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Validators
 {
-    public class UpdateUserModelValidator : BaseValidator<UpdateUserModel>
+    public class UpdateFullUserModelValidator : BaseValidator<UpdateFullUserModel>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
 
-        public UpdateUserModelValidator
+        public UpdateFullUserModelValidator
         (
             IUserRepository userRepository,
+            IRoleRepository roleRepository,
             IStringLocalizer<ValidatorMessages> stringLocalizer,
             IActionContextAccessor actionContextAccessor
         ) : base(stringLocalizer, actionContextAccessor)
         {
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
 
             RuleFor(user => user.FirstName)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
@@ -39,6 +42,10 @@ namespace Exoft.Gamification.Api.Validators
             RuleFor(user => user.Status)
                 .MaximumLength(250).WithMessage(_stringLocalizer["TooLong"]);
 
+            RuleFor(user => user.Role)
+                .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
+                .MustAsync(CheckRoleAsync).WithMessage(_stringLocalizer["WrongRole"]);
+
             RuleFor(user => user.UserName)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
                 .MaximumLength(32).WithMessage(_stringLocalizer["TooLong"])
@@ -49,13 +56,19 @@ namespace Exoft.Gamification.Api.Validators
         {
             var user = await _userRepository.GetByIdAsync(CurrentUserId);
 
-            if (user.Email == email)
+            if(user.Email == email)
             {
                 return true;
             }
 
             bool exists = await _userRepository.DoesEmailExistsAsync(email);
             return !exists;
+        }
+
+        private async Task<bool> CheckRoleAsync(string role, CancellationToken cancellationToken)
+        {
+            var roleEntity = await _roleRepository.GetRoleByNameAsync(role);
+            return roleEntity != null;
         }
 
         private async Task<bool> CheckUserNameAsync(string userName, CancellationToken cancellationToken)
@@ -68,7 +81,7 @@ namespace Exoft.Gamification.Api.Validators
             }
 
             var userEntity = await _userRepository.GetByUserNameAsync(userName);
-            if (userEntity == null)
+            if(userEntity == null)
             {
                 return true;
             }
