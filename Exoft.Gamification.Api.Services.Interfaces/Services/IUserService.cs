@@ -9,6 +9,7 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Services
     {
         Task<ReadFullUserModel> AddUserAsync(CreateUserModel model);
         Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid Id);
+        Task<ReadFullUserModel> UpdateUserAsync(UpdateFullUserModel model, Guid Id);
         Task UpdatePasswordAsync(Guid userId, string newPassword);
         Task DeleteUserAsync(Guid Id);
         Task<ReadShortUserModel> GetShortUserByIdAsync(Guid Id);

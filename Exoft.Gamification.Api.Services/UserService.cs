@@ -124,21 +124,6 @@ namespace Exoft.Gamification.Api.Services
             user.Status = model.Status;
             user.Email = model.Email;
             
-            if(model is UpdateFullUserModel)
-            {
-                var role = await _roleRepository.GetRoleByNameAsync((model as UpdateFullUserModel).Role);
-
-                var userRole = new UserRoles()
-                {
-                    Role = role,
-                    User = user
-                };
-
-                user.Roles.Clear();
-                user.Roles.Add(userRole);
-            }
-
-
             if (model.Avatar != null)
             {
                 using (MemoryStream memory = new MemoryStream())
@@ -149,6 +134,55 @@ namespace Exoft.Gamification.Api.Services
                     {
                         await _fileRepository.Delete(user.AvatarId.Value);
                     }   
+
+                    var file = new File()
+                    {
+                        Data = memory.ToArray(),
+                        ContentType = model.Avatar.ContentType
+                    };
+                    await _fileRepository.AddAsync(file);
+                    user.AvatarId = file.Id;
+                }
+            }
+            _userRepository.Update(user);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<ReadFullUserModel>(user);
+        }
+
+        public async Task<ReadFullUserModel> UpdateUserAsync(UpdateFullUserModel model, Guid Id)
+        {
+            var user = await _userRepository.GetByIdAsync(Id);
+            user.UserName = model.UserName;
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.Status = model.Status;
+            user.Email = model.Email;
+            
+        
+            var role = await _roleRepository.GetRoleByNameAsync(model.Role);
+
+            var userRole = new UserRoles()
+            {
+                Role = role,
+                User = user
+            };
+
+            user.Roles.Clear();
+            user.Roles.Add(userRole);
+
+
+            if (model.Avatar != null)
+            {
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    await model.Avatar.CopyToAsync(memory);
+
+                    if (user.AvatarId != null)
+                    {
+                        await _fileRepository.Delete(user.AvatarId.Value);
+                    }
 
                     var file = new File()
                     {
