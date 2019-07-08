@@ -123,17 +123,21 @@ namespace Exoft.Gamification.Api.Services
             user.LastName = model.LastName;
             user.Status = model.Status;
             user.Email = model.Email;
-
-            var role = await _roleRepository.GetRoleByNameAsync(model.Role);
-
-            var userRole = new UserRoles()
+            
+            if(model is UpdateFullUserModel)
             {
-                Role = role,
-                User = user
-            };
+                var role = await _roleRepository.GetRoleByNameAsync((model as UpdateFullUserModel).Role);
 
-            user.Roles.Clear();
-            user.Roles.Add(userRole);
+                var userRole = new UserRoles()
+                {
+                    Role = role,
+                    User = user
+                };
+
+                user.Roles.Clear();
+                user.Roles.Add(userRole);
+            }
+
 
             if (model.Avatar != null)
             {
