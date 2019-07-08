@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -9,6 +10,11 @@ namespace Exoft.Gamification.Api.Helpers
 {
     public class ErrorHandlingFilter : ExceptionFilterAttribute
     {
+        private static readonly List<string> propertiesForExcluding = new List<string>()
+        {
+            "password"
+        };
+
         private readonly ILogger<ErrorHandlingFilter> _logger;
 
         public ErrorHandlingFilter
@@ -36,6 +42,10 @@ namespace Exoft.Gamification.Api.Helpers
                 if(!string.IsNullOrEmpty(body))
                 {
                     var jsonBody = JObject.Parse(body);
+                    foreach (var propertyForExlude in propertiesForExcluding)
+                    {
+                        jsonBody.Remove(propertyForExlude);
+                    }
                     jsonBody.Remove("password");
                     stringBuilder.Append(string.Format("\r\n ---> Body: {0}", jsonBody.ToString()));
                 }
