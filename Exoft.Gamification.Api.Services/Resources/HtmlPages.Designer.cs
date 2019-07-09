@@ -89,5 +89,37 @@ namespace Exoft.Gamification.Api.Services.Resources {
                 return ResourceManager.GetString("ForgotPasswordPage", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
+        ///&lt;html&gt;
+        ///&lt;head&gt;
+        ///    &lt;meta charset=&quot;utf-8&quot; /&gt;
+        ///    &lt;title&gt;Request achievement&lt;/title&gt;
+        ///    &lt;style&gt;
+        ///        .container {
+        ///            width: 300px;
+        ///            height: 170px;
+        ///            position: absolute;
+        ///            padding: 20px;
+        ///            background-color: #3A3E46;
+        ///        }
+        ///
+        ///        h3, p {
+        ///            text-align: center;
+        ///            color: white;
+        ///        }
+        ///    &lt;/style&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///    &lt;div class=&quot;container&quot;&gt;
+        ///        &lt;h3&gt;Hello!&lt;/h3&gt;
+        ///        &lt;p&gt;User {userLastName} { [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string RequestAchievementPage {
+            get {
+                return ResourceManager.GetString("RequestAchievementPage", resourceCulture);
+            }
+        }
     }
 }

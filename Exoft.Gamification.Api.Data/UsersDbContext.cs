@@ -17,6 +17,7 @@ namespace Exoft.Gamification.Api.Data
         public DbSet<File> Files { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Thank> Thanks { get; set; }
+        public DbSet<RequestAchievement> RequestAchievements { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -29,6 +30,7 @@ namespace Exoft.Gamification.Api.Data
             modelBuilder.ApplyConfiguration(new UserRolesConfiguration());
             modelBuilder.ApplyConfiguration(new ThankConfiguration());
             modelBuilder.ApplyConfiguration(new EventConfiguration());
+            modelBuilder.ApplyConfiguration(new RequestAchievementConfiguration());
         }
     }
 }

@@ -61,6 +61,15 @@ namespace Exoft.Gamification.Api.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Achievement not found.
+        /// </summary>
+        public static string AchievementNotFound {
+            get {
+                return ResourceManager.GetString("AchievementNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {PropertyName} should not be empty.
         /// </summary>
         public static string EmptyField {
