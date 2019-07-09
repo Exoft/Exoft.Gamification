@@ -45,7 +45,10 @@ namespace Exoft.Gamification
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
-            services.AddMvc()
+            services.AddMvc(options =>
+            {
+                options.Filters.Add<ErrorHandlingFilter>();
+            })
                 .AddDataAnnotationsLocalization(options =>
                 {
                     options.DataAnnotationLocalizerProvider = (type, factory) =>
@@ -155,7 +158,6 @@ namespace Exoft.Gamification
                 //var context = scope.ServiceProvider.GetService<UsersDbContext>();
                 //ContextInitializer.Initialize(context);
             }
-
 
             app.UseSwagger();
             app.UseSwaggerUI(c =>
