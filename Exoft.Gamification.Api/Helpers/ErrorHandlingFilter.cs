@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -68,14 +67,13 @@ namespace Exoft.Gamification.Api.Helpers
 
         private JObject RemoveExcludedProperties(JObject json, ExceptionContext context)
         {
-            var controllerType = (context.ActionDescriptor as ControllerActionDescriptor).ControllerTypeInfo;
-            var actionName = context.RouteData.Values["action"].ToString();
-            var method = controllerType.GetMethod(actionName);
-            var parameters = method.GetParameters().SingleOrDefault(param =>
+            var controllerActionDescriptor = (context.ActionDescriptor) as ControllerActionDescriptor;
+            var method = controllerActionDescriptor.MethodInfo;
+            var parameter = method.GetParameters().SingleOrDefault(param =>
                         param.IsDefined(typeof(FromBodyAttribute), false) ||
                         param.IsDefined(typeof(FromFormAttribute), false));
 
-            var modelType = parameters.ParameterType;
+            var modelType = parameter.ParameterType;
             var excludedProperties = modelType.GetProperties().Where(prop =>
                                         IsDefined(prop, typeof(NonLoggedAttribute)));
 
@@ -99,13 +97,9 @@ namespace Exoft.Gamification.Api.Helpers
         
         private JObject ToJSON(IFormCollection formCollection)
         {
-            var dictionary = new Dictionary<string, string>();
-            foreach (string key in formCollection.Keys)
-            {
-                dictionary.Add(key, formCollection[key]);
-            }
+            var dict = formCollection.ToDictionary(s => s.Key, s => s.Value);
 
-            return JObject.Parse(JsonConvert.SerializeObject(dictionary));
+            return JObject.Parse(JsonConvert.SerializeObject(dict));
         }
     }
 }
