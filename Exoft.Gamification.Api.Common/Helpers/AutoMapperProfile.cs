@@ -61,6 +61,8 @@ namespace Exoft.Gamification.Api.Common.Helpers
             CreateMap<CreateUserModel, User>();
 
             CreateMap<CreateThankModel, Thank>();
+
+            CreateMap<RequestAchievementModel, RequestAchievement>();
         }
     }
 }

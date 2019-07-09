@@ -81,6 +81,7 @@ namespace Exoft.Gamification
             services.AddScoped<IUserAchievementService, UserAchievementService>();
             services.AddScoped<IThankService, ThankService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IRequestAchievementService, RequestAchievementService>();
 
             // Repositories
             services.AddTransient<IUserRepository, UserRepository>();
@@ -90,6 +91,7 @@ namespace Exoft.Gamification
             services.AddTransient<IUserAchievementRepository, UserAchievementRepository>();
             services.AddTransient<IRoleRepository, RoleRepository>();
             services.AddTransient<IThankRepository, ThankRepository>();
+            services.AddTransient<IRequestAchievementRepository, RequestAchievementRepository>();
 
             // Validators
             services.AddTransient<IValidator<CreateUserModel>, CreateUserModelValidator>();
@@ -100,6 +102,7 @@ namespace Exoft.Gamification
             services.AddTransient<IValidator<CreateThankModel>, CreateThankModelValidator>();
             services.AddTransient<IValidator<ResetPasswordModel>, ResetPasswordModelValidator>();
             services.AddTransient<IValidator<RequestResetPasswordModel>, RequestResetPasswordModelValidator>();
+            services.AddTransient<IValidator<RequestAchievementModel>, RequestAchievementModelValidator>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
