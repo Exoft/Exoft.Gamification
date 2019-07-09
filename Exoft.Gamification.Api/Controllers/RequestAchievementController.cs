@@ -33,17 +33,10 @@ namespace Exoft.Gamification.Api.Controllers
         /// Create new request achievement
         /// </summary>
         /// <response code="200">When request success sended and added</response>
-        /// <response code="404">When achievement does not exist</response>
         /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpPost]
         public async Task<IActionResult> AddRequestAsync([FromBody] RequestAchievementModel model)
         {
-            var achievement = await _achievementService.GetAchievementByIdAsync(model.AchievementId);
-            if (achievement == null)
-            {
-                return NotFound();
-            }
-
             var resultValidation = await _requestAchievementModelValidator.ValidateAsync(model);
             resultValidation.AddToModelState(ModelState, null);
 
