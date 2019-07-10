@@ -21,8 +21,8 @@ namespace Exoft.Gamification.Api.Services
         private readonly IUserRepository _userRepository;
         private readonly IAchievementRepository _achievementRepository;
         private readonly IStringLocalizer<HtmlPages> _stringLocalizer;
-        private readonly IEmailSenderSettings _emailSenderSettings;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IAdminContact _adminContact;
 
         public RequestAchievementService
         (
@@ -32,8 +32,8 @@ namespace Exoft.Gamification.Api.Services
             IUserRepository userRepository,
             IAchievementRepository achievementRepository,
             IStringLocalizer<HtmlPages> stringLocalizer,
-            IEmailSenderSettings emailSenderSettings,
-            IUnitOfWork unitOfWork
+            IUnitOfWork unitOfWork,
+            IAdminContact adminContact
         )
         {
             _requestAchievementRepository = requestAchievementRepository;
@@ -42,8 +42,8 @@ namespace Exoft.Gamification.Api.Services
             _userRepository = userRepository;
             _achievementRepository = achievementRepository;
             _stringLocalizer = stringLocalizer;
-            _emailSenderSettings = emailSenderSettings;
             _unitOfWork = unitOfWork;
+            _adminContact = adminContact;
         }
 
         public async Task<IResponse> AddAsync(RequestAchievementModel model, Guid userId)
@@ -58,9 +58,10 @@ namespace Exoft.Gamification.Api.Services
             pageWithParams = pageWithParams.Replace("{achievementName}", achievement.Name);
 
             await _emailService.SendEmailAsync(
-                _emailSenderSettings.Email,
+                _adminContact.Mail,
                 "Request achievement",
-                pageWithParams);
+                pageWithParams,
+                true);
             
             var entity = _mapper.Map<RequestAchievement>(model);
             entity.UserId = userId;
