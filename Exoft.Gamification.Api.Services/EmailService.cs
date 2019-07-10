@@ -15,7 +15,7 @@ namespace Exoft.Gamification.Api.Services
             _emailSenderSettings = emailSenderSettings;
         }
 
-        public async Task SendEmailAsync(string email, string subject, string message, bool isMessageHtml = false)
+        public async Task SendEmailAsync(string email, string subject, string message)
         {
             SmtpClient client = new SmtpClient(_emailSenderSettings.SmtpClient, _emailSenderSettings.Port)
             {
@@ -26,7 +26,7 @@ namespace Exoft.Gamification.Api.Services
             MailMessage mailMessage = new MailMessage();
             mailMessage.From = new MailAddress(_emailSenderSettings.Email, _emailSenderSettings.DisplayName);
             mailMessage.To.Add(email);
-            mailMessage.IsBodyHtml = isMessageHtml;
+            mailMessage.IsBodyHtml = true;
             mailMessage.Body = message;
             mailMessage.Subject = subject;
 

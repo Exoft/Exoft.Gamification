@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
@@ -22,7 +21,6 @@ namespace Exoft.Gamification.Api.Services
         private readonly IAchievementRepository _achievementRepository;
         private readonly IStringLocalizer<HtmlPages> _stringLocalizer;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IAdminContact _adminContact;
 
         public RequestAchievementService
         (
@@ -32,8 +30,7 @@ namespace Exoft.Gamification.Api.Services
             IUserRepository userRepository,
             IAchievementRepository achievementRepository,
             IStringLocalizer<HtmlPages> stringLocalizer,
-            IUnitOfWork unitOfWork,
-            IAdminContact adminContact
+            IUnitOfWork unitOfWork
         )
         {
             _requestAchievementRepository = requestAchievementRepository;
@@ -43,7 +40,6 @@ namespace Exoft.Gamification.Api.Services
             _achievementRepository = achievementRepository;
             _stringLocalizer = stringLocalizer;
             _unitOfWork = unitOfWork;
-            _adminContact = adminContact;
         }
 
         public async Task<IResponse> AddAsync(RequestAchievementModel model, Guid userId)
@@ -57,11 +53,14 @@ namespace Exoft.Gamification.Api.Services
             pageWithParams = pageWithParams.Replace("{message}", model.Message);
             pageWithParams = pageWithParams.Replace("{achievementName}", achievement.Name);
 
-            await _emailService.SendEmailAsync(
-                _adminContact.Mail,
-                "Request achievement",
-                pageWithParams,
-                true);
+            var emails = await _userRepository.GetAdminsEmailsAsync();
+            foreach (var email in emails)
+            {
+                await _emailService.SendEmailAsync(
+                    email,
+                    "Request achievement",
+                    pageWithParams);
+            }
             
             var entity = _mapper.Map<RequestAchievement>(model);
             entity.UserId = userId;

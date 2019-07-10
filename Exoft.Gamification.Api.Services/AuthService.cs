@@ -156,7 +156,7 @@ namespace Exoft.Gamification.Api.Services
 
             var pageWithParams = forgotPasswordPage.Replace("{link}", uriBuilder.ToString());
 
-            await _emailService.SendEmailAsync(email, "Reset your password", pageWithParams, true);
+            await _emailService.SendEmailAsync(email, "Reset your password", pageWithParams);
 
             return new OkResponse();
         }
