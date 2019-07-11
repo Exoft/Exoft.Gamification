@@ -62,15 +62,17 @@ namespace Exoft.Gamification
             );
 
             // configure DI for application services
-            var jwtSecret = new JwtSecret(Configuration);
-            services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
-            services.AddScoped<IEmailSenderSettings, EmailSenderSettings>();
-            services.AddScoped<IResetPasswordSettings, ResetPasswordSettings>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddTransient<IPasswordHasher, PasswordHasher>();
             services.AddTransient<IRefreshTokenProvider, RefreshTokenProvider>();
             services.AddTransient(typeof(ICacheManager<>), typeof(CacheManager<>));
+
+            // Settings
+            var jwtSecret = new JwtSecret(Configuration);
+            services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
+            services.AddScoped<IEmailSenderSettings, EmailSenderSettings>();
+            services.AddScoped<IResetPasswordSettings, ResetPasswordSettings>();
 
             // Services
             services.AddScoped<IAuthService, AuthService>();

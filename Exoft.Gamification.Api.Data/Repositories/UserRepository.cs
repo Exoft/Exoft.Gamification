@@ -3,6 +3,7 @@ using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -55,6 +56,16 @@ namespace Exoft.Gamification.Api.Data.Repositories
             var user = await IncludeAll().SingleOrDefaultAsync(i => i.Email == email);
 
             return user;
+        }
+
+        public async Task<ICollection<string>> GetAdminsEmailsAsync()
+        {
+            var list = await Context.UserRoles
+                .Where(i => i.Role.Name == GamificationRole.Admin)
+                .Select(i => i.User.Email)
+                .ToListAsync();
+
+            return list;
         }
 
         protected override IQueryable<User> IncludeAll()

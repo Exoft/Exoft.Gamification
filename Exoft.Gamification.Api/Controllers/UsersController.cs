@@ -65,6 +65,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="201">Return created user</responce> 
         /// <response code="422">When the model structure is correct but validation fails</response>
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost]
         public async Task<IActionResult> AddUserAsync([FromBody] CreateUserModel model)
         {
@@ -89,6 +90,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return the updated user</responce> 
         /// <responce code="404">When the user does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpPut("{userId}")]
         public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateFullUserModel model, Guid userId)
         {
@@ -116,6 +118,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="204">When the user successful delete</responce>
         /// <response code="404">When the user does not exist</response>
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUserAsync(Guid userId)
         {

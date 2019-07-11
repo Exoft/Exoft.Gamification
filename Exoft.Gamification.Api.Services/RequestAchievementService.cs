@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
@@ -9,6 +8,8 @@ using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Services.Resources;
 using Microsoft.Extensions.Localization;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services
@@ -21,7 +22,6 @@ namespace Exoft.Gamification.Api.Services
         private readonly IUserRepository _userRepository;
         private readonly IAchievementRepository _achievementRepository;
         private readonly IStringLocalizer<HtmlPages> _stringLocalizer;
-        private readonly IEmailSenderSettings _emailSenderSettings;
         private readonly IUnitOfWork _unitOfWork;
 
         public RequestAchievementService
@@ -32,7 +32,6 @@ namespace Exoft.Gamification.Api.Services
             IUserRepository userRepository,
             IAchievementRepository achievementRepository,
             IStringLocalizer<HtmlPages> stringLocalizer,
-            IEmailSenderSettings emailSenderSettings,
             IUnitOfWork unitOfWork
         )
         {
@@ -42,7 +41,6 @@ namespace Exoft.Gamification.Api.Services
             _userRepository = userRepository;
             _achievementRepository = achievementRepository;
             _stringLocalizer = stringLocalizer;
-            _emailSenderSettings = emailSenderSettings;
             _unitOfWork = unitOfWork;
         }
 
@@ -57,10 +55,9 @@ namespace Exoft.Gamification.Api.Services
             pageWithParams = pageWithParams.Replace("{message}", model.Message);
             pageWithParams = pageWithParams.Replace("{achievementName}", achievement.Name);
 
-            await _emailService.SendEmailAsync(
-                _emailSenderSettings.Email,
-                "Request achievement",
-                pageWithParams);
+            var emails = await _userRepository.GetAdminsEmailsAsync();
+
+            await _emailService.SendEmailsAsync("Request achievement", pageWithParams, emails.ToArray());
             
             var entity = _mapper.Map<RequestAchievement>(model);
             entity.UserId = userId;

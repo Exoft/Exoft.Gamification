@@ -1,4 +1,5 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data.Core.Interfaces.Repositories
@@ -8,5 +9,6 @@ namespace Exoft.Gamification.Api.Data.Core.Interfaces.Repositories
         Task<User> GetByUserNameAsync(string userName);
         Task<User> GetByEmailAsync(string email);
         Task<bool> DoesEmailExistsAsync(string email);
+        Task<ICollection<string>> GetAdminsEmailsAsync();
     }
 }
