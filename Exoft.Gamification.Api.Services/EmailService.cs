@@ -16,7 +16,7 @@ namespace Exoft.Gamification.Api.Services
             _emailSenderSettings = emailSenderSettings;
         }
 
-        public async Task SendEmailAsync(string email, string subject, string message)
+        public async Task SendEmailAsync(string subject, string message, string email)
         {
             var client = GetSmtpClient();
 
@@ -26,7 +26,7 @@ namespace Exoft.Gamification.Api.Services
             await client.SendMailAsync(mailMessage);
         }
 
-        public async Task SendEmailsAsync(ICollection<string> emails, string subject, string message)
+        public async Task SendEmailsAsync(string subject, string message, params string[] emails)
         {
             var client = GetSmtpClient();
 
