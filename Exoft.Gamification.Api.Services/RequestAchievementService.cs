@@ -8,6 +8,7 @@ using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Services.Resources;
 using Microsoft.Extensions.Localization;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services
@@ -54,13 +55,8 @@ namespace Exoft.Gamification.Api.Services
             pageWithParams = pageWithParams.Replace("{achievementName}", achievement.Name);
 
             var emails = await _userRepository.GetAdminsEmailsAsync();
-            foreach (var email in emails)
-            {
-                await _emailService.SendEmailAsync(
-                    email,
-                    "Request achievement",
-                    pageWithParams);
-            }
+
+            await _emailService.SendEmailsAsync(emails, "Request achievement", pageWithParams);
             
             var entity = _mapper.Map<RequestAchievement>(model);
             entity.UserId = userId;
