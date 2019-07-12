@@ -14,6 +14,7 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Services
         Task DeleteUserAsync(Guid Id);
         Task<ReadShortUserModel> GetShortUserByIdAsync(Guid Id);
         Task<ReadFullUserModel> GetFullUserByIdAsync(Guid Id);
-        Task<ReturnPagingInfo<ReadShortUserModel>> GetAllUserAsync(PagingInfo pagingInfo);
+        Task<ReturnPagingInfo<ReadShortUserModel>> GetAllUsersWithShortInfoAsync(PagingInfo pagingInfo);
+        Task<ReturnPagingInfo<ReadFullUserModel>> GetAllUsersWithFullInfoAsync(PagingInfo pagingInfo);
     }
 }

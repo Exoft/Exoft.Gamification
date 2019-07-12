@@ -84,12 +84,29 @@ namespace Exoft.Gamification.Api.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<ReturnPagingInfo<ReadShortUserModel>> GetAllUserAsync(PagingInfo pagingInfo)
+        public async Task<ReturnPagingInfo<ReadShortUserModel>> GetAllUsersWithShortInfoAsync(PagingInfo pagingInfo)
         {
             var page = await _userRepository.GetAllDataAsync(pagingInfo);
 
             var readUserModel = page.Data.Select(i => _mapper.Map<ReadShortUserModel>(i)).ToList();
             var result = new ReturnPagingInfo<ReadShortUserModel>()
+            {
+                CurrentPage = page.CurrentPage,
+                PageSize = page.PageSize,
+                TotalItems = page.TotalItems,
+                TotalPages = page.TotalPages,
+                Data = readUserModel
+            };
+
+            return result;
+        }
+
+        public async Task<ReturnPagingInfo<ReadFullUserModel>> GetAllUsersWithFullInfoAsync(PagingInfo pagingInfo)
+        {
+            var page = await _userRepository.GetAllDataAsync(pagingInfo);
+
+            var readUserModel = page.Data.Select(i => _mapper.Map<ReadFullUserModel>(i)).ToList();
+            var result = new ReturnPagingInfo<ReadFullUserModel>()
             {
                 CurrentPage = page.CurrentPage,
                 PageSize = page.PageSize,

@@ -32,13 +32,25 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         /// <summary>
-        /// Get paged list of users
+        /// Get paged list of users with short info
         /// </summary>
         /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of users</responce> 
-        [HttpGet]
-        public async Task<IActionResult> GetUsersAsync([FromQuery] PagingInfo pagingInfo)
+        [HttpGet("with-short-info")]
+        public async Task<IActionResult> GetUsersShortInfoAsync([FromQuery] PagingInfo pagingInfo)
         {
-            var allItems = await _userService.GetAllUserAsync(pagingInfo);
+            var allItems = await _userService.GetAllUsersWithShortInfoAsync(pagingInfo);
+
+            return Ok(allItems);
+        }
+
+        /// <summary>
+        /// Get paged list of users with full info
+        /// </summary>
+        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of users</responce> 
+        [HttpGet("with-full-info")]
+        public async Task<IActionResult> GetUsersFullInfoAsync([FromQuery] PagingInfo pagingInfo)
+        {
+            var allItems = await _userService.GetAllUsersWithFullInfoAsync(pagingInfo);
 
             return Ok(allItems);
         }
