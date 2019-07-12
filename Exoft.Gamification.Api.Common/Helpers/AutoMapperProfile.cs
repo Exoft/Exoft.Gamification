@@ -4,6 +4,7 @@ using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Entities;
+using System.Linq;
 
 namespace Exoft.Gamification.Api.Common.Helpers
 {
@@ -46,8 +47,9 @@ namespace Exoft.Gamification.Api.Common.Helpers
                 .ForMember(s => s.AvatarId, o => o.MapFrom(d => d.User.AvatarId))
                 .ForMember(s => s.Type, o => o.MapFrom(d => d.Type.ToString()))
                 .ForMember(s => s.CreatedTime, o => o.MapFrom(d => d.CreatedTime.ConvertToIso8601DateTimeUtc()));
-
-            CreateMap<User, JwtTokenModel>();
+            
+            CreateMap<User, JwtTokenModel>()
+                .ForMember(s => s.Roles, o => o.MapFrom(d => d.Roles.Select(i => i.Role.Name)));
             
             CreateMap<Thank, ReadThankModel>()
                 .ForMember(s => s.FirstName, o => o.MapFrom(d => d.FromUser.FirstName))

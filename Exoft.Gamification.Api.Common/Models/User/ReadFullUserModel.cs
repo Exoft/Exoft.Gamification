@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Exoft.Gamification.Api.Common.Models.User
 {
@@ -17,6 +18,8 @@ namespace Exoft.Gamification.Api.Common.Models.User
         public string Status { get; set; }
 
         public int XP { get; set; }
+
+        public IEnumerable<string> Roles { get; set; }
 
         public Guid? AvatarId { get; set; }
     }
