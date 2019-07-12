@@ -1,5 +1,4 @@
 ﻿using Exoft.Gamification.Api.Services.Interfaces.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -7,7 +6,6 @@ using System.Threading.Tasks;
 namespace Exoft.Gamification.Api.Controllers
 {
     [Route("api/files")]
-    [Authorize]
     [ApiController]
     public class FilesController : GamificationController
     {

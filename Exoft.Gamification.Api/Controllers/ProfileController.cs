@@ -1,6 +1,8 @@
 ﻿using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -15,15 +17,18 @@ namespace Exoft.Gamification.Api.Controllers
     {
         private readonly IUserService _userService;
         private readonly IUserAchievementService _userAchievementService;
+        private readonly IValidator<UpdateUserModel> _updateUserModelValidator;
 
         public ProfileController
         (
             IUserService userService,
-            IUserAchievementService userAchievementService
+            IUserAchievementService userAchievementService,
+            IValidator<UpdateUserModel> updateUserModelValidator
         )
         {
             _userService = userService;
             _userAchievementService = userAchievementService;
+            _updateUserModelValidator = updateUserModelValidator;
         }
 
         /// <summary>
@@ -67,18 +72,22 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="404">When the user does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [HttpPut("current-user")]
-        public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateUserModel model)
+        public async Task<IActionResult> UpdateCurrentUser([FromForm] UpdateUserModel model)
         {
-            if(!ModelState.IsValid)
-            {
-                return UnprocessableEntity();
-            }
-
             var user = await _userService.GetFullUserByIdAsync(UserId);
             if(user == null)
             {
                 return NotFound();
             }
+
+            var resultValidation = await _updateUserModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if(!ModelState.IsValid)
+            {
+                return UnprocessableEntity();
+            }
+
 
             var newUser = await _userService.UpdateUserAsync(model, UserId);
 
@@ -95,6 +104,18 @@ namespace Exoft.Gamification.Api.Controllers
             var item = await _userAchievementService.GetAllAchievementsByUserAsync(pagingInfo, UserId);
 
             return Ok(item);
+        }
+
+        /// <summary>
+        /// Get info about achievements current user
+        /// </summary>
+        /// <responce code="200">Return info about achievements current user</responce> 
+        [HttpGet("current-user/achievements/info")]
+        public async Task<IActionResult> GetAchievementsInfo()
+        {
+            var achievementsInfo = await _userAchievementService.GetAchievementsInfoByUserAsync(UserId);
+
+            return Ok(achievementsInfo);
         }
     }
 }

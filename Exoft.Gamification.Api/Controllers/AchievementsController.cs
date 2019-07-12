@@ -1,6 +1,8 @@
 ﻿using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,10 +16,19 @@ namespace Exoft.Gamification.Api.Controllers
     public class AchievementsController : GamificationController
     {
         private readonly IAchievementService _achievementService;
+        private readonly IValidator<CreateAchievementModel> _createAchievementModelValidator;
+        private readonly IValidator<UpdateAchievementModel> _updateAchievementModelValidator;
 
-        public AchievementsController(IAchievementService achievementService)
+        public AchievementsController
+        (
+            IAchievementService achievementService,
+            IValidator<CreateAchievementModel> createAchievementModelValidator,
+            IValidator<UpdateAchievementModel> updateAchievementModelValidator
+        )
         {
             _achievementService = achievementService;
+            _createAchievementModelValidator = createAchievementModelValidator;
+            _updateAchievementModelValidator = updateAchievementModelValidator;
         }
 
 
@@ -55,9 +66,13 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <response code="201">Return created achievement</response>
         /// <response code="422">When the model structure is correct but validation fails</response>
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost]
-        public async Task<IActionResult> AddAchievementAsync([FromBody] CreateAchievementModel model)
+        public async Task<IActionResult> AddAchievementAsync([FromForm] CreateAchievementModel model)
         {
+            var resultValidation = await _createAchievementModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
             if(!ModelState.IsValid)
             {
                 return UnprocessableEntity(ModelState);
@@ -76,14 +91,18 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return the updated achievement</responce> 
         /// <responce code="404">When the achievement does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpPut("{achievementId}")]
-        public async Task<IActionResult> UpdateAchievementAsync([FromBody] UpdateAchievementModel model, Guid achievementId)
+        public async Task<IActionResult> UpdateAchievementAsync([FromForm] UpdateAchievementModel model, Guid achievementId)
         {
             var achievement = await _achievementService.GetAchievementByIdAsync(achievementId);
             if(achievement == null)
             {
                 return NotFound();
             }
+
+            var resultValidation = await _updateAchievementModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
             {
@@ -99,6 +118,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="204">When the achievement successful delete</responce>
         /// <response code="404">When the achievement does not exist</response>
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpDelete("{achievementId}")]
         public async Task<IActionResult> DeleteAchievementAsync(Guid achievementId)
         {

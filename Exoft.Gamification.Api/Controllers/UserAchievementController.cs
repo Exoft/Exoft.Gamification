@@ -86,14 +86,17 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         /// <summary>
-        /// Get some achievements current user
+        /// Get some achievement current user
         /// </summary>
         /// <responce code="200">Return some achievement current user</responce> 
         /// <responce code="404">When the achievement does not exist</responce> 
         [HttpGet("{userId}/achievements/{achievementId}")]
-        public async Task<IActionResult> GetAchievementByUserAsync(Guid userId, Guid achievementId)
+        public async Task<IActionResult> GetAchievementByUserAsync(
+            [FromQuery] Guid userAchievementId, 
+            Guid userId, 
+            Guid achievementId)
         {
-            var model = await _userAchievementService.GetSingleUserAchievementAsync(userId, achievementId);
+            var model = await _userAchievementService.GetSingleUserAchievementAsync(userAchievementId);
             if (model == null)
             {
                 return NotFound();

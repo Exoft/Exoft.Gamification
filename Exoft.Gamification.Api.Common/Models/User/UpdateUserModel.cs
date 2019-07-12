@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Exoft.Gamification.Api.Common.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace Exoft.Gamification.Api.Common.Models.User
 {
@@ -14,6 +15,7 @@ namespace Exoft.Gamification.Api.Common.Models.User
 
         public string Status { get; set; }
 
+        [NonLogged]
         public IFormFile Avatar { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
-using Exoft.Gamification.Api.Data.Core.Interfaces;
+using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using System;
@@ -52,6 +52,7 @@ namespace Exoft.Gamification.Api.Services
             };
 
             user.Achievements.Add(userAchievement);
+            user.XP += achievement.XP;
 
             await _userAchievementRepository.AddAsync(userAchievement);
 
@@ -78,8 +79,24 @@ namespace Exoft.Gamification.Api.Services
             _userAchievementRepository.Delete(userAchievement);
 
             user.Achievements.Remove(userAchievement);
+            user.XP -= userAchievement.Achievement.XP;
+
 
             await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<AchievementsInfoModel> GetAchievementsInfoByUserAsync(Guid userId)
+        {
+            var countAchievements = await _userAchievementRepository.GetCountAchievementsByUserAsync(userId);
+            var summaryXP = await _userAchievementRepository.GetSummaryXpByUserAsync(userId);
+            var countAchievementsByThisMonth = await _userAchievementRepository.GetCountAchievementsByThisMonthAsync(userId);
+
+            return new AchievementsInfoModel()
+            {
+                TotalXP = summaryXP,
+                TotalAchievements = countAchievements,
+                TotalAchievementsByThisMonth = countAchievementsByThisMonth
+            };
         }
 
         public async Task<ReturnPagingInfo<ReadUserAchievementModel>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid userId)
@@ -100,9 +117,9 @@ namespace Exoft.Gamification.Api.Services
             return result;
         }
 
-        public async Task<ReadUserAchievementModel> GetSingleUserAchievementAsync(Guid userId, Guid achievementId)
+        public async Task<ReadUserAchievementModel> GetSingleUserAchievementAsync(Guid userAchievementId)
         {
-            var userAchievement = await _userAchievementRepository.GetSingleUserAchievementAsync(userId, achievementId);
+            var userAchievement = await _userAchievementRepository.GetSingleUserAchievementAsync(userAchievementId);
 
             return _mapper.Map<ReadUserAchievementModel>(userAchievement);
         }

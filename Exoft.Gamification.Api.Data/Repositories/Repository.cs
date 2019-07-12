@@ -1,10 +1,9 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
-using Exoft.Gamification.Api.Data.Core.Interfaces;
+using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data.Repositories
@@ -20,6 +19,11 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         protected DbSet<T> DbSet { get; }
         protected UsersDbContext Context { get; }
+
+        public T GetById(Guid id)
+        {
+            return IncludeAll().SingleOrDefault(i => i.Id == id);
+        }
 
         public async Task<T> GetByIdAsync(Guid id)
         {

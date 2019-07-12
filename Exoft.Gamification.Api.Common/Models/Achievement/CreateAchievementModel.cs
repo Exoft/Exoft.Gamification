@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Exoft.Gamification.Api.Common.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace Exoft.Gamification.Api.Common.Models.Achievement
 {
@@ -10,6 +11,7 @@ namespace Exoft.Gamification.Api.Common.Models.Achievement
         
         public int XP { get; set; }
         
+        [NonLogged]
         public IFormFile Icon { get; set; }
     }
 }

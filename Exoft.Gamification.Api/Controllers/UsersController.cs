@@ -1,6 +1,8 @@
 ﻿using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,10 +16,19 @@ namespace Exoft.Gamification.Api.Controllers
     public class UsersController : GamificationController
     {
         private readonly IUserService _userService;
+        private readonly IValidator<CreateUserModel> _createUserModelValidator;
+        private readonly IValidator<UpdateFullUserModel> _updateFullUserModelValidator;
 
-        public UsersController(IUserService userService)
+        public UsersController
+        (
+            IUserService userService,
+            IValidator<CreateUserModel> createUserModelValidator,
+            IValidator<UpdateFullUserModel> updateFullUserModelValidator
+        )
         {
             _userService = userService;
+            _createUserModelValidator = createUserModelValidator;
+            _updateFullUserModelValidator = updateFullUserModelValidator;
         }
 
         /// <summary>
@@ -54,9 +65,13 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="201">Return created user</responce> 
         /// <response code="422">When the model structure is correct but validation fails</response>
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost]
         public async Task<IActionResult> AddUserAsync([FromBody] CreateUserModel model)
         {
+            var resultValidation = await _createUserModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
             if(!ModelState.IsValid)
             {
                 return UnprocessableEntity(ModelState);
@@ -75,18 +90,22 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return the updated user</responce> 
         /// <responce code="404">When the user does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserModel model, Guid userId)
+        public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateFullUserModel model, Guid userId)
         {
-            if(!ModelState.IsValid)
-            {
-                return UnprocessableEntity(ModelState);
-            }
-
             var user = await _userService.GetFullUserByIdAsync(userId);
             if(user == null)
             {
                 return NotFound();
+            }
+
+            var resultValidation = await _updateFullUserModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
             }
 
             var item = await _userService.UpdateUserAsync(model, userId);
@@ -99,6 +118,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="204">When the user successful delete</responce>
         /// <response code="404">When the user does not exist</response>
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUserAsync(Guid userId)
         {

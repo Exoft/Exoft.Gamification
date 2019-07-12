@@ -6,6 +6,8 @@ namespace Exoft.Gamification.Api.Common.Models
     {
         public Guid Id { get; set; }
 
+        public Guid AchievementId { get; set; }
+
         public string Name { get; set; }
 
         public string Description { get; set; }
@@ -14,6 +16,6 @@ namespace Exoft.Gamification.Api.Common.Models
 
         public string AddedTime { get; set; }
 
-        public Guid IconId { get; set; }
+        public Guid? IconId { get; set; }
     }
 }

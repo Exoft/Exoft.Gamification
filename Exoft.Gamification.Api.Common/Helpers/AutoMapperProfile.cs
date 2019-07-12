@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
+using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Entities;
 
@@ -16,7 +17,8 @@ namespace Exoft.Gamification.Api.Common.Helpers
             CreateMap<CreateAchievementModel, ReadAchievementModel>();
 
             CreateMap<UserAchievement, ReadUserAchievementModel>()
-                .ForMember(s => s.Id, o => o.MapFrom(d => d.Achievement.Id))
+                .ForMember(s => s.Id, o => o.MapFrom(d => d.Id))
+                .ForMember(s => s.AchievementId, o => o.MapFrom(d => d.Achievement.Id))
                 .ForMember(s => s.XP, o => o.MapFrom(d => d.Achievement.XP))
                 .ForMember(s => s.Name, o => o.MapFrom(d => d.Achievement.Name))
                 .ForMember(s => s.Description, o => o.MapFrom(d => d.Achievement.Description))
@@ -41,16 +43,26 @@ namespace Exoft.Gamification.Api.Common.Helpers
             CreateMap<Event, EventModel>()
                 .ForMember(s => s.FirstName, o => o.MapFrom(d => d.User.FirstName))
                 .ForMember(s => s.LastName, o => o.MapFrom(d => d.User.LastName))
+                .ForMember(s => s.AvatarId, o => o.MapFrom(d => d.User.AvatarId))
                 .ForMember(s => s.Type, o => o.MapFrom(d => d.Type.ToString()))
                 .ForMember(s => s.CreatedTime, o => o.MapFrom(d => d.CreatedTime.ConvertToIso8601DateTimeUtc()));
 
             CreateMap<User, JwtTokenModel>();
+            
+            CreateMap<Thank, ReadThankModel>()
+                .ForMember(s => s.FirstName, o => o.MapFrom(d => d.FromUser.FirstName))
+                .ForMember(s => s.LastName, o => o.MapFrom(d => d.FromUser.LastName))
+                .ForMember(s => s.AvatarId, o => o.MapFrom(d => d.FromUser.AvatarId));
 
             // map to entity
 
             CreateMap<UpdateAchievementModel, Achievement>();
 
             CreateMap<CreateUserModel, User>();
+
+            CreateMap<CreateThankModel, Thank>();
+
+            CreateMap<RequestAchievementModel, RequestAchievement>();
         }
     }
 }

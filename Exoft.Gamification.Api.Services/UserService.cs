@@ -3,6 +3,7 @@ using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces;
+using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using System;
@@ -17,26 +18,44 @@ namespace Exoft.Gamification.Api.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IFileRepository _fileRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPasswordHasher _hasher;
 
         public UserService
         (
             IUserRepository userRepository,
             IFileRepository fileRepository,
+            IRoleRepository roleRepository,
             IMapper mapper,
-            IUnitOfWork unitOfWork
+            IUnitOfWork unitOfWork,
+            IPasswordHasher hasher
         )
         {
             _userRepository = userRepository;
             _fileRepository = fileRepository;
+            _roleRepository = roleRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _hasher = hasher;
         }
 
         public async Task<ReadFullUserModel> AddUserAsync(CreateUserModel model)
         {
             var user = _mapper.Map<User>(model);
+
+            var role = await _roleRepository.GetRoleByNameAsync(model.Role);
+
+            var userRole = new UserRoles()
+            {
+                Role = role,
+                User = user
+            };
+
+            user.Roles.Add(userRole);
+
+            user.Password = _hasher.GetHash(model.Password);
 
             await _userRepository.AddAsync(user);
 
@@ -50,6 +69,17 @@ namespace Exoft.Gamification.Api.Services
             var user = await _userRepository.GetByIdAsync(Id);
 
             _userRepository.Delete(user);
+
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task UpdatePasswordAsync(Guid userId, string newPassword)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            
+            user.Password = _hasher.GetHash(newPassword);
+
+            _userRepository.Update(user);
 
             await _unitOfWork.SaveChangesAsync();
         }
@@ -85,14 +115,63 @@ namespace Exoft.Gamification.Api.Services
             return _mapper.Map<ReadShortUserModel>(user);
         }
 
-        public async Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid Id)
+        public async Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid userId)
         {
-            var user = await _userRepository.GetByIdAsync(Id);
+            var user = await _userRepository.GetByIdAsync(userId);
             user.UserName = model.UserName;
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
             user.Status = model.Status;
             user.Email = model.Email;
+            
+            if (model.Avatar != null)
+            {
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    await model.Avatar.CopyToAsync(memory);
+
+                    if(user.AvatarId != null)
+                    {
+                        await _fileRepository.Delete(user.AvatarId.Value);
+                    }   
+
+                    var file = new File()
+                    {
+                        Data = memory.ToArray(),
+                        ContentType = model.Avatar.ContentType
+                    };
+                    await _fileRepository.AddAsync(file);
+                    user.AvatarId = file.Id;
+                }
+            }
+            _userRepository.Update(user);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<ReadFullUserModel>(user);
+        }
+
+        public async Task<ReadFullUserModel> UpdateUserAsync(UpdateFullUserModel model, Guid userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            user.UserName = model.UserName;
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.Status = model.Status;
+            user.Email = model.Email;
+            
+        
+            var role = await _roleRepository.GetRoleByNameAsync(model.Role);
+
+            var userRole = new UserRoles()
+            {
+                Role = role,
+                User = user
+            };
+
+            user.Roles.Clear();
+            user.Roles.Add(userRole);
+
 
             if (model.Avatar != null)
             {
@@ -100,23 +179,18 @@ namespace Exoft.Gamification.Api.Services
                 {
                     await model.Avatar.CopyToAsync(memory);
 
-                    if(user.AvatarId != Guid.Empty)
+                    if (user.AvatarId != null)
                     {
-                        var file = await _fileRepository.GetByIdAsync(user.AvatarId);
-                        file.Data = memory.ToArray();
-                        file.ContentType = model.Avatar.ContentType;
-                        _fileRepository.Update(file);
+                        await _fileRepository.Delete(user.AvatarId.Value);
                     }
-                    else
+
+                    var file = new File()
                     {
-                        var file = new File()
-                        {
-                            Data = memory.ToArray(),
-                            ContentType = model.Avatar.ContentType
-                        };
-                        await _fileRepository.AddAsync(file);
-                        user.AvatarId = file.Id;
-                    }
+                        Data = memory.ToArray(),
+                        ContentType = model.Avatar.ContentType
+                    };
+                    await _fileRepository.AddAsync(file);
+                    user.AvatarId = file.Id;
                 }
             }
             _userRepository.Update(user);
