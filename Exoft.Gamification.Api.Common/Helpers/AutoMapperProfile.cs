@@ -37,8 +37,9 @@ namespace Exoft.Gamification.Api.Common.Helpers
 
             CreateMap<User, ReadShortUserModel>();
 
-            CreateMap<User, ReadFullUserModel>();
-            
+            CreateMap<User, ReadFullUserModel>()
+                .ForMember(s => s.Roles, o => o.MapFrom(d => d.Roles.Select(i => i.Role.Name)));
+
             CreateMap<File, FileModel>();
 
             CreateMap<Event, EventModel>()
