@@ -18,6 +18,8 @@ namespace Exoft.Gamification.Api.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<Thank> Thanks { get; set; }
         public DbSet<RequestAchievement> RequestAchievements { get; set; }
+        public DbSet<Article> Articles { get; set; }
+        public DbSet<Chapter> Chapters { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
