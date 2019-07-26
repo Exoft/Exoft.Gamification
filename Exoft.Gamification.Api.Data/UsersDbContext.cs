@@ -33,6 +33,7 @@ namespace Exoft.Gamification.Api.Data
             modelBuilder.ApplyConfiguration(new ThankConfiguration());
             modelBuilder.ApplyConfiguration(new EventConfiguration());
             modelBuilder.ApplyConfiguration(new RequestAchievementConfiguration());
+            modelBuilder.ApplyConfiguration(new ChapterConfiguration());
         }
     }
 }
