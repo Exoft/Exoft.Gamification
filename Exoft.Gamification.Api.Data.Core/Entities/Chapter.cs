@@ -11,4 +11,3 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
         public int OrderId { get; set; }
     }
 }
-}

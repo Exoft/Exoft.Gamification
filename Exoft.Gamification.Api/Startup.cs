@@ -94,6 +94,8 @@ namespace Exoft.Gamification
             services.AddTransient<IRoleRepository, RoleRepository>();
             services.AddTransient<IThankRepository, ThankRepository>();
             services.AddTransient<IRequestAchievementRepository, RequestAchievementRepository>();
+            services.AddTransient<IArticleRepository, ArticleRepository>();
+            services.AddTransient<IChapterRepository, ChapterRepository>();
 
             // Validators
             services.AddTransient<IValidator<CreateUserModel>, CreateUserModelValidator>();
