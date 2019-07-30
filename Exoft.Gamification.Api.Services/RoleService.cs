@@ -1,5 +1,7 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using static Exoft.Gamification.Api.Data.Core.Helpers.GamificationEnums;
 
@@ -55,6 +57,13 @@ namespace Exoft.Gamification.Api.Services
             return CalculateAllowOperationsByUsersRole(userRoleWhoDoOperation, roleAnotherUser);
         }
 
+        public bool CalculateAllowOperationsByUsersRole(ClaimsPrincipal userClaimsWhoDoOperation, IEnumerable<string> roles)
+        {
+            var userRoleWhoDoOperation = GetUserRoleTypeFromClaims(userClaimsWhoDoOperation);
+            var roleAnotherUser = GetMaxUserRoleTypeFromRoles(roles);
+            return CalculateAllowOperationsByUsersRole(userRoleWhoDoOperation, roleAnotherUser);
+        }
+
         private RoleType GetRole(object roleObj)
         {
             var roleString = roleObj.ToString();
@@ -71,10 +80,34 @@ namespace Exoft.Gamification.Api.Services
 
         public RoleType GetUserRoleTypeFromClaims(ClaimsPrincipal claims)
         {
-            var claim = claims.FindFirst(ClaimTypes.Role);
-            if (claim == null) return RoleType.None;
-            var roleString = claim.Value;
-            return GetRole(roleString);
+            RoleType role = RoleType.None;
+            var roleClaims = claims.FindAll(ClaimTypes.Role);
+            if (roleClaims == null || !roleClaims.Any()) return role;
+            int i = (int)role;
+            foreach (var item in roleClaims)
+            {
+                var tempRole = GetUserRoleTypeFromString(item.Value);
+                if ((int)tempRole > i)
+                {
+                    role = tempRole;
+                }
+            }
+            return role;
+        }
+
+        public RoleType GetMaxUserRoleTypeFromRoles(IEnumerable<string> roles)
+        {
+            RoleType role = RoleType.None;
+            int i = (int)role;
+            foreach (var item in roles)
+            {
+                var tempRole = GetUserRoleTypeFromString(item);
+                if ((int)tempRole > i)
+                {
+                    role = tempRole;
+                }
+            }
+            return role;
         }
     }
 }
