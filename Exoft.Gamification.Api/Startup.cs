@@ -84,6 +84,7 @@ namespace Exoft.Gamification
             services.AddScoped<IThankService, ThankService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IRequestAchievementService, RequestAchievementService>();
+            services.AddScoped<IRoleService, RoleService>();
 
             // Repositories
             services.AddTransient<IUserRepository, UserRepository>();
