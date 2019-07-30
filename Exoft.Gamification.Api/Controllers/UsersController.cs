@@ -16,17 +16,20 @@ namespace Exoft.Gamification.Api.Controllers
     public class UsersController : GamificationController
     {
         private readonly IUserService _userService;
+        private readonly IRoleService _roleService;
         private readonly IValidator<CreateUserModel> _createUserModelValidator;
         private readonly IValidator<UpdateFullUserModel> _updateFullUserModelValidator;
 
         public UsersController
         (
             IUserService userService,
+            IRoleService roleService,
             IValidator<CreateUserModel> createUserModelValidator,
             IValidator<UpdateFullUserModel> updateFullUserModelValidator
         )
         {
             _userService = userService;
+            _roleService = roleService;
             _createUserModelValidator = createUserModelValidator;
             _updateFullUserModelValidator = updateFullUserModelValidator;
         }
@@ -76,8 +79,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// Create a new user
         /// </summary>
         /// <responce code="201">Return created user</responce> 
+        /// <response code="403">When user don't have permissions to this action</response>
         /// <response code="422">When the model structure is correct but validation fails</response>
-        [Authorize(Roles = GamificationRole.Admin)]
+        [Authorize(Policy = "IsAdmin")]
         [HttpPost]
         public async Task<IActionResult> AddUserAsync([FromBody] CreateUserModel model)
         {
@@ -88,12 +92,17 @@ namespace Exoft.Gamification.Api.Controllers
             {
                 return UnprocessableEntity(ModelState);
             }
-            var user = await _userService.AddUserAsync(model);
 
-            return CreatedAtRoute(
-                "GetUser",
-                new { userId = user.Id },
-                user);
+            if (_roleService.CalculateAllowOperationsByUsersRole(User, model.Role))
+            {
+                var user = await _userService.AddUserAsync(model);
+
+                return CreatedAtRoute(
+                    "GetUser",
+                    new { userId = user.Id },
+                    user);
+            }
+            return Forbid();
         }
 
         /// <summary>

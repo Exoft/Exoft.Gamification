@@ -134,6 +134,12 @@ namespace Exoft.Gamification
                 };
             });
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("IsAdmin",
+                    policy => policy.RequireRole(GamificationRole.Admin, GamificationRole.SuperAdmin));
+            });
+
             // Swagger configuration
             services.AddSwaggerGen(c =>
             {
