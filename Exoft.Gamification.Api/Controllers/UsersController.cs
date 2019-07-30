@@ -138,8 +138,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// Delete user by Id
         /// </summary>
         /// <responce code="204">When the user successful delete</responce>
+        /// <response code="403">When user don't have permissions to this action</response>
         /// <response code="404">When the user does not exist</response>
-        [Authorize(Roles = GamificationRole.Admin)]
+        [Authorize(Policy = "IsAdmin")]
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUserAsync(Guid userId)
         {
@@ -149,9 +150,12 @@ namespace Exoft.Gamification.Api.Controllers
                 return NotFound();
             }
 
-            await _userService.DeleteUserAsync(userId);
-
-            return NoContent();
+            if (_roleService.CalculateAllowOperationsByUsersRole(User, user.Roles))
+            {
+                await _userService.DeleteUserAsync(userId);
+                return NoContent();
+            }
+            return Forbid();
         }
     }
 }
