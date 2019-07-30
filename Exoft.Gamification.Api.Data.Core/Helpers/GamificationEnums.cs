@@ -16,5 +16,13 @@
             NotFound = 1,
             UnknownError = 2
         }
+
+        public enum RoleType
+        {
+            None = 0,
+            User = 1,
+            Admin = 2,
+            SuperAdmin = 99
+        }
     }
 }
