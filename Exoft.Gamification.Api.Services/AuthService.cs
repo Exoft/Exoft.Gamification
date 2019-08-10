@@ -77,6 +77,25 @@ namespace Exoft.Gamification.Api.Services
             return GetJwtToken(userEntity, refreshToken);
         }
 
+        public async Task<JwtTokenModel> AuthenticateByEmailAsync(string email, string password)
+        {
+             var userEntity = await _userRepository.GetByEmailAsync(email);
+
+            if (userEntity == null || !_hasher.Compare(password, userEntity.Password))
+            {
+                return null;
+            }
+
+            var refreshToken = new RefreshToken()
+            {
+                Token = Guid.NewGuid().ToString(),
+                UserId = userEntity.Id
+            };
+            await _refreshTokenProvider.AddAsync(refreshToken);
+
+            return GetJwtToken(userEntity, refreshToken);
+        }
+
         public async Task<JwtTokenModel> RefreshTokenAsync(string refreshToken)
         {
             var refreshTokenFromDB = await _refreshTokenProvider.GetRefreshTokenInfo(refreshToken);

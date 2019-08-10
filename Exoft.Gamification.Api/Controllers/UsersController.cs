@@ -157,5 +157,18 @@ namespace Exoft.Gamification.Api.Controllers
             }
             return Forbid();
         }
+
+        /// <summary>
+        /// Get all users
+        /// </summary>
+        /// <responce code="200">Return users</responce> 
+        [HttpGet]
+        [Authorize(Policy = "IsAdmin")]
+        [Route("get-all")]
+        public async Task<ActionResult> GetAllUsers()
+        {
+            var users = await _userService.GetAllUsersWithFullInfoAsync(new PagingInfo { CurrentPage = 1, PageSize = 100 }); //tempHack
+            return Ok(users);
+        }
     }
 }
