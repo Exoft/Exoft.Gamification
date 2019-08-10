@@ -6,6 +6,8 @@ using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using Exoft.Gamification.Api.Services.Resources;
+using Microsoft.Extensions.Localization;
 using System;
 using System.IO;
 using System.Linq;
@@ -22,6 +24,8 @@ namespace Exoft.Gamification.Api.Services
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPasswordHasher _hasher;
+        private readonly IStringLocalizer<HtmlPages> _stringLocalizer;
+        private readonly IEmailService _emailService;
 
         public UserService
         (
@@ -30,7 +34,9 @@ namespace Exoft.Gamification.Api.Services
             IRoleRepository roleRepository,
             IMapper mapper,
             IUnitOfWork unitOfWork,
-            IPasswordHasher hasher
+            IPasswordHasher hasher,
+            IStringLocalizer<HtmlPages> stringLocalizer,
+            IEmailService emailService
         )
         {
             _userRepository = userRepository;
@@ -39,6 +45,8 @@ namespace Exoft.Gamification.Api.Services
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _hasher = hasher;
+            _stringLocalizer = stringLocalizer;
+            _emailService = emailService;
         }
 
         public async Task<ReadFullUserModel> AddUserAsync(CreateUserModel model)
@@ -61,7 +69,17 @@ namespace Exoft.Gamification.Api.Services
 
             await _unitOfWork.SaveChangesAsync();
 
+            SendEmail(model);
             return _mapper.Map<ReadFullUserModel>(user);
+        }
+
+        private async Task SendEmail(CreateUserModel model)
+        {
+            var forgotPasswordPage = _stringLocalizer["RegisterPage"].ToString();
+
+            var pageWithParams = forgotPasswordPage.Replace("{FirstName}", model.FirstName).Replace("{Password}", model.Password);
+
+            await _emailService.SendEmailAsync("Welcome to Exoft", pageWithParams, model.Email);
         }
 
         public async Task DeleteUserAsync(Guid Id)

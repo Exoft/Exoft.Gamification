@@ -19,7 +19,7 @@ namespace Exoft.Gamification.Api.Services.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class HtmlPages {
@@ -87,6 +87,38 @@ namespace Exoft.Gamification.Api.Services.Resources {
         public static string ForgotPasswordPage {
             get {
                 return ResourceManager.GetString("ForgotPasswordPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
+        ///&lt;html&gt;
+        ///&lt;head&gt;
+        ///    &lt;meta charset=&quot;utf-8&quot; /&gt;
+        ///    &lt;title&gt;Exoft Support&lt;/title&gt;
+        ///    &lt;style&gt;
+        ///        .container {
+        ///            width: 300px;
+        ///            height: 170px;
+        ///            position: absolute;
+        ///            padding: 20px;
+        ///            background-color: #3A3E46;
+        ///        }
+        ///
+        ///        h3, p {
+        ///            text-align: center;
+        ///            color: white;
+        ///        }
+        ///    &lt;/style&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///    &lt;div class=&quot;container&quot;&gt;
+        ///        &lt;h3&gt;Hello {FirstName}!&lt;/h3&gt;
+        ///        &lt;p&gt;You are registe [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string RegisterPage {
+            get {
+                return ResourceManager.GetString("RegisterPage", resourceCulture);
             }
         }
         
