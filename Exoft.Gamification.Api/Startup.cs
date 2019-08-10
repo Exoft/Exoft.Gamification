@@ -73,6 +73,7 @@ namespace Exoft.Gamification
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
             services.AddScoped<IEmailSenderSettings, EmailSenderSettings>();
             services.AddScoped<IResetPasswordSettings, ResetPasswordSettings>();
+            services.AddScoped<IAppCenterSettings, AppCenterSettings>();
 
             // Services
             services.AddScoped<IAuthService, AuthService>();
