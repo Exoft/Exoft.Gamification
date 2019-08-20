@@ -77,13 +77,18 @@ namespace Exoft.Gamification.Api.Services
             return GetJwtToken(userEntity, refreshToken);
         }
 
-        public async Task<JwtTokenModel> AuthenticateByEmailAsync(string email, string password)
+        public async Task<ResponseModel> AuthenticateByEmailAsync(string email, string password)
         {
              var userEntity = await _userRepository.GetByEmailAsync(email);
 
-            if (userEntity == null || !_hasher.Compare(password, userEntity.Password))
+            if (userEntity == null)
             {
-                return null;
+                return new ErrorResponseModel("User not found");
+            }
+
+            if (!_hasher.Compare(password, userEntity.Password))
+            {
+                return new ErrorResponseModel("Wrong password");
             }
 
             var refreshToken = new RefreshToken()
@@ -93,7 +98,9 @@ namespace Exoft.Gamification.Api.Services
             };
             await _refreshTokenProvider.AddAsync(refreshToken);
 
-            return GetJwtToken(userEntity, refreshToken);
+            var jwt = GetJwtToken(userEntity, refreshToken);
+
+            return new ResponseModelWithData<JwtTokenModel>(jwt);
         }
 
         public async Task<JwtTokenModel> RefreshTokenAsync(string refreshToken)
