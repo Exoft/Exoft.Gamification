@@ -113,7 +113,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateFullUserModel model, Guid userId)
+        public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateFullUserModel model, Guid userId)
         {
             var user = await _userService.GetFullUserByIdAsync(userId);
             if(user == null)

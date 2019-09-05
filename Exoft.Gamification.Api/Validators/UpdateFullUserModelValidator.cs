@@ -36,8 +36,7 @@ namespace Exoft.Gamification.Api.Validators
             RuleFor(user => user.Email)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
                 .MaximumLength(250).WithMessage(_stringLocalizer["TooLong"])
-                .EmailAddress().WithMessage(_stringLocalizer["WrongEmail"])
-                .MustAsync(CheckEmailAsync).WithMessage(_stringLocalizer["UniqueEmail"]);
+                .EmailAddress().WithMessage(_stringLocalizer["WrongEmail"]);
 
             RuleFor(user => user.Status)
                 .MaximumLength(250).WithMessage(_stringLocalizer["TooLong"]);
@@ -48,22 +47,9 @@ namespace Exoft.Gamification.Api.Validators
 
             RuleFor(user => user.UserName)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
-                .MaximumLength(32).WithMessage(_stringLocalizer["TooLong"])
-                .MustAsync(CheckUserNameAsync).WithMessage(_stringLocalizer["UniqueUserName"]);
+                .MaximumLength(32).WithMessage(_stringLocalizer["TooLong"]);
         }
 
-        private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
-        {
-            var user = await _userRepository.GetByIdAsync(CurrentUserId);
-
-            if(user.Email == email)
-            {
-                return true;
-            }
-
-            bool exists = await _userRepository.DoesEmailExistsAsync(email);
-            return !exists;
-        }
 
         private async Task<bool> CheckRoleAsync(string role, CancellationToken cancellationToken)
         {
@@ -71,22 +57,37 @@ namespace Exoft.Gamification.Api.Validators
             return roleEntity != null;
         }
 
-        private async Task<bool> CheckUserNameAsync(string userName, CancellationToken cancellationToken)
-        {
-            var user = await _userRepository.GetByIdAsync(CurrentUserId);
+        //private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
+        //{
+        //    var user = await _userRepository.GetByIdAsync(CurrentUserId);
 
-            if (user.UserName == userName)
-            {
-                return true;
-            }
 
-            var userEntity = await _userRepository.GetByUserNameAsync(userName);
-            if(userEntity == null)
-            {
-                return true;
-            }
+        //    if (user.Email == email)
+        //    {
+        //        return true;
+        //    }
 
-            return userEntity.Id == user.Id;
-        }
+        //    bool exists = await _userRepository.DoesEmailExistsAsync(email);
+        //    return !exists;
+        //}
+
+
+        //private async Task<bool> CheckUserNameAsync(string userName, CancellationToken cancellationToken)
+        //{
+        //    var user = await _userRepository.GetByIdAsync(CurrentUserId);
+
+        //    if (user.UserName == userName)
+        //    {
+        //        return true;
+        //    }
+
+        //    var userEntity = await _userRepository.GetByUserNameAsync(userName);
+        //    if(userEntity == null)
+        //    {
+        //        return true;
+        //    }
+
+        //    return userEntity.Id == user.Id;
+        //}
     }
 }

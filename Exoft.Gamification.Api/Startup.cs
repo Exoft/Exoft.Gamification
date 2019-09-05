@@ -172,9 +172,9 @@ namespace Exoft.Gamification
             {
                 app.UseDeveloperExceptionPage();
 
-                //var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-                //var context = scope.ServiceProvider.GetService<UsersDbContext>();
-                //ContextInitializer.Initialize(context);
+               var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+               var context = scope.ServiceProvider.GetService<UsersDbContext>();
+               ContextInitializer.Initialize(context);
             }
 
             app.UseSwagger();
