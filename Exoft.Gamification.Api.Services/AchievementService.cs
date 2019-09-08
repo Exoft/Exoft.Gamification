@@ -5,7 +5,9 @@ using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,7 +35,7 @@ namespace Exoft.Gamification.Api.Services
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
-        
+
         public async Task<ReadAchievementModel> AddAchievementAsync(CreateAchievementModel model)
         {
             var achievement = new Achievement()
@@ -43,7 +45,7 @@ namespace Exoft.Gamification.Api.Services
                 XP = model.XP
             };
 
-            if(model.Icon != null)
+            if (model.Icon != null)
             {
                 using (MemoryStream memory = new MemoryStream())
                 {
@@ -94,11 +96,11 @@ namespace Exoft.Gamification.Api.Services
                 {
                     await model.Icon.CopyToAsync(memory);
 
-                    if(achievement.IconId != null)
+                    if (achievement.IconId != null)
                     {
                         await _fileRepository.Delete(achievement.IconId.Value);
                     }
-                    
+
                     var file = new File()
                     {
                         Data = memory.ToArray(),
@@ -130,6 +132,11 @@ namespace Exoft.Gamification.Api.Services
             };
 
             return result;
+        }
+
+        public async Task<IEnumerable<Achievement>> GetAchievementsByIdsAsync(Guid[] ids)
+        {
+            return (await _achievementRepository.GetBy(x => ids.Any(y => y == x.Id)).ToListAsync());
         }
     }
 }

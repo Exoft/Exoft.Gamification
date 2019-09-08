@@ -3,7 +3,9 @@ using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data.Repositories
@@ -46,7 +48,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
             {
                 throw new ArgumentNullException(nameof(entity));
             }
-            
+
             Context.Update(entity);
         }
 
@@ -83,5 +85,26 @@ namespace Exoft.Gamification.Api.Data.Repositories
         }
 
         protected abstract IQueryable<T> IncludeAll();
+
+        public IQueryable<T> GetBy(Expression<Func<T, bool>> predicate)
+        {
+            IQueryable<T> query = Context.Set<T>().Where(predicate);
+            return query;
+        }
+
+        public void AddRangeAsync(IEnumerable<T> entities)
+        {
+            Context.Set<T>().AddRange(entities);
+        }
+
+        public void UpdateRange(IEnumerable<T> entities)
+        {
+            Context.Set<T>().UpdateRange(entities);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await Context.SaveChangesAsync();
+        }
     }
 }
