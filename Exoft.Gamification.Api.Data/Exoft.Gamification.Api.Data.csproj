@@ -9,6 +9,8 @@
 	<Compile Remove="Migrations\20190619144514_addCommentFieldToUserAchievement.cs" />
 	<Compile Remove="Migrations\20190726143830_addArticleAndChapterEntities.cs" />
 	<Compile Remove="Migrations\20190726143830_addArticleAndChapterEntities.Designer.cs" />
+	<Compile Remove="Migrations\20190908123725_AddedEntitiesToRequestAchievement.cs" />
+	<Compile Remove="Migrations\20190908124030_AddedEntitiesToRequestAchievement.cs" />
   </ItemGroup>
 
   <ItemGroup>

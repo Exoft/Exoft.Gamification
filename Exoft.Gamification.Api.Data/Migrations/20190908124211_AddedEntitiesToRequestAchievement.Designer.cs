@@ -4,14 +4,16 @@ using Exoft.Gamification.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Exoft.Gamification.Api.Data.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    partial class UsersDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190908124211_AddedEntitiesToRequestAchievement")]
+    partial class AddedEntitiesToRequestAchievement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,40 +37,6 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Achievements");
-                });
-
-            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Article", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<Guid?>("ChapterId");
-
-                    b.Property<string>("Text");
-
-                    b.Property<string>("Title");
-
-                    b.Property<double?>("UnitNumber");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChapterId");
-
-                    b.ToTable("Articles");
-                });
-
-            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Chapter", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("OrderId");
-
-                    b.Property<string>("Title");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Chapters");
                 });
 
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Event", b =>
@@ -218,13 +186,6 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles");
-                });
-
-            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Article", b =>
-                {
-                    b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.Chapter")
-                        .WithMany("Articles")
-                        .HasForeignKey("ChapterId");
                 });
 
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Event", b =>

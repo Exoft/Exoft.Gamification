@@ -34,7 +34,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return Ok</responce> 
         /// <responce code="404">When the achievement or user does not exist</responce> 
         [Authorize(Roles = GamificationRole.Admin)]
-        [HttpPost("{userId}/achievements/")]
+        [HttpPost("{userId}/achievement/")]
         public async Task<IActionResult> AddAchievementToUser([FromQuery] Guid achievementId, Guid userId)
         {
             var user = await _userService.GetFullUserByIdAsync(userId);
@@ -44,12 +44,41 @@ namespace Exoft.Gamification.Api.Controllers
             }
 
             var achievement = await _achievementService.GetAchievementByIdAsync(achievementId);
-            if(achievement == null)
+            if (achievement == null)
             {
                 return NotFound();
             }
 
             await _userAchievementService.AddAsync(userId, achievementId);
+            return Ok();
+        }
+
+
+        /// <summary>
+        /// Add achievement to user
+        /// </summary>
+        /// <responce code="200">Return Ok</responce> 
+        /// <responce code="404">When the achievement or user does not exist</responce> 
+        [Authorize(Roles = GamificationRole.Admin)]
+        [HttpPost("{userId}/achievements/")]
+        public async Task<IActionResult> AddOrUpdateAchievementsToUser([FromBody] Guid[] achievementIds, [FromRoute]Guid userId)
+        {
+            var userReadModel = await _userService.GetFullUserByIdAsync(userId);
+
+            if (userReadModel == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                await _userAchievementService.AddOrUpdateAchievementsRangeAsync(userReadModel.Id, achievementIds);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+
             return Ok();
         }
 
@@ -63,7 +92,7 @@ namespace Exoft.Gamification.Api.Controllers
         public async Task<IActionResult> DeleteAchievementIntoUser(Guid userAchievementsId)
         {
             var userAchievements = await _userAchievementService.GetUserAchievementByIdAsync(userAchievementsId);
-            if(userAchievements == null)
+            if (userAchievements == null)
             {
                 return NotFound();
             }
@@ -92,8 +121,8 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="404">When the achievement does not exist</responce> 
         [HttpGet("{userId}/achievements/{achievementId}")]
         public async Task<IActionResult> GetAchievementByUserAsync(
-            [FromQuery] Guid userAchievementId, 
-            Guid userId, 
+            [FromQuery] Guid userAchievementId,
+            Guid userId,
             Guid achievementId)
         {
             var model = await _userAchievementService.GetSingleUserAchievementAsync(userAchievementId);

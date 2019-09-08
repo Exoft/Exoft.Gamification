@@ -5,7 +5,9 @@ using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +18,7 @@ namespace Exoft.Gamification.Api.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IAchievementRepository _achievementRepository;
+        private readonly IAchievementService _achievementService;
         private readonly IUserAchievementRepository _userAchievementRepository;
         private readonly IEventRepository _eventRepository;
         private readonly IUnitOfWork _unitOfWork;
@@ -25,6 +28,7 @@ namespace Exoft.Gamification.Api.Services
         (
             IUserRepository userRepository,
             IAchievementRepository achievementRepository,
+            IAchievementService achievementService,
             IUserAchievementRepository userAchievementsRepository,
             IEventRepository eventRepository,
             IUnitOfWork unitOfWork,
@@ -33,6 +37,7 @@ namespace Exoft.Gamification.Api.Services
         {
             _userRepository = userRepository;
             _achievementRepository = achievementRepository;
+            _achievementService = achievementService;
             _userAchievementRepository = userAchievementsRepository;
             _eventRepository = eventRepository;
             _unitOfWork = unitOfWork;
@@ -75,7 +80,7 @@ namespace Exoft.Gamification.Api.Services
             var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementId);
 
             var user = await _userRepository.GetByIdAsync(userAchievement.User.Id);
-            
+
             _userAchievementRepository.Delete(userAchievement);
 
             user.Achievements.Remove(userAchievement);
@@ -129,6 +134,40 @@ namespace Exoft.Gamification.Api.Services
             var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementId);
 
             return _mapper.Map<ReadUserAchievementModel>(userAchievement);
+        }
+
+        public async Task<ReadUserAchievementModel> GetUserAchievementsByIdsAsync(Guid[] achievemetnsIds)
+        {
+            var userAchievement = await _userAchievementRepository.GetBy(x => achievemetnsIds.Any(y => y == x.Id)).ToListAsync();
+
+            return _mapper.Map<ReadUserAchievementModel>(userAchievement);
+        }
+
+        public async Task AddOrUpdateAchievementsRangeAsync(Guid userId, IEnumerable<Guid> achievementsIds)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            var allAchievements = (await _achievementRepository.GetBy(x=>achievementsIds.Any(y=>y==x.Id)).ToListAsync());
+            var usersAchievements = (await _userAchievementRepository.GetAllAchievementsByUserAsync(new PagingInfo(), userId)).Data.ToList();
+
+            var newUserAchievements = allAchievements.Where(x => usersAchievements.All(y => y.Achievement.Id != x.Id)).Select(x => new UserAchievement()
+            {
+                Achievement = x,
+                User = user
+            }).ToList();
+
+            foreach (var item in newUserAchievements)
+            {
+                user.Achievements.Add(item);
+                user.XP += item.Achievement.XP;
+            }
+
+
+            if (newUserAchievements.Count != 0)
+                _userAchievementRepository.AddRangeAsync(newUserAchievements);
+            //if (existingModels.Count != 0)
+            //    _userAchievementRepository.UpdateRange(existingModels);
+
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

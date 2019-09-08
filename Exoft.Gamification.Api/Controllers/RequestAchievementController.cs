@@ -1,9 +1,11 @@
 ﻿using Exoft.Gamification.Api.Common.Models;
+using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
@@ -48,6 +50,58 @@ namespace Exoft.Gamification.Api.Controllers
             await _requestAchievementService.AddAsync(model, UserId);
 
             return Ok();
+        }
+
+        /// <summary>
+        /// Returns all achievement requests 
+        /// </summary>
+        [HttpGet]
+        [Authorize(Roles = GamificationRole.Admin)]
+        public async Task<IActionResult> GetAllAchievementRequests()
+        {
+            return Ok(await _requestAchievementService.GetAllAsync());
+        }
+
+        /// <summary>
+        /// Deletes Request 
+        /// </summary>
+        [HttpDelete("{id}")]
+        [Authorize(Roles = GamificationRole.Admin)]
+        public async Task<IActionResult> DeclineRequest([FromRoute] Guid id)
+        {
+            try
+            {
+                var achievementRequest = await _requestAchievementService.GetByIdAsync(id);
+                if (achievementRequest == null)
+                {
+                    return NotFound();
+                }
+                await _requestAchievementService.DeleteAsync(achievementRequest);
+                return Ok();
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+
+        /// <summary>
+        /// Approves Request  
+        /// </summary>
+        [HttpPost("{id}")]
+        [Authorize(Roles = GamificationRole.Admin)]
+        public async Task<IActionResult> ApproveRequest([FromRoute] Guid id)
+        {
+            try
+            {
+                await _requestAchievementService.ApproveAchievementRequestAsync(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
         }
     }
 }
