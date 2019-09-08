@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
+using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces;
@@ -17,6 +18,7 @@ namespace Exoft.Gamification.Api.Services
     public class RequestAchievementService : IRequestAchievementService
     {
         private readonly IRequestAchievementRepository _requestAchievementRepository;
+        private readonly IUserAchievementService _userAchievementService;
         private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
@@ -29,6 +31,7 @@ namespace Exoft.Gamification.Api.Services
             IRequestAchievementRepository requestAchievementRepository,
             IEmailService emailService,
             IMapper mapper,
+            IUserAchievementService userAchievementService,
             IUserRepository userRepository,
             IAchievementRepository achievementRepository,
             IStringLocalizer<HtmlPages> stringLocalizer,
@@ -42,6 +45,7 @@ namespace Exoft.Gamification.Api.Services
             _achievementRepository = achievementRepository;
             _stringLocalizer = stringLocalizer;
             _unitOfWork = unitOfWork;
+            _userAchievementService = userAchievementService;
         }
 
         public async Task<IResponse> AddAsync(RequestAchievementModel model, Guid userId)
@@ -58,13 +62,37 @@ namespace Exoft.Gamification.Api.Services
             var emails = await _userRepository.GetAdminsEmailsAsync();
 
             await _emailService.SendEmailsAsync("Request achievement", pageWithParams, emails.ToArray());
-            
+
             var entity = _mapper.Map<RequestAchievement>(model);
             entity.UserId = userId;
             await _requestAchievementRepository.AddAsync(entity);
             await _unitOfWork.SaveChangesAsync();
 
             return new OkResponse();
+        }
+
+        public async Task DeleteAsync(RequestAchievement achievementRequest)
+        {
+            _requestAchievementRepository.Delete(achievementRequest);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<RequestAchievement>> GetAllAsync()
+        {
+            return (await _requestAchievementRepository.GetAllDataAsync(new PagingInfo())).Data.ToList();
+        }
+
+        public async Task<RequestAchievement> GetByIdAsync(Guid id)
+        {
+            return await _requestAchievementRepository.GetByIdAsync(id);
+        }
+
+        public async Task ApproveAchievementRequestAsync(Guid id)
+        {
+            var achievementRequest = await GetByIdAsync(id);
+            await _userAchievementService.AddAsync(achievementRequest.UserId, achievementRequest.AchievementId);
+            await DeleteAsync(achievementRequest);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }
