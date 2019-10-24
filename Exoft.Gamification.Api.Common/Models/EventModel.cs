@@ -8,7 +8,7 @@ namespace Exoft.Gamification.Api.Common.Models
 
         public string LastName { get; set; }
 
-        public Guid AvatarId { get; set; }
+        public Guid? AvatarId { get; set; }
 
         public string Type { get; set; }
 
