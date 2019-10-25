@@ -19,6 +19,5 @@ namespace Exoft.Gamification.Api.Data.Core.Interfaces.Repositories
         void UpdateRange(IEnumerable<T> entities);
         IQueryable<T> GetBy(Expression<Func<T, bool>> predicate);
         Task<ReturnPagingInfo<T>> GetAllDataAsync(PagingInfo pagingInfo);
-        Task SaveChangesAsync();
     }
 }

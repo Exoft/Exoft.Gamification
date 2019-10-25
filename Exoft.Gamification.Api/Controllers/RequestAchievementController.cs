@@ -67,22 +67,16 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         [HttpDelete("{id}")]
         [Authorize(Roles = GamificationRole.Admin)]
-        public async Task<IActionResult> DeclineRequest([FromRoute] Guid id)
+        public async Task<IActionResult> DeclineRequest(Guid id)
         {
-            try
+            var achievementRequest = await _requestAchievementService.GetByIdAsync(id);
+            if (achievementRequest == null)
             {
-                var achievementRequest = await _requestAchievementService.GetByIdAsync(id);
-                if (achievementRequest == null)
-                {
-                    return NotFound();
-                }
-                await _requestAchievementService.DeleteAsync(achievementRequest);
-                return Ok();
+                return NotFound();
             }
-            catch(Exception ex)
-            {
-                return BadRequest(ex);
-            }
+
+            await _requestAchievementService.DeleteAsync(achievementRequest);
+            return Ok();
         }
 
 
@@ -91,17 +85,11 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         [HttpPost("{id}")]
         [Authorize(Roles = GamificationRole.Admin)]
-        public async Task<IActionResult> ApproveRequest([FromRoute] Guid id)
+        public async Task<IActionResult> ApproveRequest(Guid id)
         {
-            try
-            {
-                await _requestAchievementService.ApproveAchievementRequestAsync(id);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
+            await _requestAchievementService.ApproveAchievementRequestAsync(id);
+
+            return Ok();
         }
     }
 }

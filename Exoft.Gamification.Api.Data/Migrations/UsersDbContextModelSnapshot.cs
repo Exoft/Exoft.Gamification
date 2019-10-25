@@ -237,12 +237,12 @@ namespace Exoft.Gamification.Api.Data.Migrations
 
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.RequestAchievement", b =>
                 {
-                    b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.Achievement", "Achievement")
+                    b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.Achievement")
                         .WithMany()
                         .HasForeignKey("AchievementId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.User", "User")
+                    b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);

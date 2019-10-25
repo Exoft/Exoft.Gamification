@@ -13,13 +13,15 @@ namespace Exoft.Gamification.Api.Services
         private readonly IAppCenterSettings _appCenterSettings;
         private readonly HttpClient client;
         private const string mediaType = "application/json";
+
         public PushNotificationService(IAppCenterSettings appCenterSettings)
         {
             _appCenterSettings = appCenterSettings;
             client = new HttpClient();
             client.DefaultRequestHeaders.Add(_appCenterSettings.KeyNameToken, _appCenterSettings.Token);
         }
-        public async Task<(OSType type,bool isSend)> SendNotification(PushRequestModel pushRequestModel)
+
+        public async Task<(OSType type, bool isSend)> SendNotification(PushRequestModel pushRequestModel)
         {
             bool responseIOS, responseAndroid;
             switch (pushRequestModel.TargetOS)
@@ -38,7 +40,8 @@ namespace Exoft.Gamification.Api.Services
             }
         }
 
-        protected virtual async Task<bool> SendToIOS(PushMessageModel pushMessageModel) {
+        protected virtual async Task<bool> SendToIOS(PushMessageModel pushMessageModel)
+        {
             var jsonModel = JsonConvert.SerializeObject(pushMessageModel);
             HttpContent jsonContent = new StringContent(jsonModel, Encoding.UTF8, mediaType);
             var response = await client.PostAsync(_appCenterSettings.UrlForPushIOS, jsonContent);

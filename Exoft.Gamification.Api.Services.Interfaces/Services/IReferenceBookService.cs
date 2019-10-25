@@ -8,11 +8,13 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Services
 {
     public interface IReferenceBookService
     {
+        Task<Chapter> GetChapterById(Guid Id);
+        Task<Article> GetArticleById(Guid Id);
         Task<ReturnPagingInfo<Chapter>> GetAllChaptersAsync(PagingInfo pagingInfo);
         Task<bool> UpdateArticleAsync(UpdateArticleModel updatedArticle);
         Task<bool> AddChapterAsync(CreateChapterModel chapterModel);
         Task<bool> AddArticleAsync(CreateArticleModel articleModel);
-        Task DeleteChapterAsync(Guid id);
-        Task DeleteArticleAsync(Guid id);
+        Task DeleteChapterAsync(Chapter chapter);
+        Task DeleteArticleAsync(Article article);
     }
 }
