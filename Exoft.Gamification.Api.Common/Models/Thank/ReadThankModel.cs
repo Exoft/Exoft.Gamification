@@ -8,7 +8,9 @@ namespace Exoft.Gamification.Api.Common.Models.Thank
 
         public string LastName { get; set; }
 
-        public Guid AvatarId { get; set; }
+        public Guid? AvatarId { get; set; }
+
+        public Guid? UserId { get; set; }
 
         public string Text { get; set; }
     }

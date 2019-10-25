@@ -45,10 +45,6 @@ namespace Exoft.Gamification.Api.Controllers
         public async Task<IActionResult> GetThanks()
         {
             var thank = await _thankService.GetLastThankAsync(UserId);
-            if (thank == null)
-            {
-                return NotFound();
-            }
 
             return Ok(thank);
         }

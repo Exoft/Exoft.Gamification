@@ -51,11 +51,12 @@ namespace Exoft.Gamification.Api.Common.Helpers
             
             CreateMap<User, JwtTokenModel>()
                 .ForMember(s => s.Roles, o => o.MapFrom(d => d.Roles.Select(i => i.Role.Name)));
-            
+
             CreateMap<Thank, ReadThankModel>()
                 .ForMember(s => s.FirstName, o => o.MapFrom(d => d.FromUser.FirstName))
                 .ForMember(s => s.LastName, o => o.MapFrom(d => d.FromUser.LastName))
-                .ForMember(s => s.AvatarId, o => o.MapFrom(d => d.FromUser.AvatarId));
+                .ForMember(s => s.AvatarId, o => o.MapFrom(d => d.FromUser.AvatarId))
+                .ForMember(s => s.UserId, o => o.MapFrom(d => d.FromUser.Id));
 
             // map to entity
 
