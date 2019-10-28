@@ -29,7 +29,7 @@ namespace Exoft.Gamification.Api.Services
         public async Task<ReturnPagingInfo<Chapter>> GetAllChaptersAsync(PagingInfo pagingInfo)
         {
             var data = await _chapterRepository.GetAllDataAsync(pagingInfo);
-            data.Data.ToList().ForEach(c => c.Articles =  c.Articles.OrderBy(a => a.UnitNumber).ToList());
+            data.Data?.ToList().ForEach(c => c.Articles = c.Articles.OrderBy(a => a.UnitNumber).ToList());
 
             return data;
         }
@@ -81,9 +81,9 @@ namespace Exoft.Gamification.Api.Services
         {
             try
             {
-                if (articleModel.IdChapter != null && articleModel.IdChapter != default(Guid))
+                if (articleModel.ChapterId != null && articleModel.ChapterId != default(Guid))
                 {
-                    var chapter = await _chapterRepository.GetByIdAsync(articleModel.IdChapter.Value);
+                    var chapter = await _chapterRepository.GetByIdAsync(articleModel.ChapterId.Value);
                     var article = new Article();
                     article.Text = articleModel.Text;
                     article.Title = articleModel.Title;
@@ -93,7 +93,7 @@ namespace Exoft.Gamification.Api.Services
                         var tempArt = chapter.Articles.LastOrDefault(d => d.UnitNumber != null);
                         maxUnitNumber = tempArt != null ? int.Parse(tempArt.UnitNumber.ToString().Split(".")[1]) : 0;
                     }
-                    catch{}
+                    catch { }
                     article.UnitNumber = double.Parse($"{chapter.OrderId}.{++maxUnitNumber}", CultureInfo.InvariantCulture);
                     chapter.Articles.Add(article);
                     _chapterRepository.Update(chapter);
@@ -108,24 +108,32 @@ namespace Exoft.Gamification.Api.Services
             }
         }
 
-        public async Task DeleteChapterAsync(Guid id)
+        public async Task DeleteChapterAsync(Chapter chapter)
         {
-            var chapter = await _chapterRepository.GetByIdAsync(id);
-            if (chapter != null)
-            {
-                _chapterRepository.Delete(chapter);
-                await _unitOfWork.SaveChangesAsync();
-            }
+            _chapterRepository.Delete(chapter);
+
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task DeleteArticleAsync(Guid id)
+        public async Task DeleteArticleAsync(Article article)
         {
-            var article = await _articleRepository.GetByIdAsync(id);
-            if (article != null)
-            {
-                _articleRepository.Delete(article);
-                await _unitOfWork.SaveChangesAsync();
-            }
+            _articleRepository.Delete(article);
+
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<Chapter> GetChapterById(Guid Id)
+        {
+            var chapter = await _chapterRepository.GetByIdAsync(Id);
+
+            return chapter;
+        }
+
+        public async Task<Article> GetArticleById(Guid Id)
+        {
+            var article = await _articleRepository.GetByIdAsync(Id);
+
+            return article;
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public override async Task<ReturnPagingInfo<Chapter>> GetAllDataAsync(PagingInfo pagingInfo)
         {
-            var items =  await IncludeAll()
+            var items = await IncludeAll()
                 .OrderBy(s => s.OrderId)
                 .Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
                 .Take(pagingInfo.PageSize)
@@ -43,7 +43,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public int GetMaxOrderId()
         {
-           return DbSet.Max(c => c.OrderId);
+            return DbSet.Max(c => c.OrderId);
         }
     }
 }

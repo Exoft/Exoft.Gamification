@@ -15,7 +15,12 @@ namespace Exoft.Gamification.Api.Controllers
     {
         private readonly IValidator<PushRequestModel> _pushRequestModelValidator;
         private readonly IPushNotificationService _pushNotificationService;
-        public PushController(IValidator<PushRequestModel> pushRequestModelValidator, IPushNotificationService pushNotificationService)
+
+        public PushController
+        (
+            IValidator<PushRequestModel> pushRequestModelValidator,
+            IPushNotificationService pushNotificationService
+        )
         {
             _pushNotificationService = pushNotificationService;
             _pushRequestModelValidator = pushRequestModelValidator;
@@ -27,8 +32,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="202">When response from AppCenter is false</responce> 
         /// <responce code="204">When notification sent succeful</responce>
         /// <response code="422">When the model structure is correct but validation fails</response>
-        [HttpPost]
-        [Route("send")]
+        [HttpPost("send")]
         public async Task<IActionResult> SendNotification(PushRequestModel model)
         {
             var resultValidation = await _pushRequestModelValidator.ValidateAsync(model);
@@ -38,8 +42,12 @@ namespace Exoft.Gamification.Api.Controllers
             {
                 return UnprocessableEntity(ModelState);
             }
+
             var response = await _pushNotificationService.SendNotification(model);
-            if (response.isSend) return NoContent();
+            if (response.isSend)
+            {
+                return NoContent();
+            }
             return Accepted();
         }
     }

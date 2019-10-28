@@ -74,6 +74,7 @@ namespace Exoft.Gamification.Api.Services
         public async Task DeleteAsync(RequestAchievement achievementRequest)
         {
             _requestAchievementRepository.Delete(achievementRequest);
+
             await _unitOfWork.SaveChangesAsync();
         }
 

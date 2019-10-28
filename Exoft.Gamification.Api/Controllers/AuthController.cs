@@ -52,7 +52,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// Get jwt
         /// </summary>
         /// <responce code="200">Return token</responce>
-        /// <responce code="401">When userName or password is incorrent</responce>
+        /// <responce code="401">When email or password is incorrent</responce>
         [AllowAnonymous]
         [HttpPost("by-email")]
         public async Task<IActionResult> AuthenticateByEmailAsync([FromBody] UserLoginByEmailModel userModel)

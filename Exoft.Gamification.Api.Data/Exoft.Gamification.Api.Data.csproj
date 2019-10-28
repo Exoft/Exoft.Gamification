@@ -11,6 +11,10 @@
 	<Compile Remove="Migrations\20190726143830_addArticleAndChapterEntities.Designer.cs" />
 	<Compile Remove="Migrations\20190908123725_AddedEntitiesToRequestAchievement.cs" />
 	<Compile Remove="Migrations\20190908124030_AddedEntitiesToRequestAchievement.cs" />
+	<Compile Remove="Migrations\20190908124211_AddedEntitiesToRequestAchievement.cs" />
+	<Compile Remove="Migrations\20190908124211_AddedEntitiesToRequestAchievement.Designer.cs" />
+	<Compile Remove="Migrations\20191024095147_refactorAfterReview.cs" />
+	<Compile Remove="Migrations\20191024095147_refactorAfterReview.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

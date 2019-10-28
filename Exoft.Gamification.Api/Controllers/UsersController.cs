@@ -162,12 +162,12 @@ namespace Exoft.Gamification.Api.Controllers
         /// Get all users
         /// </summary>
         /// <responce code="200">Return users</responce> 
-        [HttpGet]
+        [HttpGet("get-all")]
         [Authorize(Policy = "IsAdmin")]
-        [Route("get-all")]
-        public async Task<ActionResult> GetAllUsers()
+        public async Task<ActionResult> GetAllUsers([FromQuery] PagingInfo pagingInfo)
         {
-            var users = await _userService.GetAllUsersWithFullInfoAsync(new PagingInfo { CurrentPage = 1, PageSize = 100 }); //tempHack
+            var users = await _userService.GetAllUsersWithFullInfoAsync(pagingInfo);
+
             return Ok(users);
         }
     }

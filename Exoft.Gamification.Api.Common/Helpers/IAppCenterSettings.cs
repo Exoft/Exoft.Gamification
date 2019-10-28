@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Exoft.Gamification.Api.Common.Helpers
+﻿namespace Exoft.Gamification.Api.Common.Helpers
 {
     public interface IAppCenterSettings
     {
@@ -10,6 +6,5 @@ namespace Exoft.Gamification.Api.Common.Helpers
         string KeyNameToken { get; }
         string UrlForPushAndroid { get; }
         string UrlForPushIOS { get; }
-
     }
 }

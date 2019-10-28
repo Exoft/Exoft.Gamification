@@ -101,10 +101,5 @@ namespace Exoft.Gamification.Api.Data.Repositories
         {
             Context.Set<T>().UpdateRange(entities);
         }
-
-        public async Task SaveChangesAsync()
-        {
-            await Context.SaveChangesAsync();
-        }
     }
 }
