@@ -55,7 +55,7 @@ namespace Exoft.Gamification.Api.Validators
         }
 
 
-        private async Task<bool> CheckRoleAsync(List<string> roles, CancellationToken cancellationToken)
+        private async Task<bool> CheckRoleAsync(ICollection<string> roles, CancellationToken cancellationToken)
         {
             var result = true;
             foreach (var role in roles)
@@ -74,7 +74,11 @@ namespace Exoft.Gamification.Api.Validators
         {
             if (_actionContextAccessor.ActionContext.RouteData.Values.TryGetValue("userId", out object userIdObject))
             {
-                var userId = Guid.Parse(userIdObject as string);
+                if (!Guid.TryParse(userIdObject as string, out Guid userId))
+                {
+                    return false;
+                }
+
                 var user = await _userRepository.GetByIdAsync(userId);
 
                 if (user.Email == email)
