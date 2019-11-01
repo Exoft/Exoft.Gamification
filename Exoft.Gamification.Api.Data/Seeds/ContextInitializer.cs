@@ -18,6 +18,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 Email = "ostap2308@gmail.com",
                 UserName = "OstapRoik",
                 Password = "804f50ddbaab7f28c933a95c162d019acbf96afde56dba10e4c7dfcfe453dec4bacf5e78b1ddbdc1695a793bcb5d7d409425db4cc3370e71c4965e4ef992e8c4",
+                // Password123
                 Status = "Status bla bla bla",
                 XP = 30
             };
@@ -28,6 +29,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 Email = "tanyagermain23@gmail.com",
                 UserName = "TanyaGogina",
                 Password = "804f50ddbaab7f28c933a95c162d019acbf96afde56dba10e4c7dfcfe453dec4bacf5e78b1ddbdc1695a793bcb5d7d409425db4cc3370e71c4965e4ef992e8c4",
+                // Password123
                 Status = "Status 123",
                 XP = 40
             };
@@ -38,6 +40,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 Email = "obrychkin@exoft.net",
                 UserName = "OleksandrBrychkin",
                 Password = "804f50ddbaab7f28c933a95c162d019acbf96afde56dba10e4c7dfcfe453dec4bacf5e78b1ddbdc1695a793bcb5d7d409425db4cc3370e71c4965e4ef992e8c4",
+                // Password123
                 Status = null,
                 XP = 10
             };
