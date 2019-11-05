@@ -74,7 +74,7 @@ namespace Exoft.Gamification.Api.Validators
         {
             if (_actionContextAccessor.ActionContext.RouteData.Values.TryGetValue("userId", out object userIdObject))
             {
-                if (!Guid.TryParse(userIdObject as string, out Guid userId))
+                if (!Guid.TryParse(userIdObject as string, out var userId))
                 {
                     return false;
                 }
@@ -98,9 +98,12 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckUserNameAsync(string userName, CancellationToken cancellationToken)
         {
-            if (_actionContextAccessor.ActionContext.RouteData.Values.TryGetValue("userId", out object userIdObject))
+            if (_actionContextAccessor.ActionContext.RouteData.Values.TryGetValue("userId", out var userIdObject))
             {
-                var userId = Guid.Parse(userIdObject as string);
+                if (!Guid.TryParse(userIdObject as string, out var userId))
+                {
+                    return false;
+                }
 
                 var user = await _userRepository.GetByIdAsync(userId);
 
