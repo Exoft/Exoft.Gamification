@@ -56,7 +56,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// Returns all achievement requests 
         /// </summary>
         [HttpGet]
-        [Authorize(Roles = GamificationRole.Admin)]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> GetAllAchievementRequests()
         {
             return Ok(await _requestAchievementService.GetAllAsync());
@@ -66,7 +66,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// Deletes Request 
         /// </summary>
         [HttpDelete("{id}")]
-        [Authorize(Roles = GamificationRole.Admin)]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> DeclineRequest(Guid id)
         {
             var achievementRequest = await _requestAchievementService.GetByIdAsync(id);
@@ -84,7 +84,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// Approves Request  
         /// </summary>
         [HttpPost("{id}")]
-        [Authorize(Roles = GamificationRole.Admin)]
+        [Authorize(Policy = "IsAdmin")]
         public async Task<IActionResult> ApproveRequest(Guid id)
         {
             await _requestAchievementService.ApproveAchievementRequestAsync(id);

@@ -111,7 +111,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return the updated user</responce> 
         /// <responce code="404">When the user does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
-        [Authorize(Roles = GamificationRole.Admin)]
+        [Authorize(Policy = "IsAdmin")]
         [HttpPut("{userId}")]
         public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateFullUserModel model, Guid userId)
         {

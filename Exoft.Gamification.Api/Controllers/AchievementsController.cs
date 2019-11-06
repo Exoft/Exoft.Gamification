@@ -66,7 +66,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <response code="201">Return created achievement</response>
         /// <response code="422">When the model structure is correct but validation fails</response>
-        [Authorize(Roles = GamificationRole.Admin)]
+        [Authorize(Policy = "IsAdmin")]
         [HttpPost]
         public async Task<IActionResult> AddAchievementAsync([FromBody] CreateAchievementModel model)
         {
@@ -91,7 +91,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return the updated achievement</responce> 
         /// <responce code="404">When the achievement does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
-        [Authorize(Roles = GamificationRole.Admin)]
+        [Authorize(Policy = "IsAdmin")]
         [HttpPut("{achievementId}")]
         public async Task<IActionResult> UpdateAchievementAsync([FromBody] UpdateAchievementModel model, Guid achievementId)
         {
@@ -118,7 +118,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="204">When the achievement successful delete</responce>
         /// <response code="404">When the achievement does not exist</response>
-        [Authorize(Roles = GamificationRole.Admin)]
+        [Authorize(Policy = "IsAdmin")]
         [HttpDelete("{achievementId}")]
         public async Task<IActionResult> DeleteAchievementAsync(Guid achievementId)
         {
