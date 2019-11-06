@@ -4,6 +4,8 @@ using Exoft.Gamification.Api.Resources;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Localization;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -42,7 +44,7 @@ namespace Exoft.Gamification.Api.Validators
             RuleFor(user => user.Status)
                 .MaximumLength(250).WithMessage(_stringLocalizer["TooLong"]);
 
-            RuleFor(user => user.Role)
+            RuleFor(user => user.Roles)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
                 .MustAsync(CheckRoleAsync).WithMessage(_stringLocalizer["WrongRole"]);
 
@@ -53,43 +55,75 @@ namespace Exoft.Gamification.Api.Validators
         }
 
 
-        private async Task<bool> CheckRoleAsync(string role, CancellationToken cancellationToken)
+        private async Task<bool> CheckRoleAsync(ICollection<string> roles, CancellationToken cancellationToken)
         {
-            var roleEntity = await _roleRepository.GetRoleByNameAsync(role);
-            return roleEntity != null;
+            var result = true;
+            foreach (var role in roles)
+            {
+                var roleEntity = await _roleRepository.GetRoleByNameAsync(role);
+                if (roleEntity == null)
+                {
+                    result = false;
+                    break;
+                }
+            }
+            return result;
         }
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(CurrentUserId);
-
-
-            if (user.Email == email)
+            if (_actionContextAccessor.ActionContext.RouteData.Values.TryGetValue("userId", out object userIdObject))
             {
-                return true;
-            }
+                if (!Guid.TryParse(userIdObject as string, out var userId))
+                {
+                    return false;
+                }
 
-            bool exists = await _userRepository.DoesEmailExistsAsync(email);
-            return !exists;
+                var user = await _userRepository.GetByIdAsync(userId);
+
+                if (user.Email == email)
+                {
+                    return true;
+                }
+
+                bool exists = await _userRepository.DoesEmailExistsAsync(email);
+                return !exists;
+            }
+            else
+            {
+                return false;
+            }
         }
 
 
         private async Task<bool> CheckUserNameAsync(string userName, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(CurrentUserId);
-
-            if (user.UserName == userName)
+            if (_actionContextAccessor.ActionContext.RouteData.Values.TryGetValue("userId", out var userIdObject))
             {
-                return true;
-            }
+                if (!Guid.TryParse(userIdObject as string, out var userId))
+                {
+                    return false;
+                }
 
-            var userEntity = await _userRepository.GetByUserNameAsync(userName);
-            if (userEntity == null)
+                var user = await _userRepository.GetByIdAsync(userId);
+
+                if (user.UserName == userName)
+                {
+                    return true;
+                }
+
+                var userEntity = await _userRepository.GetByUserNameAsync(userName);
+                if (userEntity == null)
+                {
+                    return true;
+                }
+
+                return userEntity.Id == user.Id;
+            }
+            else
             {
-                return true;
+                return false;
             }
-
-            return userEntity.Id == user.Id;
         }
     }
 }

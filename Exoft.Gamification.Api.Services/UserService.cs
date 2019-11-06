@@ -69,7 +69,8 @@ namespace Exoft.Gamification.Api.Services
 
             await _unitOfWork.SaveChangesAsync();
 
-            SendEmail(model);
+            await SendEmail(model);
+
             return _mapper.Map<ReadFullUserModel>(user);
         }
 
@@ -194,18 +195,21 @@ namespace Exoft.Gamification.Api.Services
             user.LastName = model.LastName;
             user.Status = model.Status;
             user.Email = model.Email;
-            
-        
-            var role = await _roleRepository.GetRoleByNameAsync(model.Role);
 
-            var userRole = new UserRoles()
-            {
-                Role = role,
-                User = user
-            };
 
             user.Roles.Clear();
-            user.Roles.Add(userRole);
+            foreach (var role in model.Roles)
+            {
+                var roleFromDB = await _roleRepository.GetRoleByNameAsync(role);
+
+                var userRole = new UserRoles()
+                {
+                    Role = roleFromDB,
+                    User = user
+                };
+
+                user.Roles.Add(userRole);
+            }
 
 
             if (model.Avatar != null)

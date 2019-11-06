@@ -1,7 +1,14 @@
-﻿namespace Exoft.Gamification.Api.Common.Models.User
+﻿using System.Collections.Generic;
+
+namespace Exoft.Gamification.Api.Common.Models.User
 {
     public class UpdateFullUserModel : UpdateUserModel
     {
-        public string Role { get; set; }
+        public UpdateFullUserModel()
+        {
+            Roles = new List<string>();
+        }
+
+        public ICollection<string> Roles { get; set; }
     }
 }

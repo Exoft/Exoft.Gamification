@@ -17,49 +17,32 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 LastName = "Roik",
                 Email = "ostap2308@gmail.com",
                 UserName = "OstapRoik",
-                Password = "b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86",
+                Password = "804f50ddbaab7f28c933a95c162d019acbf96afde56dba10e4c7dfcfe453dec4bacf5e78b1ddbdc1695a793bcb5d7d409425db4cc3370e71c4965e4ef992e8c4",
+                // Password123
                 Status = "Status bla bla bla",
-                XP = 10
+                XP = 30
             };
             var user2 = new Core.Entities.User()
             {
                 FirstName = "Tanya",
                 LastName = "Gogina",
-                Email = "tanya@gmail.com",
+                Email = "tanyagermain23@gmail.com",
                 UserName = "TanyaGogina",
-                Password = "b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86",
+                Password = "804f50ddbaab7f28c933a95c162d019acbf96afde56dba10e4c7dfcfe453dec4bacf5e78b1ddbdc1695a793bcb5d7d409425db4cc3370e71c4965e4ef992e8c4",
+                // Password123
                 Status = "Status 123",
                 XP = 40
             };
             var user3 = new Core.Entities.User()
             {
-                FirstName = "Yevhen",
-                LastName = "Volynets",
-                Email = "yvolynets@exoft.net",
-                UserName = "Yevhen",
-                Password = "b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86",
-                Status = "",
-                XP = 40
-            };
-            var user4 = new Core.Entities.User()
-            {
-                FirstName = "Maksym",
-                LastName = "Nykolaichuk",
-                Email = "mnykolaichuk@exoft.net",
-                UserName = "Max",
-                Password = "b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86",
-                Status = "",
-                XP = 120
-            };
-            var user5 = new Core.Entities.User()
-            {
-                FirstName = "Serhii",
-                LastName = "Myskiv",
-                Email = "mserhii@exoft.net",
-                UserName = "Serhii",
-                Password = "b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86",
-                Status = "",
-                XP = 140
+                FirstName = "Oleksandr",
+                LastName = "Brychkin",
+                Email = "obrychkin@exoft.net",
+                UserName = "OleksandrBrychkin",
+                Password = "804f50ddbaab7f28c933a95c162d019acbf96afde56dba10e4c7dfcfe453dec4bacf5e78b1ddbdc1695a793bcb5d7d409425db4cc3370e71c4965e4ef992e8c4",
+                // Password123
+                Status = null,
+                XP = 10
             };
             var achievement1 = new Core.Entities.Achievement()
             {
@@ -93,14 +76,18 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 Type = GamificationEnums.EventType.Records,
                 User = user1
             };
+            var event3 = new Core.Entities.Event()
+            {
+                Description = "Third",
+                Type = GamificationEnums.EventType.Upload,
+                User = user3
+            };
 
             if (!context.Users.Any())
             {
                 context.Users.Add(user1);
                 context.Users.Add(user2);
                 context.Users.Add(user3);
-                context.Users.Add(user4);
-                context.Users.Add(user5);
                 context.SaveChanges();
             }
 
@@ -123,7 +110,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 context.UserAchievement.Add(new Core.Entities.UserAchievement()
                 {
                     User = user1,
-                    Achievement = achievement1
+                    Achievement = achievement2
                 });
                 context.UserAchievement.Add(new Core.Entities.UserAchievement()
                 {
@@ -135,6 +122,11 @@ namespace Exoft.Gamification.Api.Data.Seeds
                     User = user2,
                     Achievement = achievement2
                 });
+                context.UserAchievement.Add(new Core.Entities.UserAchievement()
+                {
+                    User = user3,
+                    Achievement = achievement1
+                });
                 context.SaveChanges();
             }
 
@@ -143,12 +135,22 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 context.UserRoles.Add(new Core.Entities.UserRoles()
                 {
                     User = user1,
-                    Role = role1
+                    Role = role2
                 });
                 context.UserRoles.Add(new Core.Entities.UserRoles()
                 {
                     User = user2,
                     Role = role2
+                });
+                context.UserRoles.Add(new Core.Entities.UserRoles()
+                {
+                    User = user2,
+                    Role = role1
+                });
+                context.UserRoles.Add(new Core.Entities.UserRoles()
+                {
+                    User = user3,
+                    Role = role1
                 });
                 context.SaveChanges();
             }
@@ -157,6 +159,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
             {
                 context.Events.Add(event1);
                 context.Events.Add(event2);
+                context.Events.Add(event3);
                 context.SaveChanges();
             }
 
