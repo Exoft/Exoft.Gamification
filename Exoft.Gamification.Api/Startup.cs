@@ -173,9 +173,13 @@ namespace Exoft.Gamification
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
         {
-            var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-            var context = scope.ServiceProvider.GetService<UsersDbContext>();
-            ContextInitializer.Initialize(context);
+            using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = scope.ServiceProvider.GetService<UsersDbContext>())
+                {
+                    ContextInitializer.Initialize(context);
+                }
+            }
 
             if (env.IsDevelopment())
             {
