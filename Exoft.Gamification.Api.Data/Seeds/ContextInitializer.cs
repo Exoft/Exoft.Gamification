@@ -1,5 +1,6 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,7 +10,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
     {
         public static void Initialize(UsersDbContext context)
         {
-            context.Database.EnsureCreated();
+            context.Database.Migrate();
 
             var user1 = new Core.Entities.User()
             {

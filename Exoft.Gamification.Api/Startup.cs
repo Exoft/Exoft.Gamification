@@ -149,7 +149,6 @@ namespace Exoft.Gamification
                     policy => policy.RequireRole(GamificationRole.Admin, GamificationRole.SuperAdmin));
             });
 
-#if DEBUG
             // Swagger configuration
             services.AddSwaggerGen(c =>
             {
@@ -169,28 +168,30 @@ namespace Exoft.Gamification
                 });
                 c.AddSecurityRequirement(security);
             });
-#endif
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
         {
+            using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                using (var context = scope.ServiceProvider.GetService<UsersDbContext>())
+                {
+                    ContextInitializer.Initialize(context);
+                }
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
 
-               var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
-               var context = scope.ServiceProvider.GetService<UsersDbContext>();
-               ContextInitializer.Initialize(context);
             }
 
-#if DEBUG
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Gamification.Api");
             });
-#endif
 
             // global cors policy
             app.UseCors(x => x
