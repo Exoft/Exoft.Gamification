@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Models;
+using Exoft.Gamification.Api.Common.Models.RequestAchievement;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
@@ -78,9 +79,25 @@ namespace Exoft.Gamification.Api.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<RequestAchievement>> GetAllAsync()
+        public async Task<IEnumerable<ReadRequestAchievementModel>> GetAllAsync()
         {
-            return (await _requestAchievementRepository.GetAllDataAsync(new PagingInfo())).Data.ToList();
+            var requestAchievementModels = new List<ReadRequestAchievementModel>();
+            var requestAchievements = (await _requestAchievementRepository.GetAllDataAsync(new PagingInfo())).Data.ToList();
+            foreach(var item in requestAchievements)
+            {
+                var user = await _userRepository.GetByIdAsync(item.UserId);
+                var achievement = await _achievementRepository.GetByIdAsync(item.AchievementId);
+                requestAchievementModels.Add(new ReadRequestAchievementModel
+                {
+                    Id = item.Id,
+                    AchievementId = item.AchievementId,
+                    UserId = item.UserId,
+                    AchievementName = achievement.Name,
+                    UserName = user.UserName,
+                    Message = item.Message
+                });
+            }
+            return requestAchievementModels;
         }
 
         public async Task<RequestAchievement> GetByIdAsync(Guid id)
