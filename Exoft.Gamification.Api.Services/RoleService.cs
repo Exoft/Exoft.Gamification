@@ -90,6 +90,7 @@ namespace Exoft.Gamification.Api.Services
                 if ((int)tempRole > i)
                 {
                     role = tempRole;
+                    i = (int)tempRole;
                 }
             }
             return role;
