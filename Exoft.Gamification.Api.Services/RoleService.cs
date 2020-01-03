@@ -80,19 +80,12 @@ namespace Exoft.Gamification.Api.Services
 
         public RoleType GetUserRoleTypeFromClaims(ClaimsPrincipal claims)
         {
-            RoleType role = RoleType.None;
             var roleClaims = claims.FindAll(ClaimTypes.Role);
-            if (roleClaims == null || !roleClaims.Any()) return role;
-            int i = (int)role;
-            foreach (var item in roleClaims)
+            if (roleClaims == null || !roleClaims.Any())
             {
-                var tempRole = GetUserRoleTypeFromString(item.Value);
-                if ((int)tempRole > i)
-                {
-                    role = tempRole;
-                }
+                return RoleType.None;
             }
-            return role;
+            return roleClaims.Max(x => GetUserRoleTypeFromString(x.Value));
         }
 
         public RoleType GetMaxUserRoleTypeFromRoles(IEnumerable<string> roles)
