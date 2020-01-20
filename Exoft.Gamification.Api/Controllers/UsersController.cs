@@ -83,7 +83,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="422">When the model structure is correct but validation fails</response>
         [Authorize(Policy = "IsAdmin")]
         [HttpPost]
-        public async Task<IActionResult> AddUserAsync([FromBody] CreateUserModel model)
+        public async Task<IActionResult> AddUserAsync([FromForm] CreateUserModel model)
         {
             var resultValidation = await _createUserModelValidator.ValidateAsync(model);
             resultValidation.AddToModelState(ModelState, null);
@@ -93,7 +93,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            if (_roleService.CalculateAllowOperationsByUsersRole(User, model.Role))
+            if (_roleService.CalculateAllowOperationsByUsersRole(User, model.Roles))
             {
                 var user = await _userService.AddUserAsync(model);
 
@@ -113,7 +113,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [Authorize(Policy = "IsAdmin")]
         [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateFullUserModel model, Guid userId)
+        public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateFullUserModel model, Guid userId)
         {
             var user = await _userService.GetFullUserByIdAsync(userId);
             if(user == null)

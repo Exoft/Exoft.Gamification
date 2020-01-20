@@ -35,9 +35,6 @@ namespace Exoft.Gamification.Api.Validators
             RuleFor(achievement => achievement.XP)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
                 .GreaterThanOrEqualTo(0).WithMessage(_stringLocalizer["SmallValue"]);
-
-            RuleFor(achievement => achievement.Icon)
-                .NotEmpty().WithMessage(_stringLocalizer["EmptyField"]);
         }
 
         private async Task<bool> CheckNameAsync(string name, CancellationToken cancellationToken)

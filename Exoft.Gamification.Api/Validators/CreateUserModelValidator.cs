@@ -4,6 +4,7 @@ using Exoft.Gamification.Api.Resources;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Localization;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -47,7 +48,7 @@ namespace Exoft.Gamification.Api.Validators
                 .Matches("[a-z]").WithMessage(_stringLocalizer["PasswordLowerCaseLetter"])
                 .Matches("[0-9]").WithMessage(_stringLocalizer["PasswordDigit"]);
 
-            RuleFor(user => user.Role)
+            RuleFor(user => user.Roles)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
                 .MustAsync(CheckRoleAsync).WithMessage(_stringLocalizer["WrongRole"]);
 
@@ -63,10 +64,16 @@ namespace Exoft.Gamification.Api.Validators
             return !exists;
         }
 
-        private async Task<bool> CheckRoleAsync(string role, CancellationToken cancellationToken)
+        private async Task<bool> CheckRoleAsync(IEnumerable<string> roles, CancellationToken cancellationToken)
         {
-            var roleEntity = await _roleRepository.GetRoleByNameAsync(role);
-            return roleEntity != null;
+            // is it better option?
+            //return roles.All(x => _roleRepository.GetRoleByNameAsync(x).Result != null);
+            foreach (var role in roles)
+                if (await _roleRepository.GetRoleByNameAsync(role) == null)
+                {
+                    return false;
+                }
+            return true;
         }
 
         private async Task<bool> CheckUserNameAsync(string userName, CancellationToken cancellationToken)

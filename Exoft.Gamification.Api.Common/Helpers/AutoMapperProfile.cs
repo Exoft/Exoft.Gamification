@@ -62,7 +62,8 @@ namespace Exoft.Gamification.Api.Common.Helpers
 
             CreateMap<UpdateAchievementModel, Achievement>();
 
-            CreateMap<CreateUserModel, User>();
+            CreateMap<CreateUserModel, User>()
+                .ForMember(s => s.Roles, o => o.Ignore());
 
             CreateMap<CreateThankModel, Thank>();
 

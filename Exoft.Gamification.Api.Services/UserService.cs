@@ -53,15 +53,34 @@ namespace Exoft.Gamification.Api.Services
         {
             var user = _mapper.Map<User>(model);
 
-            var role = await _roleRepository.GetRoleByNameAsync(model.Role);
-
-            var userRole = new UserRoles()
+            foreach (var modelRole in model.Roles)
             {
-                Role = role,
-                User = user
-            };
+                var role = await _roleRepository.GetRoleByNameAsync(modelRole);
 
-            user.Roles.Add(userRole);
+                var userRole = new UserRoles()
+                {
+                    Role = role,
+                    User = user
+                };
+
+                user.Roles.Add(userRole);
+            }
+
+            if (model.Avatar != null)
+            {
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    await model.Avatar.CopyToAsync(memory);
+
+                    var file = new File()
+                    {
+                        Data = memory.ToArray(),
+                        ContentType = model.Avatar.ContentType
+                    };
+                    await _fileRepository.AddAsync(file);
+                    user.AvatarId = file.Id;
+                }
+            }
 
             user.Password = _hasher.GetHash(model.Password);
 
