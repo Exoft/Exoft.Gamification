@@ -50,7 +50,7 @@ namespace Exoft.Gamification.Api.Validators
 
             RuleFor(user => user.Roles)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
-                .MustAsync(CheckRoleAsync).WithMessage(_stringLocalizer["WrongRole"]);
+                .MustAsync(CheckRolesAsync).WithMessage(_stringLocalizer["WrongRole"]);
 
             RuleFor(user => user.UserName)
                 .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
@@ -64,7 +64,7 @@ namespace Exoft.Gamification.Api.Validators
             return !exists;
         }
 
-        private async Task<bool> CheckRoleAsync(IEnumerable<string> roles, CancellationToken cancellationToken)
+        private async Task<bool> CheckRolesAsync(IEnumerable<string> roles, CancellationToken cancellationToken)
         {
             // is it better option?
             //return roles.All(x => _roleRepository.GetRoleByNameAsync(x).Result != null);
