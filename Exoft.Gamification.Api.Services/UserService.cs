@@ -7,8 +7,10 @@ using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Services.Resources;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Localization;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -53,15 +55,9 @@ namespace Exoft.Gamification.Api.Services
         {
             var user = _mapper.Map<User>(model);
 
-            var role = await _roleRepository.GetRoleByNameAsync(model.Role);
+            await SetRolesForUserModel(model.Roles, user);
 
-            var userRole = new UserRoles()
-            {
-                Role = role,
-                User = user
-            };
-
-            user.Roles.Add(userRole);
+            await SetAvatarForUserModel(model.Avatar, user);
 
             user.Password = _hasher.GetHash(model.Password);
 
@@ -72,15 +68,6 @@ namespace Exoft.Gamification.Api.Services
             await SendEmail(model);
 
             return _mapper.Map<ReadFullUserModel>(user);
-        }
-
-        private async Task SendEmail(CreateUserModel model)
-        {
-            var forgotPasswordPage = _stringLocalizer["RegisterPage"].ToString();
-
-            var pageWithParams = forgotPasswordPage.Replace("{FirstName}", model.FirstName).Replace("{Password}", model.Password);
-
-            await _emailService.SendEmailAsync("Welcome to Exoft", pageWithParams, model.Email);
         }
 
         public async Task DeleteUserAsync(Guid Id)
@@ -159,27 +146,8 @@ namespace Exoft.Gamification.Api.Services
             user.LastName = model.LastName;
             user.Status = model.Status;
             user.Email = model.Email;
-            
-            if (model.Avatar != null)
-            {
-                using (MemoryStream memory = new MemoryStream())
-                {
-                    await model.Avatar.CopyToAsync(memory);
 
-                    if(user.AvatarId != null)
-                    {
-                        await _fileRepository.Delete(user.AvatarId.Value);
-                    }   
-
-                    var file = new File()
-                    {
-                        Data = memory.ToArray(),
-                        ContentType = model.Avatar.ContentType
-                    };
-                    await _fileRepository.AddAsync(file);
-                    user.AvatarId = file.Id;
-                }
-            }
+            await SetAvatarForUserModel(model.Avatar, user);
             _userRepository.Update(user);
 
             await _unitOfWork.SaveChangesAsync();
@@ -198,7 +166,44 @@ namespace Exoft.Gamification.Api.Services
 
 
             user.Roles.Clear();
-            foreach (var role in model.Roles)
+            await SetRolesForUserModel(model.Roles, user);
+
+            await SetAvatarForUserModel(model.Avatar, user);
+
+            _userRepository.Update(user);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return _mapper.Map<ReadFullUserModel>(user);
+        }
+
+        private async Task SetAvatarForUserModel(IFormFile image, User user)
+        {
+            if (image != null)
+            {
+                using (MemoryStream memory = new MemoryStream())
+                {
+                    await image.CopyToAsync(memory);
+
+                    if (user.AvatarId != null)
+                    {
+                        await _fileRepository.Delete(user.AvatarId.Value);
+                    }
+
+                    var file = new File()
+                    {
+                        Data = memory.ToArray(),
+                        ContentType = image.ContentType
+                    };
+                    await _fileRepository.AddAsync(file);
+                    user.AvatarId = file.Id;
+                }
+            }
+        }
+
+        private async Task SetRolesForUserModel(IEnumerable<string> roles, User user)
+        {
+            foreach (var role in roles)
             {
                 var roleFromDB = await _roleRepository.GetRoleByNameAsync(role);
 
@@ -210,33 +215,15 @@ namespace Exoft.Gamification.Api.Services
 
                 user.Roles.Add(userRole);
             }
+        }
 
+        private async Task SendEmail(CreateUserModel model)
+        {
+            var forgotPasswordPage = _stringLocalizer["RegisterPage"].ToString();
 
-            if (model.Avatar != null)
-            {
-                using (MemoryStream memory = new MemoryStream())
-                {
-                    await model.Avatar.CopyToAsync(memory);
+            var pageWithParams = forgotPasswordPage.Replace("{FirstName}", model.FirstName).Replace("{Password}", model.Password);
 
-                    if (user.AvatarId != null)
-                    {
-                        await _fileRepository.Delete(user.AvatarId.Value);
-                    }
-
-                    var file = new File()
-                    {
-                        Data = memory.ToArray(),
-                        ContentType = model.Avatar.ContentType
-                    };
-                    await _fileRepository.AddAsync(file);
-                    user.AvatarId = file.Id;
-                }
-            }
-            _userRepository.Update(user);
-
-            await _unitOfWork.SaveChangesAsync();
-
-            return _mapper.Map<ReadFullUserModel>(user);
+            await _emailService.SendEmailAsync("Welcome to Exoft", pageWithParams, model.Email);
         }
     }
 }

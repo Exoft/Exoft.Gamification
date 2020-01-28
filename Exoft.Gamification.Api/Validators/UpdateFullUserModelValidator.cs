@@ -63,8 +63,7 @@ namespace Exoft.Gamification.Api.Validators
                 var roleEntity = await _roleRepository.GetRoleByNameAsync(role);
                 if (roleEntity == null)
                 {
-                    result = false;
-                    break;
+                    return false;
                 }
             }
             return result;

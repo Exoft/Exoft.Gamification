@@ -56,6 +56,7 @@ namespace Exoft.Gamification.Api.Services
                         Data = memory.ToArray(),
                         ContentType = model.Icon.ContentType
                     };
+                    await _fileRepository.AddAsync(file);
                     achievement.IconId = file.Id;
                 }
             }

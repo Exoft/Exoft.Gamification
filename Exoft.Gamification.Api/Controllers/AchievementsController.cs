@@ -68,7 +68,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="422">When the model structure is correct but validation fails</response>
         [Authorize(Policy = "IsAdmin")]
         [HttpPost]
-        public async Task<IActionResult> AddAchievementAsync([FromBody] CreateAchievementModel model)
+        public async Task<IActionResult> AddAchievementAsync([FromForm] CreateAchievementModel model)
         {
             var resultValidation = await _createAchievementModelValidator.ValidateAsync(model);
             resultValidation.AddToModelState(ModelState, null);
@@ -93,7 +93,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [Authorize(Policy = "IsAdmin")]
         [HttpPut("{achievementId}")]
-        public async Task<IActionResult> UpdateAchievementAsync([FromBody] UpdateAchievementModel model, Guid achievementId)
+        public async Task<IActionResult> UpdateAchievementAsync([FromForm] UpdateAchievementModel model, Guid achievementId)
         {
             var achievement = await _achievementService.GetAchievementByIdAsync(achievementId);
             if(achievement == null)
