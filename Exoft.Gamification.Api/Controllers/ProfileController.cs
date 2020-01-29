@@ -1,11 +1,11 @@
-﻿using Exoft.Gamification.Api.Common.Models.User;
+﻿using Exoft.Gamification.Api.Common.Models;
+using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
@@ -18,17 +18,20 @@ namespace Exoft.Gamification.Api.Controllers
         private readonly IUserService _userService;
         private readonly IUserAchievementService _userAchievementService;
         private readonly IValidator<UpdateUserModel> _updateUserModelValidator;
+        private readonly IValidator<ChangePasswordModel> _changePasswordModelValidator;
 
         public ProfileController
         (
             IUserService userService,
             IUserAchievementService userAchievementService,
-            IValidator<UpdateUserModel> updateUserModelValidator
+            IValidator<UpdateUserModel> updateUserModelValidator,
+            IValidator<ChangePasswordModel> changePasswordModelValidator
         )
         {
             _userService = userService;
             _userAchievementService = userAchievementService;
             _updateUserModelValidator = updateUserModelValidator;
+            _changePasswordModelValidator = changePasswordModelValidator;
         }
 
         /// <summary>
@@ -40,7 +43,7 @@ namespace Exoft.Gamification.Api.Controllers
         public async Task<IActionResult> GetCurrentUserInfo()
         {
             var user = await _userService.GetShortUserByIdAsync(UserId);
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }
@@ -75,7 +78,7 @@ namespace Exoft.Gamification.Api.Controllers
         public async Task<IActionResult> UpdateCurrentUser([FromForm] UpdateUserModel model)
         {
             var user = await _userService.GetFullUserByIdAsync(UserId);
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }
@@ -83,7 +86,7 @@ namespace Exoft.Gamification.Api.Controllers
             var resultValidation = await _updateUserModelValidator.ValidateAsync(model);
             resultValidation.AddToModelState(ModelState, null);
 
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return UnprocessableEntity();
             }
@@ -116,6 +119,26 @@ namespace Exoft.Gamification.Api.Controllers
             var achievementsInfo = await _userAchievementService.GetAchievementsInfoByUserAsync(UserId);
 
             return Ok(achievementsInfo);
+        }
+
+        /// <summary>
+        /// Change password for user
+        /// </summary>
+        /// <responce code="200">If password successful changed</responce>
+        /// <responce code="400">When newPassword or oldPassword is null or empty</responce>
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordModel model)
+        {
+            var resultValidation = await _changePasswordModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
+            await _userService.UpdatePasswordAsync(UserId, model.NewPassword);
+            return Ok();
         }
     }
 }
