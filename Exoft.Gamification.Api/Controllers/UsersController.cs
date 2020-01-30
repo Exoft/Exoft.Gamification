@@ -16,20 +16,17 @@ namespace Exoft.Gamification.Api.Controllers
     public class UsersController : GamificationController
     {
         private readonly IUserService _userService;
-        private readonly IRoleService _roleService;
         private readonly IValidator<CreateUserModel> _createUserModelValidator;
         private readonly IValidator<UpdateFullUserModel> _updateFullUserModelValidator;
 
         public UsersController
         (
             IUserService userService,
-            IRoleService roleService,
             IValidator<CreateUserModel> createUserModelValidator,
             IValidator<UpdateFullUserModel> updateFullUserModelValidator
         )
         {
             _userService = userService;
-            _roleService = roleService;
             _createUserModelValidator = createUserModelValidator;
             _updateFullUserModelValidator = updateFullUserModelValidator;
         }
@@ -81,7 +78,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="201">Return created user</responce> 
         /// <response code="403">When user don't have permissions to this action</response>
         /// <response code="422">When the model structure is correct but validation fails</response>
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost]
         public async Task<IActionResult> AddUserAsync([FromForm] CreateUserModel model)
         {
@@ -93,16 +90,12 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            if (_roleService.CalculateAllowOperationsByUsersRole(User, model.Roles))
-            {
-                var user = await _userService.AddUserAsync(model);
+            var user = await _userService.AddUserAsync(model);
 
-                return CreatedAtRoute(
-                    "GetUser",
-                    new { userId = user.Id },
-                    user);
-            }
-            return Forbid();
+            return CreatedAtRoute(
+                "GetUser",
+                new { userId = user.Id },
+                user);
         }
 
         /// <summary>
@@ -111,7 +104,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return the updated user</responce> 
         /// <responce code="404">When the user does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpPut("{userId}")]
         public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateFullUserModel model, Guid userId)
         {
@@ -140,7 +133,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="204">When the user successful delete</responce>
         /// <response code="403">When user don't have permissions to this action</response>
         /// <response code="404">When the user does not exist</response>
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpDelete("{userId}")]
         public async Task<IActionResult> DeleteUserAsync(Guid userId)
         {
@@ -150,12 +143,8 @@ namespace Exoft.Gamification.Api.Controllers
                 return NotFound();
             }
 
-            if (_roleService.CalculateAllowOperationsByUsersRole(User, user.Roles))
-            {
-                await _userService.DeleteUserAsync(userId);
-                return NoContent();
-            }
-            return Forbid();
+            await _userService.DeleteUserAsync(userId);
+            return NoContent();
         }
 
         /// <summary>
@@ -163,7 +152,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="200">Return users</responce> 
         [HttpGet("get-all")]
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Roles = GamificationRole.Admin)]
         public async Task<ActionResult> GetAllUsers([FromQuery] PagingInfo pagingInfo)
         {
             var users = await _userService.GetAllUsersWithFullInfoAsync(pagingInfo);

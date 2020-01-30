@@ -33,7 +33,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="200">Return Ok</responce> 
         /// <responce code="404">When the achievement or user does not exist</responce> 
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost("{userId}/achievement/")]
         public async Task<IActionResult> AddAchievementToUser([FromQuery] Guid achievementId, Guid userId)
         {
@@ -59,7 +59,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="200">Return Ok</responce> 
         /// <responce code="404">When the achievement or user does not exist</responce> 
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost("{userId}/achievements/")]
         public async Task<IActionResult> AddOrUpdateAchievementsToUser([FromBody] Guid[] achievementIds, [FromRoute]Guid userId)
         {
@@ -87,7 +87,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="204">When the achievement successful delete</responce>
         /// <responce code="404">When userAchievements does not exist</responce>
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpDelete("{userId}/achievements/{achievementId}")]
         public async Task<IActionResult> DeleteAchievementIntoUser(Guid userAchievementsId)
         {

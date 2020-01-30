@@ -90,7 +90,6 @@ namespace Exoft.Gamification
             services.AddScoped<IThankService, ThankService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IRequestAchievementService, RequestAchievementService>();
-            services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IReferenceBookService, ReferenceBookService>();
             services.AddScoped<IPushNotificationService, PushNotificationService>();
 
@@ -144,11 +143,7 @@ namespace Exoft.Gamification
                 };
             });
 
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("IsAdmin",
-                    policy => policy.RequireRole(GamificationRole.Admin, GamificationRole.SuperAdmin));
-            });
+            services.AddAuthorization();
 
             // Swagger configuration
             services.AddSwaggerGen(c =>

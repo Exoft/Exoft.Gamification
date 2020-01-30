@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Data.Core.Entities;
-using Exoft.Gamification.Api.Data.Core.Interfaces;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
