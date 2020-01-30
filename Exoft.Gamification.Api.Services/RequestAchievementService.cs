@@ -107,7 +107,7 @@ namespace Exoft.Gamification.Api.Services
 
         public async Task ApproveAchievementRequestAsync(Guid id)
         {
-            var achievementRequest = await GetByIdAsync(id);
+            var achievementRequest = await _requestAchievementRepository.GetByIdAsync(id);
             await _userAchievementService.AddAsync(achievementRequest.UserId, achievementRequest.AchievementId);
             await DeleteAsync(achievementRequest);
             await _unitOfWork.SaveChangesAsync();

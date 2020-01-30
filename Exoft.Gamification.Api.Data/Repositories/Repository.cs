@@ -86,12 +86,6 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         protected abstract IQueryable<T> IncludeAll();
 
-        public IQueryable<T> GetBy(Expression<Func<T, bool>> predicate)
-        {
-            IQueryable<T> query = Context.Set<T>().Where(predicate);
-            return query;
-        }
-
         public void AddRangeAsync(IEnumerable<T> entities)
         {
             Context.Set<T>().AddRange(entities);
