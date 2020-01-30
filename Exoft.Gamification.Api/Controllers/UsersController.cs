@@ -67,7 +67,7 @@ namespace Exoft.Gamification.Api.Controllers
         public async Task<IActionResult> GetUserByIdAsync(Guid userId)
         {
             var item = await _userService.GetFullUserByIdAsync(userId);
-            if(item == null)
+            if (item == null)
             {
                 return NotFound();
             }
@@ -88,7 +88,7 @@ namespace Exoft.Gamification.Api.Controllers
             var resultValidation = await _createUserModelValidator.ValidateAsync(model);
             resultValidation.AddToModelState(ModelState, null);
 
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return UnprocessableEntity(ModelState);
             }
@@ -116,7 +116,7 @@ namespace Exoft.Gamification.Api.Controllers
         public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateFullUserModel model, Guid userId)
         {
             var user = await _userService.GetFullUserByIdAsync(userId);
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }
@@ -145,7 +145,7 @@ namespace Exoft.Gamification.Api.Controllers
         public async Task<IActionResult> DeleteUserAsync(Guid userId)
         {
             var user = await _userService.GetFullUserByIdAsync(userId);
-            if(user == null)
+            if (user == null)
             {
                 return NotFound();
             }

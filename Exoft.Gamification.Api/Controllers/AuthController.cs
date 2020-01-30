@@ -76,7 +76,7 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpPost("refresh")]
         public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenModel model)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return UnprocessableEntity(ModelState);
             }
@@ -109,7 +109,7 @@ namespace Exoft.Gamification.Api.Controllers
             }
 
             var result = await _authService.SendForgotPasswordAsync(model.Email, model.ResetPasswordPageLink);
-            if(result.Type == Data.Core.Helpers.GamificationEnums.ResponseType.NotFound)
+            if (result.Type == Data.Core.Helpers.GamificationEnums.ResponseType.NotFound)
             {
                 return NotFound(result.Message);
             }
@@ -135,7 +135,7 @@ namespace Exoft.Gamification.Api.Controllers
             }
 
             var result = await _authService.ResetPasswordAsync(model.SecretString, model.Password);
-            if(result.Type == Data.Core.Helpers.GamificationEnums.ResponseType.NotFound)
+            if (result.Type == Data.Core.Helpers.GamificationEnums.ResponseType.NotFound)
             {
                 return BadRequest(result.Message);
             }
