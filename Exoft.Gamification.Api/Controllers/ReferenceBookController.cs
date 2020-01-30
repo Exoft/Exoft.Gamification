@@ -29,7 +29,7 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         [HttpPost("edit-article")]
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Roles = GamificationRole.Admin)]
         public async Task<ActionResult> EditArticle(UpdateArticleModel article)
         {
             if (article == null)
@@ -45,7 +45,7 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         [HttpPut("add-article")]
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Roles = GamificationRole.Admin)]
         public async Task<ActionResult> AddArticleToChapter(CreateArticleModel article)
         {
             if (article == null)
@@ -61,7 +61,7 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         [HttpPut("add-chapter")]
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Roles = GamificationRole.Admin)]
         public async Task<ActionResult> AddArticle(CreateChapterModel chapterModel)
         {
             if (chapterModel == null)
@@ -77,7 +77,7 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         [HttpDelete("delete-chapter/{chapterId}")]
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Roles = GamificationRole.Admin)]
         public async Task<ActionResult> DeleteChapter(Guid chapterId)
         {
             var chapter = await _referenceBookService.GetChapterById(chapterId);
@@ -91,7 +91,7 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         [HttpDelete("delete-article/{articleId}")]
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Roles = GamificationRole.Admin)]
         public async Task<ActionResult> DeleteArticle(Guid articleId)
         {
             var article = await _referenceBookService.GetArticleById(articleId);
