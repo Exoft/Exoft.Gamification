@@ -1,6 +1,5 @@
 ﻿using Exoft.Gamification.Api.Common.Helpers;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -35,7 +34,7 @@ namespace Exoft.Gamification.Api.Helpers
 
             
             // if body
-            context.HttpContext.Request.EnableRewind();
+            context.HttpContext.Request.EnableBuffering();
             context.HttpContext.Request.Body.Seek(0, SeekOrigin.Begin);
 
             JObject jsonData = new JObject();

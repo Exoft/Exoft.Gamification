@@ -31,6 +31,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
 namespace Exoft.Gamification
 {
@@ -52,14 +54,15 @@ namespace Exoft.Gamification
             services.AddCors();
             services.AddMvc(options =>
             {
+                options.EnableEndpointRouting = false;
                 options.Filters.Add<ErrorHandlingFilter>();
             })
-                .AddDataAnnotationsLocalization(options =>
-                {
-                    options.DataAnnotationLocalizerProvider = (type, factory) =>
-                        factory.Create(typeof(ValidatorMessages));
-                })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            .AddDataAnnotationsLocalization(options =>
+            {
+                options.DataAnnotationLocalizerProvider = (type, factory) =>
+                    factory.Create(typeof(ValidatorMessages));
+            })
+            .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddDbContext<UsersDbContext>
             (
@@ -148,26 +151,37 @@ namespace Exoft.Gamification
             // Swagger configuration
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "Gamification", Version = "0.0.0.1" });
-                
-                var security = new Dictionary<string, IEnumerable<string>>
-                {
-                    {"Bearer", new string[] { }},
-                };
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Gamification", Version = "0.0.0.1" });
 
-                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = "Example: \"Bearer {token}\"",
                     Name = "Authorization",
-                    In = "header",
-                    Type = "apiKey"
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey
                 });
-                c.AddSecurityRequirement(security);
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                        Reference = new OpenApiReference
+                            {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
+                        },
+                        new List<string>()
+                    }
+                });
             });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
@@ -177,10 +191,9 @@ namespace Exoft.Gamification
                 }
             }
 
-            if (env.IsDevelopment())
+            if (env.EnvironmentName == Environments.Development)
             {
                 app.UseDeveloperExceptionPage();
-
             }
 
             app.UseSwagger();
@@ -196,7 +209,6 @@ namespace Exoft.Gamification
                 .AllowAnyHeader());
 
             app.UseAuthentication();
-
             app.UseMvc();
         }
     }
