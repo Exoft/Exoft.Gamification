@@ -136,31 +136,30 @@ namespace Exoft.Gamification.Api.Services
             };
             var currentAchievements = (await _userAchievementRepository.GetAllAchievementsByUserAsync(page, userId)).Data.ToList();
 
+            var achievementsGroups = currentAchievements.GroupBy(i => i.Achievement.Id);
             foreach (var achievementWithCount in model.Achievements)
             {
-                var groupAchievements = currentAchievements
-                    .GroupBy(i => i.Achievement.Id)
-                    .FirstOrDefault(i => i.Key == achievementWithCount.AchievementId);
-                
-                if (groupAchievements == null)
+                var achievementsGroup = achievementsGroups.FirstOrDefault(i => i.Key == achievementWithCount.AchievementId);
+
+                if (achievementsGroup == null)
                 {
                     for (int i = 0; i < achievementWithCount.Count; i++)
                     {
-                        var achievement = groupAchievements.First().Achievement;
+                        var achievement = await _achievementRepository.GetByIdAsync(achievementWithCount.AchievementId);
                         await AddAchievementToUser(achievement, user);
                     }
-                } 
+                }
                 else
                 {
-                    for (int i = groupAchievements.Count(); i < achievementWithCount.Count; i++)
+                    for (int i = achievementsGroup.Count(); i < achievementWithCount.Count; i++)
                     {
-                        var achievement = groupAchievements.First().Achievement;
+                        var achievement = achievementsGroup.First().Achievement;
                         await AddAchievementToUser(achievement, user);
                     }
 
-                    for (int i = groupAchievements.Count(); i > achievementWithCount.Count; i--)
+                    for (int i = achievementsGroup.Count(); i > achievementWithCount.Count; i--)
                     {
-                        var lastAchievement = groupAchievements.OrderByDescending(a => a.AddedTime).First();
+                        var lastAchievement = achievementsGroup.OrderByDescending(a => a.AddedTime).First();
 
                         _userAchievementRepository.Delete(lastAchievement);
 
