@@ -14,28 +14,24 @@ namespace Exoft.Gamification.Api.Controllers
     public class UserAchievementController : GamificationController
     {
         private readonly IUserService _userService;
-        private readonly IAchievementService _achievementService;
         private readonly IUserAchievementService _userAchievementService;
 
         public UserAchievementController
         (
             IUserService userService,
-            IAchievementService achievementService,
             IUserAchievementService userAchievementsService
         )
         {
             _userService = userService;
-            _achievementService = achievementService;
             _userAchievementService = userAchievementsService;
         }
-
 
         /// <summary>
         /// Add or remove achievements into user
         /// </summary>
         /// <responce code="200">Return Ok</responce> 
         /// <responce code="404">When any achievement or user does not exist</responce> 
-        [Authorize(Policy = "IsAdmin")]
+        [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost("{userId}/achievements/")]
         public async Task<IActionResult> UpdateUserAchievements([FromBody] AssignAchievementsToUserModel model, Guid userId)
         {
