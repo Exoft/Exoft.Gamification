@@ -14,7 +14,7 @@ namespace Exoft.Gamification.Api.Common.Models
 
         public string Description { get; set; }
 
-        public string CreatedTime { get; set; }
+        public DateTime CreatedTime { get; set; }
 
         public Guid UserId { get; set; }
     }
