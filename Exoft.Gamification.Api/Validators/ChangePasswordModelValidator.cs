@@ -38,6 +38,10 @@ namespace Exoft.Gamification.Api.Validators
                 .Matches("[a-z]").WithMessage(_stringLocalizer["PasswordLowerCaseLetter"])
                 .Matches("[0-9]").WithMessage(_stringLocalizer["PasswordDigit"])
                 .MustAsync(ComparePasswordAsync).WithMessage(_stringLocalizer["OldPassword"]);
+
+            RuleFor(model => model.ConfirmNewPassword)
+                .NotEmpty().WithMessage(_stringLocalizer["EmptyField"])
+                .Equal(model => model.NewPassword).WithMessage(_stringLocalizer["NonEqualsPassword"]);
         }
 
         private async Task<bool> CheckPasswordAsync(string password, CancellationToken cancellationToken)
