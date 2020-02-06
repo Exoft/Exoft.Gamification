@@ -19,6 +19,8 @@ namespace Exoft.Gamification.Api.Common.Models.User
 
         public int XP { get; set; }
 
+        public int BadgetCount { get; set; }
+
         public IEnumerable<string> Roles { get; set; }
 
         public Guid? AvatarId { get; set; }
