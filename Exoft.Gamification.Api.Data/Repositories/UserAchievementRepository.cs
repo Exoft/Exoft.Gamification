@@ -18,11 +18,12 @@ namespace Exoft.Gamification.Api.Data.Repositories
         {
             var query = IncludeAll()
                 .Where(o => o.User.Id == UserId)
-                .OrderByDescending(i => i.AddedTime);
+                .OrderByDescending(i => i.AddedTime)
+                .AsQueryable();
 
             if (pagingInfo.PageSize != 0)
             {
-                query.Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
+                query = query.Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
                     .Take(pagingInfo.PageSize);
             }
 
