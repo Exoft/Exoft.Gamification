@@ -64,11 +64,14 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public virtual async Task<ReturnPagingInfo<T>> GetAllDataAsync(PagingInfo pagingInfo)
         {
-            var items = await IncludeAll()
-                .OrderBy(s => s.Id)
-                .Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
-                .Take(pagingInfo.PageSize)
-                .ToListAsync();
+            var query = IncludeAll().OrderBy(s => s.Id);
+            if (pagingInfo.PageSize != 0)
+            {
+                query.Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
+                    .Take(pagingInfo.PageSize);
+            }
+
+            var items = await query.ToListAsync();
 
             int allItemsCount = await IncludeAll().CountAsync();
 
@@ -77,7 +80,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
                 CurrentPage = pagingInfo.CurrentPage,
                 PageSize = items.Count,
                 TotalItems = allItemsCount,
-                TotalPages = (int)Math.Ceiling((double)allItemsCount / pagingInfo.PageSize),
+                TotalPages = (int)Math.Ceiling((double)allItemsCount / (pagingInfo.PageSize == 0 ? allItemsCount : pagingInfo.PageSize)),
                 Data = items
             };
 

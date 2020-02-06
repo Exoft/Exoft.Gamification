@@ -16,24 +16,26 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public async Task<ReturnPagingInfo<UserAchievement>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid UserId)
         {
-            var list = IncludeAll()
+            var query = IncludeAll()
                 .Where(o => o.User.Id == UserId)
-                .Select(i => i)
                 .OrderByDescending(i => i.AddedTime);
 
-            var items = list
-                .Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
-                .Take(pagingInfo.PageSize)
-                .ToList();
+            if (pagingInfo.PageSize != 0)
+            {
+                query.Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
+                    .Take(pagingInfo.PageSize);
+            }
 
-            int listCount = await list.CountAsync();
+            var items = await query.ToListAsync();
+
+            int itemsCount = await query.CountAsync();
 
             var result = new ReturnPagingInfo<UserAchievement>()
             {
                 CurrentPage = pagingInfo.CurrentPage,
                 PageSize = items.Count,
-                TotalItems = listCount,
-                TotalPages = (int)Math.Ceiling((double)listCount / pagingInfo.PageSize),
+                TotalItems = itemsCount,
+                TotalPages = (int)Math.Ceiling((double)itemsCount / (pagingInfo.PageSize == 0 ? itemsCount : pagingInfo.PageSize)),
                 Data = items
             };
 
