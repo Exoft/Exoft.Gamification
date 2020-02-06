@@ -28,6 +28,7 @@ namespace Exoft.Gamification.Api.Services
         private readonly IPasswordHasher _hasher;
         private readonly IStringLocalizer<HtmlPages> _stringLocalizer;
         private readonly IEmailService _emailService;
+        private readonly IUserAchievementRepository _userAchievementRepository;
 
         public UserService
         (
@@ -38,7 +39,8 @@ namespace Exoft.Gamification.Api.Services
             IUnitOfWork unitOfWork,
             IPasswordHasher hasher,
             IStringLocalizer<HtmlPages> stringLocalizer,
-            IEmailService emailService
+            IEmailService emailService,
+            IUserAchievementRepository userAchievementRepository
         )
         {
             _userRepository = userRepository;
@@ -49,6 +51,7 @@ namespace Exoft.Gamification.Api.Services
             _hasher = hasher;
             _stringLocalizer = stringLocalizer;
             _emailService = emailService;
+            _userAchievementRepository = userAchievementRepository;
         }
 
         public async Task<ReadFullUserModel> AddUserAsync(CreateUserModel model)
@@ -135,7 +138,10 @@ namespace Exoft.Gamification.Api.Services
         {
             var user = await _userRepository.GetByIdAsync(Id);
 
-            return _mapper.Map<ReadShortUserModel>(user);
+            var shortUserModel = _mapper.Map<ReadShortUserModel>(user);
+            shortUserModel.BadgesCount = await _userAchievementRepository.GetCountAchievementsByUserAsync(user.Id);
+
+            return shortUserModel;
         }
 
         public async Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid userId)
