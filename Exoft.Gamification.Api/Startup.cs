@@ -20,13 +20,11 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -52,9 +50,9 @@ namespace Exoft.Gamification
                 .PersistKeysToFileSystem(new DirectoryInfo(@".\server\share\"));
 
             services.AddCors();
-            services.AddMvc(options =>
+            services.AddControllers(options =>
             {
-                options.EnableEndpointRouting = false;
+                options.EnableEndpointRouting = true;
                 options.Filters.Add<ErrorHandlingFilter>();
             })
             .AddDataAnnotationsLocalization(options =>
@@ -62,7 +60,7 @@ namespace Exoft.Gamification
                 options.DataAnnotationLocalizerProvider = (type, factory) =>
                     factory.Create(typeof(ValidatorMessages));
             })
-            .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            .AddNewtonsoftJson();
 
             services.AddDbContext<UsersDbContext>
             (
@@ -191,7 +189,7 @@ namespace Exoft.Gamification
                 }
             }
 
-            if (env.EnvironmentName == Environments.Development)
+            if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -202,6 +200,7 @@ namespace Exoft.Gamification
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Gamification.Api");
             });
 
+            app.UseRouting();
             // global cors policy
             app.UseCors(x => x
                 .AllowAnyOrigin()
@@ -209,7 +208,11 @@ namespace Exoft.Gamification
                 .AllowAnyHeader());
 
             app.UseAuthentication();
-            app.UseMvc();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints => {
+                endpoints.MapControllers();
+            });
         }
     }
 }

@@ -24,7 +24,7 @@ namespace Exoft.Gamification.Api.Helpers
             _logger = logger;
         }
 
-        public override void OnException(ExceptionContext context)
+        public override async void OnException(ExceptionContext context)
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append(string.Format("\r\n ---> QueryString: {0}", 
@@ -40,7 +40,7 @@ namespace Exoft.Gamification.Api.Helpers
             JObject jsonData = new JObject();
             using (StreamReader stream = new StreamReader(context.HttpContext.Request.Body))
             {
-                string body = stream.ReadToEnd();
+                string body = await stream.ReadToEndAsync();
                 if(!string.IsNullOrEmpty(body))
                 {
                     jsonData = JObject.Parse(body);
@@ -76,7 +76,7 @@ namespace Exoft.Gamification.Api.Helpers
             var excludedProperties = modelType.GetProperties().Where(prop =>
                                         IsDefined(prop, typeof(NonLoggedAttribute)));
 
-            if(excludedProperties.Count() == 0)
+            if(!excludedProperties.Any())
             {
                 return json;
             }
