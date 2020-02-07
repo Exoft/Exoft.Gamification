@@ -81,9 +81,9 @@ namespace Exoft.Gamification.Api.Helpers
                 return json;
             }
 
-            foreach (var propertyForExlude in excludedProperties)
+            foreach (var propertyForExclude in excludedProperties)
             {
-                var jToken = json.GetValue(propertyForExlude.Name, System.StringComparison.OrdinalIgnoreCase);
+                var jToken = json.GetValue(propertyForExclude.Name, System.StringComparison.OrdinalIgnoreCase);
 
                 if(jToken != null)
                 {
