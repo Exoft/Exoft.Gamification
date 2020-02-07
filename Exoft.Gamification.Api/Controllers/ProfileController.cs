@@ -91,7 +91,6 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity();
             }
 
-
             var newUser = await _userService.UpdateUserAsync(model, UserId);
 
             return Ok(newUser);

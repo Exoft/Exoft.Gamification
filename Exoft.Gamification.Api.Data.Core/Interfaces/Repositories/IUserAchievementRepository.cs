@@ -7,7 +7,6 @@ namespace Exoft.Gamification.Api.Data.Core.Interfaces.Repositories
 {
     public interface IUserAchievementRepository : IRepository<UserAchievement>
     {
-        Task<UserAchievement> GetSingleUserAchievementAsync(Guid userAchievementId);
         Task<ReturnPagingInfo<UserAchievement>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid userId);
         Task<int> GetCountAchievementsByUserAsync(Guid userId);
         Task<int> GetSummaryXpByUserAsync(Guid userId);

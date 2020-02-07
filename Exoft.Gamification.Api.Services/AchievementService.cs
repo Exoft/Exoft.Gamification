@@ -5,9 +5,7 @@ using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
-using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -133,11 +131,6 @@ namespace Exoft.Gamification.Api.Services
             };
 
             return result;
-        }
-
-        public async Task<IEnumerable<Achievement>> GetAchievementsByIdsAsync(Guid[] ids)
-        {
-            return (await _achievementRepository.GetBy(x => ids.Any(y => y == x.Id)).ToListAsync());
         }
     }
 }
