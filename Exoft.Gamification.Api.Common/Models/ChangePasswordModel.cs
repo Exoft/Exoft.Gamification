@@ -9,5 +9,8 @@ namespace Exoft.Gamification.Api.Common.Models
 
         [NonLogged]
         public string NewPassword { get; set; }
+
+        [NonLogged]
+        public string ConfirmNewPassword { get; set; }
     }
 }

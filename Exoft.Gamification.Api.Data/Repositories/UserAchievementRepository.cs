@@ -16,24 +16,27 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public async Task<ReturnPagingInfo<UserAchievement>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid UserId)
         {
-            var list = IncludeAll()
+            var query = IncludeAll()
                 .Where(o => o.User.Id == UserId)
-                .Select(i => i)
-                .OrderByDescending(i => i.AddedTime);
+                .OrderByDescending(i => i.AddedTime)
+                .AsQueryable();
 
-            var items = list
-                .Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
-                .Take(pagingInfo.PageSize)
-                .ToList();
+            if (pagingInfo.PageSize != 0)
+            {
+                query = query.Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
+                    .Take(pagingInfo.PageSize);
+            }
 
-            int listCount = await list.CountAsync();
+            var items = await query.ToListAsync();
+
+            int itemsCount = await query.CountAsync();
 
             var result = new ReturnPagingInfo<UserAchievement>()
             {
                 CurrentPage = pagingInfo.CurrentPage,
                 PageSize = items.Count,
-                TotalItems = listCount,
-                TotalPages = (int)Math.Ceiling((double)listCount / pagingInfo.PageSize),
+                TotalItems = itemsCount,
+                TotalPages = (int)Math.Ceiling((double)itemsCount / (pagingInfo.PageSize == 0 ? itemsCount : pagingInfo.PageSize)),
                 Data = items
             };
 
@@ -42,23 +45,14 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public async Task<int> GetCountAchievementsByThisMonthAsync(Guid userId)
         {
-            return await IncludeAll()
-                .CountAsync(i => i.AddedTime.Month == DateTime.UtcNow.Month &&
-                    i.User.Id == userId);
+            return await Context.UserAchievement
+                .CountAsync(i => i.AddedTime.Month == DateTime.UtcNow.Month && i.User.Id == userId);
         }
 
         public async Task<int> GetCountAchievementsByUserAsync(Guid userId)
         {
-            return await IncludeAll()
+            return await Context.UserAchievement
                 .CountAsync(o => o.User.Id == userId);
-        }
-
-        public async Task<UserAchievement> GetSingleUserAchievementAsync(Guid userAchievementId)
-        {
-            return await IncludeAll()
-                .Where(o => o.Id == userAchievementId)
-                .Select(i => i)
-                .SingleOrDefaultAsync();
         }
 
         public async Task<int> GetSummaryXpByUserAsync(Guid userId)
