@@ -25,8 +25,6 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
 
         public Guid? AvatarId { get; set; }
         
-        public int XP { get; set; }
-
         public ICollection<UserRoles> Roles { get; set; }
 
         public ICollection<UserAchievement> Achievements { get; set; }

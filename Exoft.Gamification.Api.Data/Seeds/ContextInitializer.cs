@@ -20,8 +20,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 UserName = "OstapRoik",
                 Password = "804f50ddbaab7f28c933a95c162d019acbf96afde56dba10e4c7dfcfe453dec4bacf5e78b1ddbdc1695a793bcb5d7d409425db4cc3370e71c4965e4ef992e8c4",
                 // Password123
-                Status = "Status bla bla bla",
-                XP = 30
+                Status = "Status bla bla bla"
             };
             var user2 = new Core.Entities.User()
             {
@@ -31,8 +30,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 UserName = "TanyaGogina",
                 Password = "804f50ddbaab7f28c933a95c162d019acbf96afde56dba10e4c7dfcfe453dec4bacf5e78b1ddbdc1695a793bcb5d7d409425db4cc3370e71c4965e4ef992e8c4",
                 // Password123
-                Status = "Status 123",
-                XP = 40
+                Status = "Status 123"
             };
             var user3 = new Core.Entities.User()
             {
@@ -42,8 +40,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 UserName = "OleksandrBrychkin",
                 Password = "804f50ddbaab7f28c933a95c162d019acbf96afde56dba10e4c7dfcfe453dec4bacf5e78b1ddbdc1695a793bcb5d7d409425db4cc3370e71c4965e4ef992e8c4",
                 // Password123
-                Status = null,
-                XP = 10
+                Status = null
             };
             var achievement1 = new Core.Entities.Achievement()
             {

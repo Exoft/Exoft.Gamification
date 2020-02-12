@@ -17,7 +17,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public override async Task<ReturnPagingInfo<User>> GetAllDataAsync(PagingInfo pagingInfo)
         {
-            var query = IncludeAll().OrderBy(s => s.XP).AsQueryable();
+            var query = IncludeAll().OrderBy(s => s.Achievements.Sum(a => a.Achievement.XP)).AsQueryable();
             if (pagingInfo.PageSize != 0)
             {
                 query = query.Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
