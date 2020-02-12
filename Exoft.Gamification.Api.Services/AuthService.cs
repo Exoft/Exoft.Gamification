@@ -30,6 +30,7 @@ namespace Exoft.Gamification.Api.Services
         private readonly IMapper _mapper;
         private readonly ICacheManager<Guid> _cache;
         private readonly IResetPasswordSettings _resetPasswordSettings;
+        private readonly IUserAchievementRepository _userAchievementRepository;
         private readonly IStringLocalizer<HtmlPages> _stringLocalizer;
 
         public AuthService
@@ -43,6 +44,7 @@ namespace Exoft.Gamification.Api.Services
             IMapper mapper,
             ICacheManager<Guid> cache,
             IResetPasswordSettings resetPasswordSettings,
+            IUserAchievementRepository userAchievementRepository,
             IStringLocalizer<HtmlPages> stringLocalizer
         )
         {
@@ -55,6 +57,7 @@ namespace Exoft.Gamification.Api.Services
             _mapper = mapper;
             _cache = cache;
             _resetPasswordSettings = resetPasswordSettings;
+            _userAchievementRepository = userAchievementRepository;
             _stringLocalizer = stringLocalizer;
         }
 
@@ -74,7 +77,7 @@ namespace Exoft.Gamification.Api.Services
             };
             await _refreshTokenProvider.AddAsync(refreshToken);
 
-            return GetJwtToken(userEntity, refreshToken);
+            return await GetJwtToken(userEntity, refreshToken);
         }
 
         public async Task<JwtTokenModel> AuthenticateByEmailAsync(string email, string password)
@@ -93,7 +96,7 @@ namespace Exoft.Gamification.Api.Services
             };
             await _refreshTokenProvider.AddAsync(refreshToken);
 
-            return GetJwtToken(userEntity, refreshToken);
+            return await GetJwtToken(userEntity, refreshToken);
         }
 
         public async Task<JwtTokenModel> RefreshTokenAsync(string refreshToken)
@@ -111,10 +114,10 @@ namespace Exoft.Gamification.Api.Services
                 return null;
             }
 
-            return GetJwtToken(userEntity, refreshTokenFromDB);
+            return await GetJwtToken(userEntity, refreshTokenFromDB);
         }
 
-        private JwtTokenModel GetJwtToken(User user, RefreshToken refreshToken)
+        private async Task<JwtTokenModel> GetJwtToken(User user, RefreshToken refreshToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -141,6 +144,8 @@ namespace Exoft.Gamification.Api.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             var jwtTokenModel = _mapper.Map<JwtTokenModel>(user);
+            jwtTokenModel.BadgesCount = await _userAchievementRepository.GetCountAchievementsByUserAsync(user.Id);
+            jwtTokenModel.XP = await _userAchievementRepository.GetSummaryXpByUserAsync(user.Id);
             jwtTokenModel.Token = tokenHandler.WriteToken(token);
             jwtTokenModel.RefreshToken = refreshToken.Token;
             jwtTokenModel.TokenExpiration = token.ValidTo.ConvertToIso8601DateTimeUtc();
