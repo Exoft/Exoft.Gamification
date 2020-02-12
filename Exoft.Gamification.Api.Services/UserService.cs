@@ -132,7 +132,7 @@ namespace Exoft.Gamification.Api.Services
             var user = await _userRepository.GetByIdAsync(Id);
 
             var fullUserModel = _mapper.Map<ReadFullUserModel>(user);
-            fullUserModel.BadgetCount = await _userAchievementRepository.GetCountAchievementsByUserAsync(user.Id);
+            fullUserModel.BadgesCount = await _userAchievementRepository.GetCountAchievementsByUserAsync(user.Id);
 
             return fullUserModel;
         }

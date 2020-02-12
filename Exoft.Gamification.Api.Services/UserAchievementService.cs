@@ -128,18 +128,18 @@ namespace Exoft.Gamification.Api.Services
         {
             var user = await _userRepository.GetByIdAsync(userId);
 
-            var countOfAchievements = await _userAchievementRepository.GetCountAchievementsByUserAsync(userId);
             var page = new PagingInfo
             {
                 CurrentPage = 1,
-                PageSize = countOfAchievements
+                PageSize = 0
             };
             var currentAchievements = (await _userAchievementRepository.GetAllAchievementsByUserAsync(page, userId)).Data.ToList();
-
             var achievementsGroups = currentAchievements.GroupBy(i => i.Achievement.Id);
+
             foreach (var achievementWithCount in model.Achievements)
             {
-                var achievementsGroup = achievementsGroups.FirstOrDefault(i => i.Key == achievementWithCount.AchievementId);
+                var achievementsGroup = achievementsGroups
+                    .FirstOrDefault(i => i.Key == achievementWithCount.AchievementId);
 
                 if (achievementsGroup == null)
                 {
@@ -157,11 +157,16 @@ namespace Exoft.Gamification.Api.Services
                         await AddAchievementToUser(achievement, user);
                     }
 
-                    for (int i = achievementsGroup.Count(); i > achievementWithCount.Count; i--)
+                    for (int i = achievementsGroup.Count(), j = 0; i > achievementWithCount.Count; i--, j++)
                     {
-                        var lastAchievement = achievementsGroup.OrderByDescending(a => a.AddedTime).First();
+                        var lastAchievement = achievementsGroup
+                            .OrderByDescending(a => a.AddedTime)
+                            .Skip(j)
+                            .First();
 
                         _userAchievementRepository.Delete(lastAchievement);
+
+                        await _unitOfWork.SaveChangesAsync();
 
                         user.XP -= lastAchievement.Achievement.XP;
                     }
@@ -184,6 +189,8 @@ namespace Exoft.Gamification.Api.Services
             await _userAchievementRepository.AddAsync(userAchievement);
 
             user.XP += userAchievement.Achievement.XP;
+
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }
