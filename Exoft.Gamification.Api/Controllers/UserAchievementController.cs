@@ -1,6 +1,8 @@
 ﻿using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -15,15 +17,18 @@ namespace Exoft.Gamification.Api.Controllers
     {
         private readonly IUserService _userService;
         private readonly IUserAchievementService _userAchievementService;
+        private readonly IValidator<PagingInfo> _pagingInfoValidator;
 
         public UserAchievementController
         (
             IUserService userService,
-            IUserAchievementService userAchievementsService
+            IUserAchievementService userAchievementsService,
+            IValidator<PagingInfo> pagingInfoValidator
         )
         {
             _userService = userService;
             _userAchievementService = userAchievementsService;
+            _pagingInfoValidator = pagingInfoValidator;
         }
 
         /// <summary>
@@ -53,6 +58,14 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpGet("{userId}/achievements")]
         public async Task<IActionResult> GetUserAchievementsAsync(Guid userId, [FromQuery] PagingInfo pagingInfo)
         {
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
             var item = await _userAchievementService.GetAllAchievementsByUserAsync(pagingInfo, userId);
 
             return Ok(item);
