@@ -1,7 +1,13 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
+using Exoft.Gamification.Api.Common.Models.Order;
 using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data;
@@ -16,9 +22,12 @@ using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Validators;
+
 using FluentValidation;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -26,11 +35,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+
 using Swashbuckle.AspNetCore.Swagger;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using Microsoft.AspNetCore.DataProtection;
 
 namespace Exoft.Gamification
 {
@@ -92,6 +98,7 @@ namespace Exoft.Gamification
             services.AddScoped<IRequestAchievementService, RequestAchievementService>();
             services.AddScoped<IReferenceBookService, ReferenceBookService>();
             services.AddScoped<IPushNotificationService, PushNotificationService>();
+            services.AddScoped<IOrderService, OrderService>();
 
             // Repositories
             services.AddTransient<IUserRepository, UserRepository>();
@@ -104,6 +111,8 @@ namespace Exoft.Gamification
             services.AddTransient<IRequestAchievementRepository, RequestAchievementRepository>();
             services.AddTransient<IArticleRepository, ArticleRepository>();
             services.AddTransient<IChapterRepository, ChapterRepository>();
+            services.AddTransient<IOrderRepository, OrderRepository>();
+            services.AddTransient<ICategoryRepository, CategoryRepository>();
 
             // Validators
             services.AddTransient<IValidator<CreateUserModel>, CreateUserModelValidator>();
@@ -117,6 +126,7 @@ namespace Exoft.Gamification
             services.AddTransient<IValidator<RequestAchievementModel>, RequestAchievementModelValidator>();
             services.AddTransient<IValidator<PushRequestModel>, PushRequestModelValidator>();
             services.AddTransient<IValidator<ChangePasswordModel>, ChangePasswordModelValidator>();
+            services.AddTransient<IValidator<CreateOrderModel>, CreateOrderModelValidator>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -152,7 +162,7 @@ namespace Exoft.Gamification
                 
                 var security = new Dictionary<string, IEnumerable<string>>
                 {
-                    {"Bearer", new string[] { }},
+                    { "Bearer", new string[] { } }
                 };
 
                 c.AddSecurityDefinition("Bearer", new ApiKeyScheme
@@ -180,7 +190,6 @@ namespace Exoft.Gamification
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
             }
 
             app.UseSwagger();

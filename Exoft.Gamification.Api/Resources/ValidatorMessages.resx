@@ -120,6 +120,9 @@
   <data name="AchievementNotFound" xml:space="preserve">
     <value>Achievement not found</value>
   </data>
+  <data name="CategoryNotFound" xml:space="preserve">
+    <value>Category is not found</value>
+  </data>
   <data name="EmptyField" xml:space="preserve">
     <value>{PropertyName} should not be empty</value>
   </data>

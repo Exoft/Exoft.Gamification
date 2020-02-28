@@ -1,10 +1,14 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
+using Exoft.Gamification.Api.Common.Models.Category;
+using Exoft.Gamification.Api.Common.Models.Order;
 using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Entities;
-using System.Linq;
 
 namespace Exoft.Gamification.Api.Common.Helpers
 {
@@ -58,6 +62,11 @@ namespace Exoft.Gamification.Api.Common.Helpers
                 .ForMember(s => s.AvatarId, o => o.MapFrom(d => d.FromUser.AvatarId))
                 .ForMember(s => s.UserId, o => o.MapFrom(d => d.FromUser.Id));
 
+            CreateMap<Order, ReadOrderModel>()
+                .ForMember(s => s.Categories, o => o.Ignore());
+
+            CreateMap<Category, ReadCategoryModel>();
+
             // map to entity
 
             CreateMap<UpdateAchievementModel, Achievement>();
@@ -69,6 +78,10 @@ namespace Exoft.Gamification.Api.Common.Helpers
             CreateMap<CreateThankModel, Thank>();
 
             CreateMap<RequestAchievementModel, RequestAchievement>();
+
+            CreateMap<CreateOrderModel, Order>();
+
+            CreateMap<CreateCategoryModel, Category>();
         }
     }
 }
