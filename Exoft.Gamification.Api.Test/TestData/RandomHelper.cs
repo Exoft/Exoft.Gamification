@@ -29,6 +29,16 @@ namespace Exoft.Gamification.Api.Test.TestData
         }
 
         /// <summary>
+        /// Returns random email.
+        /// </summary>
+        /// <param name="length">Length of the string.</param>
+        /// <returns></returns>
+        public static string GetRandomEmail(int length)
+        {
+            return $"{GetRandomString(length)}@gmail.com";
+        }
+
+        /// <summary>
         /// Returns random number from 0 to 100.
         /// </summary>
         /// <returns></returns>

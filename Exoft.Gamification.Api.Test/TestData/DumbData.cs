@@ -21,38 +21,50 @@ namespace Exoft.Gamification.Api.Test
             return users;
         }
 
-        //public static List<T> GetList<T>(int number)
-        //{
-        //    var list = new List<T>();
-        //    for (int i = 0; i < number; i++)
-        //    {
-        //        list.Add(GetItem<T>());
-        //    }
-        //    return list;
-        //}
+        public static ReadShortUserModel GetRandomReadShortUserModel()
+        {
+            return new ReadShortUserModel
+            {
+                Id = Guid.NewGuid(),
+                AvatarId = null,
+                FirstName = RandomHelper.GetRandomString(10),
+                LastName = RandomHelper.GetRandomString(20),
+                XP = RandomHelper.GetRandomNumber()
+            };
+        }
 
-        //private static T GetItem<T>()
-        //{
-        //    switch (Type.GetTypeCode(typeof(T)))
-        //    {
-        //        case ReadShortUserModel:
-        //            {
-        //                return new ReadShortUserModel
-        //                {
-        //                    Id = Guid.NewGuid(),
-        //                    AvatarId = null,
-        //                    FirstName = RandomHelper.GetRandomString(10),
-        //                    LastName = RandomHelper.GetRandomString(20),
-        //                    XP = RandomHelper.GetRandomNumber()
-        //                };
-        //            }
-        //        default: return default;
-        //        case null:
-        //            throw new ArgumentNullException(nameof(T));
-        //    }
-        //}
+        public static ReadFullUserModel GetRandomReadFullUserModel()
+        {
+            return new ReadFullUserModel
+            {
+                Id = Guid.NewGuid(),
+                AvatarId = null,
+                FirstName = RandomHelper.GetRandomString(10),
+                LastName = RandomHelper.GetRandomString(20),
+                BadgetCount = RandomHelper.GetRandomNumber(),
+                Email = RandomHelper.GetRandomEmail(10),
+                Roles = new List<string> { GamificationRole.User },
+                Status = RandomHelper.GetRandomString(10),
+                UserName = RandomHelper.GetRandomString(10),
+                XP = RandomHelper.GetRandomNumber()
+            };
+        }
 
-        public static List<ReadShortUserModel> GetListReadShortUserModel(int number)
+        public static UpdateFullUserModel GetRandomUpdateFullUserModel()
+        {
+            return new UpdateFullUserModel
+            {
+                Avatar = null,
+                FirstName = RandomHelper.GetRandomString(10),
+                LastName = RandomHelper.GetRandomString(20),
+                Email = RandomHelper.GetRandomEmail(10),
+                Roles = new List<string> { GamificationRole.User },
+                Status = RandomHelper.GetRandomString(10),
+                UserName = RandomHelper.GetRandomString(10)
+            };
+        }
+
+        public static List<ReadShortUserModel> GetRandomListReadShortUserModel(int number)
         {
             var list = new List<ReadShortUserModel>();
             for (int i = 0; i < number; i++)
@@ -67,6 +79,90 @@ namespace Exoft.Gamification.Api.Test
                 });
             }
             return list;
+        }
+
+        public static List<ReadFullUserModel> GetRandomListFullShortUserModel(int number)
+        {
+            var list = new List<ReadFullUserModel>();
+            for (int i = 0; i < number; i++)
+            {
+                list.Add(new ReadFullUserModel
+                {
+                    Id = Guid.NewGuid(),
+                    AvatarId = null,
+                    FirstName = RandomHelper.GetRandomString(10),
+                    LastName = RandomHelper.GetRandomString(20),
+                    BadgetCount = RandomHelper.GetRandomNumber(),
+                    Email = RandomHelper.GetRandomEmail(10),
+                    Roles = new List<string> { GamificationRole.User },
+                    Status = RandomHelper.GetRandomString(10),
+                    UserName = RandomHelper.GetRandomString(10),
+                    XP = RandomHelper.GetRandomNumber()
+                });
+            }
+            return list;
+        }
+
+        public static ReadFullUserModel GetReadFullUserModelById(Guid userId)
+        {
+            return new ReadFullUserModel
+            {
+                Id = userId,
+                AvatarId = null,
+                FirstName = RandomHelper.GetRandomString(10),
+                LastName = RandomHelper.GetRandomString(20),
+                BadgetCount = RandomHelper.GetRandomNumber(),
+                Email = RandomHelper.GetRandomEmail(10),
+                Roles = new List<string> { GamificationRole.User },
+                Status = RandomHelper.GetRandomString(10),
+                UserName = RandomHelper.GetRandomString(10),
+                XP = RandomHelper.GetRandomNumber()
+            };
+        }
+
+        public static CreateUserModel GetRandomCreateUserModel()
+        {
+            return new CreateUserModel
+            {
+                Avatar = null,
+                Password = RandomHelper.GetRandomString(15),
+                FirstName = RandomHelper.GetRandomString(10),
+                LastName = RandomHelper.GetRandomString(20),
+                Email = RandomHelper.GetRandomEmail(10),
+                Roles = new List<string> { GamificationRole.User },
+                Status = RandomHelper.GetRandomString(10),
+                UserName = RandomHelper.GetRandomString(10)
+            };
+        }
+
+        public static ReadFullUserModel GetReadFullUserModel(CreateUserModel user)
+        {
+            return new ReadFullUserModel
+            {
+                Id = Guid.NewGuid(),
+                AvatarId = null,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Roles = user.Roles,
+                Status = user.Status,
+                UserName = user.UserName
+            };
+        }
+
+        public static ReadFullUserModel GetReadFullUserModel(UpdateFullUserModel user, Guid userId)
+        {
+            return new ReadFullUserModel
+            {
+                Id = userId,
+                AvatarId = null,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Roles = user.Roles,
+                Status = user.Status,
+                UserName = user.UserName
+            };
         }
     }
 }
