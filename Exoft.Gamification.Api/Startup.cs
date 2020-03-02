@@ -7,6 +7,7 @@ using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
+using Exoft.Gamification.Api.Common.Models.Category;
 using Exoft.Gamification.Api.Common.Models.Order;
 using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Common.Models.User;
@@ -129,6 +130,8 @@ namespace Exoft.Gamification
             services.AddTransient<IValidator<ChangePasswordModel>, ChangePasswordModelValidator>();
             services.AddTransient<IValidator<CreateOrderModel>, CreateOrderModelValidator>();
             services.AddTransient<IValidator<UpdateOrderModel>, UpdateOrderModelValidator>();
+            services.AddTransient<IValidator<CreateCategoryModel>, CreateCategoryModelValidator>();
+            services.AddTransient<IValidator<UpdateCategoryModel>, UpdateCategoryModelValidator>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
