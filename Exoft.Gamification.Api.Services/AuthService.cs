@@ -145,7 +145,6 @@ namespace Exoft.Gamification.Api.Services
 
             var jwtTokenModel = _mapper.Map<JwtTokenModel>(user);
             jwtTokenModel.BadgesCount = await _userAchievementRepository.GetCountAchievementsByUserAsync(user.Id);
-            jwtTokenModel.XP = await _userAchievementRepository.GetSummaryXpByUserAsync(user.Id);
             jwtTokenModel.Token = tokenHandler.WriteToken(token);
             jwtTokenModel.RefreshToken = refreshToken.Token;
             jwtTokenModel.TokenExpiration = token.ValidTo.ConvertToIso8601DateTimeUtc();

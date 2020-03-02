@@ -15,6 +15,8 @@ namespace Exoft.Gamification.Api.Services
 {
     public class AchievementService : IAchievementService
     {
+        private readonly IUserRepository _userRepository;
+        private readonly IUserAchievementRepository _userAchievementRepository;
         private readonly IAchievementRepository _achievementRepository;
         private readonly IFileRepository _fileRepository;
         private readonly IMapper _mapper;
@@ -22,12 +24,16 @@ namespace Exoft.Gamification.Api.Services
 
         public AchievementService
         (
+            IUserRepository userRepository,
+            IUserAchievementRepository userAchievementRepository,
             IAchievementRepository achievementRepository,
             IFileRepository fileRepository,
             IMapper mapper,
             IUnitOfWork unitOfWork
         )
         {
+            _userRepository = userRepository;
+            _userAchievementRepository = userAchievementRepository;
             _achievementRepository = achievementRepository;
             _fileRepository = fileRepository;
             _mapper = mapper;
@@ -82,11 +88,35 @@ namespace Exoft.Gamification.Api.Services
             return _mapper.Map<ReadAchievementModel>(achievement);
         }
 
-        public async Task<ReadAchievementModel> UpdateAchievementAsync(UpdateAchievementModel model, Guid Id)
+        public async Task<ReadAchievementModel> UpdateAchievementAsync(UpdateAchievementModel model, Guid id)
         {
-            var achievement = await _achievementRepository.GetByIdAsync(Id);
+            var achievement = await _achievementRepository.GetByIdAsync(id);
             achievement.Name = model.Name;
             achievement.Description = model.Description;
+
+            var difference = achievement.XP - model.XP;
+            if (difference != 0)
+            {
+                var pagingInfo = new PagingInfo
+                {
+                    CurrentPage = 1,
+                    PageSize = 0
+                };
+                var userAchievements = await _userAchievementRepository.GetAllUsersByAchievementAsync(pagingInfo, id);
+                foreach (var userAchievement in userAchievements.Data)
+                {
+                    if (userAchievement.Achievement.Id == id)
+                    {
+                        var user = await _userRepository.GetByIdAsync(userAchievement.User.Id);
+                        user.XP -= difference;
+
+                        _userRepository.Update(user);
+
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+                }
+            }
+
             achievement.XP = model.XP;
 
             if (model.Icon != null)

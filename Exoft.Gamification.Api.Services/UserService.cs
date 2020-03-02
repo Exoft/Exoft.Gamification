@@ -98,10 +98,6 @@ namespace Exoft.Gamification.Api.Services
             var page = await _userRepository.GetAllDataAsync(pagingInfo);
 
             var readUserModels = page.Data.Select(i => _mapper.Map<ReadShortUserModel>(i)).ToList();
-            foreach (var readUserModel in readUserModels)
-            {
-                readUserModel.XP = await _userAchievementRepository.GetSummaryXpByUserAsync(readUserModel.Id);
-            }
             var result = new ReturnPagingInfo<ReadShortUserModel>()
             {
                 CurrentPage = page.CurrentPage,
@@ -119,10 +115,6 @@ namespace Exoft.Gamification.Api.Services
             var page = await _userRepository.GetAllDataAsync(pagingInfo);
 
             var readUserModels = page.Data.Select(i => _mapper.Map<ReadFullUserModel>(i)).ToList();
-            foreach (var readUserModel in readUserModels)
-            {
-                readUserModel.XP = await _userAchievementRepository.GetSummaryXpByUserAsync(readUserModel.Id);
-            }
             var result = new ReturnPagingInfo<ReadFullUserModel>()
             {
                 CurrentPage = page.CurrentPage,
@@ -141,7 +133,6 @@ namespace Exoft.Gamification.Api.Services
 
             var fullUserModel = _mapper.Map<ReadFullUserModel>(user);
             fullUserModel.BadgesCount = await _userAchievementRepository.GetCountAchievementsByUserAsync(user.Id);
-            fullUserModel.XP = await _userAchievementRepository.GetSummaryXpByUserAsync(user.Id);
 
             return fullUserModel;
         }
@@ -150,10 +141,7 @@ namespace Exoft.Gamification.Api.Services
         {
             var user = await _userRepository.GetByIdAsync(Id);
 
-            var shortUserModel = _mapper.Map<ReadShortUserModel>(user);
-            shortUserModel.XP = await _userAchievementRepository.GetSummaryXpByUserAsync(user.Id);
-
-            return shortUserModel;
+            return _mapper.Map<ReadShortUserModel>(user);
         }
 
         public async Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid userId)
