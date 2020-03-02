@@ -20,15 +20,18 @@ namespace Exoft.Gamification.Api.Controllers
     {
         private readonly IOrderService _orderService;
         private readonly IValidator<CreateOrderModel> _createOrderModelValidator;
+        private readonly IValidator<UpdateOrderModel> _updateOrderModelValidator;
 
         public OrderController
         (
             IOrderService orderService,
-            IValidator<CreateOrderModel> createOrderModelValidator
+            IValidator<CreateOrderModel> createOrderModelValidator,
+            IValidator<UpdateOrderModel> updateOrderModelValidator
         )
         {
             _orderService = orderService;
             _createOrderModelValidator = createOrderModelValidator;
+            _updateOrderModelValidator = updateOrderModelValidator;
         }
 
         /// <summary>
@@ -84,6 +87,35 @@ namespace Exoft.Gamification.Api.Controllers
                 "GetOrder",
                 new { orderId = order.Id },
                 order);
+        }
+
+        /// <summary>
+        /// Update order
+        /// </summary>
+        /// <responce code="200">Return the updated order</responce> 
+        /// <responce code="404">When the order does not exist</responce> 
+        /// <responce code="422">When the model structure is correct but validation fails</responce> 
+        [Authorize(Roles = GamificationRole.Admin)]
+        [HttpPut("{orderId}")]
+        public async Task<IActionResult> UpdateOrderAsync([FromForm] UpdateOrderModel model, Guid orderId)
+        {
+            var order = await _orderService.GetOrderByIdAsync(orderId);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var resultValidation = await this._updateOrderModelValidator.ValidateAsync(model);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
+            var item = await _orderService.UpdateOrderAsync(model, orderId);
+
+            return Ok(item);
         }
 
         /// <summary>

@@ -128,6 +128,7 @@ namespace Exoft.Gamification
             services.AddTransient<IValidator<PushRequestModel>, PushRequestModelValidator>();
             services.AddTransient<IValidator<ChangePasswordModel>, ChangePasswordModelValidator>();
             services.AddTransient<IValidator<CreateOrderModel>, CreateOrderModelValidator>();
+            services.AddTransient<IValidator<UpdateOrderModel>, UpdateOrderModelValidator>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

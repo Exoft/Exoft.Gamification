@@ -89,7 +89,68 @@ namespace Exoft.Gamification.Api.Services
 
         public async Task<ReadOrderModel> UpdateOrderAsync(UpdateOrderModel model, Guid id)
         {
-            throw new NotImplementedException();
+            var order = await _orderRepository.GetByIdAsync(id);
+            order.Title = model.Title;
+            order.Description = model.Description;
+            order.Price = model.Price;
+
+            if (model.Icon != null)
+            {
+                using (var memory = new MemoryStream())
+                {
+                    await model.Icon.CopyToAsync(memory);
+
+                    await _fileRepository.Delete(order.IconId);
+
+                    var file = new File
+                    {
+                        Data = memory.ToArray(),
+                        ContentType = model.Icon.ContentType
+                    };
+
+                    await _fileRepository.AddAsync(file);
+
+                    order.IconId = file.Id;
+                }
+            }
+
+            var categoryIds = order.Categories.Select(i => i.Category.Id).ToList();
+            foreach (var categoryId in categoryIds)
+            {
+                if (!model.CategoryIds.Contains(categoryId))
+                {
+                    var orderCategory = order.Categories.First(i => i.Category.Id == categoryId);
+
+                    order.Categories.Remove(orderCategory);
+                }
+            }
+
+            foreach (var categoryId in model.CategoryIds)
+            {
+                if (!categoryIds.Contains(categoryId))
+                {
+                    var category = await _categoryRepository.GetByIdAsync(categoryId);
+                    var orderCategory = new OrderCategory
+                    {
+                        Category = category, 
+                        Order = order
+                    };
+
+                    order.Categories.Add(orderCategory);
+                }
+            }
+
+            _orderRepository.Update(order);
+
+            await _unitOfWork.SaveChangesAsync();
+
+            var readOrderModel = _mapper.Map<ReadOrderModel>(order);
+            foreach (var orderCategory in order.Categories)
+            {
+                readOrderModel.Categories.Add(_mapper.Map<ReadCategoryModel>(orderCategory.Category));
+            }
+
+            return readOrderModel;
         }
 
         public async Task DeleteOrderAsync(Guid id)
