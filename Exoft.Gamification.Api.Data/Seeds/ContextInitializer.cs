@@ -1,16 +1,16 @@
-﻿using Exoft.Gamification.Api.Data.Core.Entities;
-using Exoft.Gamification.Api.Data.Core.Helpers;
-using Microsoft.EntityFrameworkCore;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using Exoft.Gamification.Api.Data.Core.Entities;
+using Exoft.Gamification.Api.Data.Core.Helpers;
+
+using Microsoft.EntityFrameworkCore;
+
+using File = Exoft.Gamification.Api.Data.Core.Entities.File;
+
 namespace Exoft.Gamification.Api.Data.Seeds
 {
-    using System;
-    using System.IO;
-
-    using File = Exoft.Gamification.Api.Data.Core.Entities.File;
-
     public class ContextInitializer
     {
         public static void Initialize(UsersDbContext context)
@@ -187,7 +187,7 @@ namespace Exoft.Gamification.Api.Data.Seeds
 
                 var file = new File
                 {
-                    ContentType = "image/png", 
+                    ContentType = "image/png",
                     Data = bytes
                 };
                 context.Files.Add(file);

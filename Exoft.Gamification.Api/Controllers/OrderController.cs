@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Common.Models.Order;
 using Exoft.Gamification.Api.Data.Core.Helpers;
@@ -12,8 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Exoft.Gamification.Api.Controllers
 {
-    using System;
-
     [Route("api/orders")]
     [Authorize]
     [ApiController]

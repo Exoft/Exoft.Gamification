@@ -99,6 +99,7 @@ namespace Exoft.Gamification
             services.AddScoped<IReferenceBookService, ReferenceBookService>();
             services.AddScoped<IPushNotificationService, PushNotificationService>();
             services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<ICategoryService, CategoryService>();
 
             // Repositories
             services.AddTransient<IUserRepository, UserRepository>();
