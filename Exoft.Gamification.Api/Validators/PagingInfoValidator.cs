@@ -18,7 +18,7 @@ namespace Exoft.Gamification.Api.Validators
                 .GreaterThanOrEqualTo(1).WithMessage(_stringLocalizer["SmallValue"]);
 
             RuleFor(info => info.PageSize)
-                .GreaterThanOrEqualTo(1).WithMessage(_stringLocalizer["SmallValue"]);
+                .GreaterThanOrEqualTo(0).WithMessage(_stringLocalizer["SmallValue"]);
         }
     }
 }
