@@ -32,6 +32,17 @@ namespace Exoft.Gamification.Api.Test.TestData
             new TestCaseData(DumbData.GetRandomCreateUserModel())
         };
 
+        public static readonly TestCaseData[] ValidGuids = new TestCaseData[]
+        {
+            new TestCaseData(Guid.Parse("3d26662f-d257-4a53-a71f-12be80cf07bb"))
+        };
+
+        public static readonly TestCaseData[] ValidUpdatePasswordAsyncModels = new TestCaseData[]
+        {
+            new TestCaseData(Guid.Parse("3d26662f-d257-4a53-a71f-12be80cf07bb"), "SomeCoolPassword2020"),
+            new TestCaseData(Guid.Parse("dd663aa2-08a4-4fa4-b032-2fd9aa0e4924"), "SomeAnotherPassword2020")
+        };
+
         public static readonly TestCaseData[] ValidUpdateFullUserModelsWithIds = new TestCaseData[]
         {
             new TestCaseData(DumbData.GetRandomUpdateFullUserModel(), Guid.Parse("3d26662f-d257-4a53-a71f-12be80cf07bb")),

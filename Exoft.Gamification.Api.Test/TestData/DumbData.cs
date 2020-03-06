@@ -1,8 +1,11 @@
-﻿using Exoft.Gamification.Api.Common.Models.User;
+﻿using AutoMapper;
+using Exoft.Gamification.Api.Common.Models.User;
+using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Test.TestData;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Exoft.Gamification.Api.Test
 {
@@ -62,6 +65,58 @@ namespace Exoft.Gamification.Api.Test
                 Status = RandomHelper.GetRandomString(10),
                 UserName = RandomHelper.GetRandomString(10)
             };
+        }
+
+        public static User GetRandomUserEntity()
+        {
+            return new User
+            {
+                AvatarId = Guid.NewGuid(),
+                FirstName = RandomHelper.GetRandomString(10),
+                LastName = RandomHelper.GetRandomString(20),
+                Email = RandomHelper.GetRandomEmail(10),
+                Password = RandomHelper.GetRandomString(30),
+                Roles = new List<UserRoles> { new UserRoles { Role = new Role { Name = GamificationRole.User } } },
+                Status = RandomHelper.GetRandomString(10),
+                UserName = RandomHelper.GetRandomString(10),
+                XP = RandomHelper.GetRandomNumber()
+            };
+        }
+
+        public static List<User> GetRandomListUserEntity(int number)
+        {
+            var list = new List<User>();
+            for (int i = 0; i < number; i++)
+            {
+                list.Add(new User
+                {
+                    AvatarId = Guid.NewGuid(),
+                    FirstName = RandomHelper.GetRandomString(10),
+                    LastName = RandomHelper.GetRandomString(20),
+                    Email = RandomHelper.GetRandomEmail(10),
+                    Password = RandomHelper.GetRandomString(30),
+                    Roles = new List<UserRoles> { new UserRoles { Role = new Role { Name = GamificationRole.User } } },
+                    Status = RandomHelper.GetRandomString(10),
+                    UserName = RandomHelper.GetRandomString(10),
+                    XP = RandomHelper.GetRandomNumber()
+                });
+            }
+            return list;
+        }
+
+        public static ReturnPagingInfo<T> GetReturnPagingWithModels<T>(ReturnPagingInfo<User> page, IMapper _mapper)
+        {
+            var readUserModel = page.Data.Select(i => _mapper.Map<T>(i)).ToList();
+            var result = new ReturnPagingInfo<T>()
+            {
+                CurrentPage = page.CurrentPage,
+                PageSize = page.PageSize,
+                TotalItems = page.TotalItems,
+                TotalPages = page.TotalPages,
+                Data = readUserModel
+            };
+
+            return result;
         }
 
         public static List<ReadShortUserModel> GetRandomListReadShortUserModel(int number)
@@ -150,6 +205,21 @@ namespace Exoft.Gamification.Api.Test
             };
         }
 
+        public static ReadFullUserModel GetReadFullUserModel(UpdateUserModel user)
+        {
+            return new ReadFullUserModel
+            {
+                Id = Guid.NewGuid(),
+                AvatarId = null,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Roles = (user as UpdateFullUserModel)?.Roles,
+                Status = user.Status,
+                UserName = user.UserName
+            };
+        }
+
         public static ReadFullUserModel GetReadFullUserModel(UpdateFullUserModel user, Guid userId)
         {
             return new ReadFullUserModel
@@ -162,6 +232,30 @@ namespace Exoft.Gamification.Api.Test
                 Roles = user.Roles,
                 Status = user.Status,
                 UserName = user.UserName
+            };
+        }
+
+        public static Role GetRoleEntity(string role)
+        {
+            return new Role
+            {
+                Name = role
+            };
+        }
+
+        public static User GetUserEntity(UpdateUserModel updateModel)
+        {
+            return new User
+            {
+                AvatarId = Guid.NewGuid(),
+                FirstName = updateModel.FirstName,
+                LastName = updateModel.LastName,
+                Email = updateModel.Email,
+                Password = RandomHelper.GetRandomString(30),
+                Roles = new List<UserRoles> { new UserRoles { Role = new Role { Name = GamificationRole.User } } },
+                Status = updateModel.Status,
+                UserName = updateModel.UserName,
+                XP = RandomHelper.GetRandomNumber()
             };
         }
     }
