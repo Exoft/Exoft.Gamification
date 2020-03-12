@@ -1,14 +1,17 @@
-﻿using AutoMapper;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+
 using File = Exoft.Gamification.Api.Data.Core.Entities.File;
 
 namespace Exoft.Gamification.Api.Services
@@ -109,6 +112,7 @@ namespace Exoft.Gamification.Api.Services
                     {
                         var user = await _userRepository.GetByIdAsync(userAchievement.User.Id);
                         user.XP -= difference;
+                        user.XP = user.XP >= 0 ? user.XP : 0;
 
                         _userRepository.Update(user);
 

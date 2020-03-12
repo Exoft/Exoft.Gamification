@@ -42,10 +42,6 @@ namespace Exoft.Gamification.Api.Services
         public async Task<ReadThankModel> GetLastThankAsync(Guid toUserId)
         {
             var thankEntity = await _thankRepository.GetLastThankAsync(toUserId);
-            if(thankEntity == null)
-            {
-                return null;
-            }
 
             return _mapper.Map<ReadThankModel>(thankEntity);
         }

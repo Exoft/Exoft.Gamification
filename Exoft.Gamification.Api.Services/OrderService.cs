@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 using AutoMapper;
 
-using Exoft.Gamification.Api.Common.Models.Category;
 using Exoft.Gamification.Api.Common.Models.Order;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
@@ -78,13 +77,7 @@ namespace Exoft.Gamification.Api.Services
 
             await _unitOfWork.SaveChangesAsync();
 
-            var readOrderModel = _mapper.Map<ReadOrderModel>(order);
-            foreach (var orderCategory in order.Categories)
-            {
-                readOrderModel.Categories.Add(_mapper.Map<ReadCategoryModel>(orderCategory.Category));
-            }
-
-            return readOrderModel;
+            return _mapper.Map<ReadOrderModel>(order);
         }
 
         public async Task<ReadOrderModel> UpdateOrderAsync(UpdateOrderModel model, Guid id)
@@ -132,7 +125,7 @@ namespace Exoft.Gamification.Api.Services
                     var category = await _categoryRepository.GetByIdAsync(categoryId);
                     var orderCategory = new OrderCategory
                     {
-                        Category = category, 
+                        Category = category,
                         Order = order
                     };
 
@@ -144,13 +137,7 @@ namespace Exoft.Gamification.Api.Services
 
             await _unitOfWork.SaveChangesAsync();
 
-            var readOrderModel = _mapper.Map<ReadOrderModel>(order);
-            foreach (var orderCategory in order.Categories)
-            {
-                readOrderModel.Categories.Add(_mapper.Map<ReadCategoryModel>(orderCategory.Category));
-            }
-
-            return readOrderModel;
+            return _mapper.Map<ReadOrderModel>(order);
         }
 
         public async Task DeleteOrderAsync(Guid id)
@@ -166,35 +153,14 @@ namespace Exoft.Gamification.Api.Services
         {
             var order = await _orderRepository.GetByIdAsync(id);
 
-            if (order == null)
-            {
-                return null;
-            }
-
-            var readOrderModel = _mapper.Map<ReadOrderModel>(order);
-            foreach (var orderCategory in order.Categories)
-            {
-                readOrderModel.Categories.Add(_mapper.Map<ReadCategoryModel>(orderCategory.Category));
-            }
-
-            return readOrderModel;
+            return _mapper.Map<ReadOrderModel>(order);
         }
 
         public async Task<ReturnPagingInfo<ReadOrderModel>> GetAllOrderAsync(PagingInfo pagingInfo)
         {
             var page = await _orderRepository.GetAllDataAsync(pagingInfo);
 
-            var readOrderModels = page.Data.Select(order =>
-            {
-                var readOrderModel = _mapper.Map<ReadOrderModel>(order);
-                foreach (var orderCategory in order.Categories)
-                {
-                    readOrderModel.Categories.Add(_mapper.Map<ReadCategoryModel>(orderCategory.Category));
-                }
-
-                return readOrderModel;
-            }).ToList();
-
+            var readOrderModels = page.Data.Select(order => _mapper.Map<ReadOrderModel>(order)).ToList();
             var result = new ReturnPagingInfo<ReadOrderModel>()
             {
                 CurrentPage = page.CurrentPage,

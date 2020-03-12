@@ -70,6 +70,7 @@ namespace Exoft.Gamification.Api.Services
             var user = await _userRepository.GetByIdAsync(userAchievement.User.Id);
 
             user.XP -= userAchievement.Achievement.XP;
+            user.XP = user.XP >= 0 ? user.XP : 0;
 
             _userRepository.Update(user);
 
@@ -164,6 +165,7 @@ namespace Exoft.Gamification.Api.Services
                             .First();
 
                         lastAchievement.User.XP -= lastAchievement.Achievement.XP;
+                        lastAchievement.User.XP = lastAchievement.User.XP >= 0 ? lastAchievement.User.XP : 0;
 
                         _userRepository.Update(lastAchievement.User);
 

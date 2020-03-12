@@ -41,10 +41,7 @@ namespace Exoft.Gamification.Api.Services
         {
             var page = await _categoryRepository.GetAllDataAsync(pagingInfo);
 
-            var readCategoryModels = page.Data
-                .Select(category => _mapper.Map<ReadCategoryModel>(category))
-                .ToList();
-
+            var readCategoryModels = page.Data.Select(category => _mapper.Map<ReadCategoryModel>(category)).ToList();
             var result = new ReturnPagingInfo<ReadCategoryModel>()
             {
                 CurrentPage = page.CurrentPage,
