@@ -12,6 +12,9 @@ using Exoft.Gamification.Api.Data.Core.Entities;
 
 namespace Exoft.Gamification.Api.Common.Helpers
 {
+    using Exoft.Gamification.Api.Common.Models.RequestAchievement;
+    using Exoft.Gamification.Api.Common.Models.RequestOrder;
+
     public class AutoMapperProfile : Profile
     {
         public AutoMapperProfile()
@@ -67,6 +70,8 @@ namespace Exoft.Gamification.Api.Common.Helpers
 
             CreateMap<Category, ReadCategoryModel>();
 
+            CreateMap<RequestOrder, ReadRequestOrderModel>();
+
             // map to entity
             CreateMap<UpdateAchievementModel, Achievement>();
 
@@ -76,11 +81,13 @@ namespace Exoft.Gamification.Api.Common.Helpers
 
             CreateMap<CreateThankModel, Thank>();
 
-            CreateMap<RequestAchievementModel, RequestAchievement>();
+            CreateMap<CreateRequestAchievementModel, RequestAchievement>();
 
             CreateMap<CreateOrderModel, Order>();
 
             CreateMap<CreateCategoryModel, Category>();
+
+            CreateMap<CreateRequestOrderModel, RequestOrder>();
         }
 
         public class ReadOrderModelConverter : ITypeConverter<Order, ReadOrderModel>

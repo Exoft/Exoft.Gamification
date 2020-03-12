@@ -9,7 +9,7 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Services
 {
     public interface IRequestAchievementService
     {
-        Task<IResponse> AddAsync(RequestAchievementModel model, Guid userId);
+        Task<IResponse> AddAsync(CreateRequestAchievementModel model, Guid userId);
         Task<RequestAchievement> GetByIdAsync(Guid id);
         Task<IEnumerable<ReadRequestAchievementModel>> GetAllAsync();
         Task ApproveAchievementRequestAsync(Guid id);

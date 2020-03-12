@@ -49,7 +49,7 @@ namespace Exoft.Gamification.Api.Services
             _userAchievementService = userAchievementService;
         }
 
-        public async Task<IResponse> AddAsync(RequestAchievementModel model, Guid userId)
+        public async Task<IResponse> AddAsync(CreateRequestAchievementModel model, Guid userId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             var achievement = await _achievementRepository.GetByIdAsync(model.AchievementId);

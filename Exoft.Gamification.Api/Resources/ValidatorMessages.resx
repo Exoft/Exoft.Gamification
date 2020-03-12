@@ -138,6 +138,9 @@
   <data name="OldPassword" xml:space="preserve">
     <value>It's your old password</value>
   </data>
+  <data name="OrderNotFound" xml:space="preserve">
+    <value>Order is not found</value>
+  </data>
   <data name="PasswordDigit" xml:space="preserve">
     <value>Password must contains digit</value>
   </data>

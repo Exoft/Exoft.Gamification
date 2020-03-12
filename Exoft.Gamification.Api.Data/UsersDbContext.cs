@@ -7,6 +7,7 @@ namespace Exoft.Gamification.Api.Data
     public class UsersDbContext : DbContext
     {
         public UsersDbContext() { }
+
         public UsersDbContext(DbContextOptions<UsersDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
@@ -37,6 +38,8 @@ namespace Exoft.Gamification.Api.Data
 
         public DbSet<OrderCategory> OrderCategory { get; set; }
 
+        public DbSet<RequestOrder> RequestOrders { get; set; }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.EnableSensitiveDataLogging();
@@ -53,6 +56,7 @@ namespace Exoft.Gamification.Api.Data
             modelBuilder.ApplyConfiguration(new OrderConfiguration());
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
             modelBuilder.ApplyConfiguration(new OrderCategoryConfiguration());
+            modelBuilder.ApplyConfiguration(new RequestOrderConfiguration());
         }
     }
 }

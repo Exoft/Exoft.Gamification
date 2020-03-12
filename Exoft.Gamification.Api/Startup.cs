@@ -9,6 +9,8 @@ using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Common.Models.Category;
 using Exoft.Gamification.Api.Common.Models.Order;
+using Exoft.Gamification.Api.Common.Models.RequestAchievement;
+using Exoft.Gamification.Api.Common.Models.RequestOrder;
 using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data;
@@ -101,6 +103,7 @@ namespace Exoft.Gamification
             services.AddScoped<IPushNotificationService, PushNotificationService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IRequestOrderService, RequestOrderService>();
 
             // Repositories
             services.AddTransient<IUserRepository, UserRepository>();
@@ -115,6 +118,7 @@ namespace Exoft.Gamification
             services.AddTransient<IChapterRepository, ChapterRepository>();
             services.AddTransient<IOrderRepository, OrderRepository>();
             services.AddTransient<ICategoryRepository, CategoryRepository>();
+            services.AddTransient<IRequestOrderRepository, RequestOrderRepository>();
 
             // Validators
             services.AddTransient<IValidator<CreateUserModel>, CreateUserModelValidator>();
@@ -125,13 +129,14 @@ namespace Exoft.Gamification
             services.AddTransient<IValidator<CreateThankModel>, CreateThankModelValidator>();
             services.AddTransient<IValidator<ResetPasswordModel>, ResetPasswordModelValidator>();
             services.AddTransient<IValidator<RequestResetPasswordModel>, RequestResetPasswordModelValidator>();
-            services.AddTransient<IValidator<RequestAchievementModel>, RequestAchievementModelValidator>();
+            services.AddTransient<IValidator<CreateRequestAchievementModel>, RequestAchievementModelValidator>();
             services.AddTransient<IValidator<PushRequestModel>, PushRequestModelValidator>();
             services.AddTransient<IValidator<ChangePasswordModel>, ChangePasswordModelValidator>();
             services.AddTransient<IValidator<CreateOrderModel>, CreateOrderModelValidator>();
             services.AddTransient<IValidator<UpdateOrderModel>, UpdateOrderModelValidator>();
             services.AddTransient<IValidator<CreateCategoryModel>, CreateCategoryModelValidator>();
             services.AddTransient<IValidator<UpdateCategoryModel>, UpdateCategoryModelValidator>();
+            services.AddTransient<IValidator<CreateRequestOrderModel>, CreateRequestOrderModelValidator>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

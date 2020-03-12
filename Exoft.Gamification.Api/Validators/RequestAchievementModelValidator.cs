@@ -10,7 +10,9 @@ using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Validators
 {
-    public class RequestAchievementModelValidator : BaseValidator<RequestAchievementModel>
+    using Exoft.Gamification.Api.Common.Models.RequestAchievement;
+
+    public class RequestAchievementModelValidator : BaseValidator<CreateRequestAchievementModel>
     {
         private readonly IAchievementService _achievementService;
 
