@@ -1,4 +1,11 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
@@ -7,13 +14,10 @@ using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Services.Resources;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Localization;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+
 using File = Exoft.Gamification.Api.Data.Core.Entities.File;
 
 namespace Exoft.Gamification.Api.Services
@@ -73,9 +77,9 @@ namespace Exoft.Gamification.Api.Services
             return _mapper.Map<ReadFullUserModel>(user);
         }
 
-        public async Task DeleteUserAsync(Guid Id)
+        public async Task DeleteUserAsync(Guid id)
         {
-            var user = await _userRepository.GetByIdAsync(Id);
+            var user = await _userRepository.GetByIdAsync(id);
 
             _userRepository.Delete(user);
 
@@ -85,7 +89,7 @@ namespace Exoft.Gamification.Api.Services
         public async Task UpdatePasswordAsync(Guid userId, string newPassword)
         {
             var user = await _userRepository.GetByIdAsync(userId);
-            
+
             user.Password = _hasher.GetHash(newPassword);
 
             _userRepository.Update(user);
@@ -127,9 +131,9 @@ namespace Exoft.Gamification.Api.Services
             return result;
         }
 
-        public async Task<ReadFullUserModel> GetFullUserByIdAsync(Guid Id)
+        public async Task<ReadFullUserModel> GetFullUserByIdAsync(Guid id)
         {
-            var user = await _userRepository.GetByIdAsync(Id);
+            var user = await _userRepository.GetByIdAsync(id);
 
             var fullUserModel = _mapper.Map<ReadFullUserModel>(user);
             fullUserModel.BadgesCount = await _userAchievementRepository.GetCountAchievementsByUserAsync(user.Id);
@@ -137,9 +141,9 @@ namespace Exoft.Gamification.Api.Services
             return fullUserModel;
         }
 
-        public async Task<ReadShortUserModel> GetShortUserByIdAsync(Guid Id)
+        public async Task<ReadShortUserModel> GetShortUserByIdAsync(Guid id)
         {
-            var user = await _userRepository.GetByIdAsync(Id);
+            var user = await _userRepository.GetByIdAsync(id);
 
             return _mapper.Map<ReadShortUserModel>(user);
         }
@@ -153,10 +157,10 @@ namespace Exoft.Gamification.Api.Services
             user.Status = model.Status;
             user.Email = model.Email;
 
-            if (model is UpdateFullUserModel)
+            if (model is UpdateFullUserModel updateFullUserModel)
             {
                 user.Roles.Clear();
-                await SetRolesForUserModel((model as UpdateFullUserModel).Roles, user);
+                await SetRolesForUserModel(updateFullUserModel.Roles, user);
             }
 
             await SetAvatarForUserModel(model.Avatar, user);
@@ -171,7 +175,7 @@ namespace Exoft.Gamification.Api.Services
         {
             if (image != null)
             {
-                using (MemoryStream memory = new MemoryStream())
+                using (var memory = new MemoryStream())
                 {
                     await image.CopyToAsync(memory);
 

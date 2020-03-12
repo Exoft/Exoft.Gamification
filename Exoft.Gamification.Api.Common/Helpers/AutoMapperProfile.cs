@@ -6,15 +6,14 @@ using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Common.Models.Category;
 using Exoft.Gamification.Api.Common.Models.Order;
+using Exoft.Gamification.Api.Common.Models.RequestAchievement;
+using Exoft.Gamification.Api.Common.Models.RequestOrder;
 using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Entities;
 
 namespace Exoft.Gamification.Api.Common.Helpers
 {
-    using Exoft.Gamification.Api.Common.Models.RequestAchievement;
-    using Exoft.Gamification.Api.Common.Models.RequestOrder;
-
     public class AutoMapperProfile : Profile
     {
         public AutoMapperProfile()

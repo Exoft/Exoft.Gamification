@@ -129,7 +129,7 @@ namespace Exoft.Gamification
             services.AddTransient<IValidator<CreateThankModel>, CreateThankModelValidator>();
             services.AddTransient<IValidator<ResetPasswordModel>, ResetPasswordModelValidator>();
             services.AddTransient<IValidator<RequestResetPasswordModel>, RequestResetPasswordModelValidator>();
-            services.AddTransient<IValidator<CreateRequestAchievementModel>, RequestAchievementModelValidator>();
+            services.AddTransient<IValidator<CreateRequestAchievementModel>, CreateRequestAchievementModelValidator>();
             services.AddTransient<IValidator<PushRequestModel>, PushRequestModelValidator>();
             services.AddTransient<IValidator<ChangePasswordModel>, ChangePasswordModelValidator>();
             services.AddTransient<IValidator<CreateOrderModel>, CreateOrderModelValidator>();
@@ -169,7 +169,7 @@ namespace Exoft.Gamification
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "Gamification", Version = "0.0.0.1" });
-                
+
                 var security = new Dictionary<string, IEnumerable<string>>
                 {
                     { "Bearer", new string[] { } }

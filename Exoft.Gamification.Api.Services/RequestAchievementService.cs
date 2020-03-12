@@ -1,5 +1,10 @@
-﻿using AutoMapper;
-using Exoft.Gamification.Api.Common.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Models.RequestAchievement;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
@@ -8,11 +13,8 @@ using Exoft.Gamification.Api.Services.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Services.Resources;
+
 using Microsoft.Extensions.Localization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services
 {
@@ -83,7 +85,7 @@ namespace Exoft.Gamification.Api.Services
         {
             var requestAchievementModels = new List<ReadRequestAchievementModel>();
             var requestAchievements = (await _requestAchievementRepository.GetAllDataAsync(new PagingInfo())).Data.ToList();
-            foreach(var item in requestAchievements)
+            foreach (var item in requestAchievements)
             {
                 var user = await _userRepository.GetByIdAsync(item.UserId);
                 var achievement = await _achievementRepository.GetByIdAsync(item.AchievementId);
@@ -97,6 +99,7 @@ namespace Exoft.Gamification.Api.Services
                     Message = item.Message
                 });
             }
+
             return requestAchievementModels;
         }
 

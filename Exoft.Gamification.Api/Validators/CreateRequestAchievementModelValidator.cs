@@ -1,25 +1,26 @@
-﻿using Exoft.Gamification.Api.Common.Models;
-using Exoft.Gamification.Api.Resources;
-using Exoft.Gamification.Api.Services.Interfaces.Services;
-using FluentValidation;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.Extensions.Localization;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Exoft.Gamification.Api.Common.Models.RequestAchievement;
+using Exoft.Gamification.Api.Resources;
+using Exoft.Gamification.Api.Services.Interfaces.Services;
+
+using FluentValidation;
+
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.Localization;
+
 namespace Exoft.Gamification.Api.Validators
 {
-    using Exoft.Gamification.Api.Common.Models.RequestAchievement;
-
-    public class RequestAchievementModelValidator : BaseValidator<CreateRequestAchievementModel>
+    public class CreateRequestAchievementModelValidator : BaseValidator<CreateRequestAchievementModel>
     {
         private readonly IAchievementService _achievementService;
 
-        public RequestAchievementModelValidator
+        public CreateRequestAchievementModelValidator
         (
             IAchievementService achievementService,
-            IStringLocalizer<ValidatorMessages> stringLocalizer, 
+            IStringLocalizer<ValidatorMessages> stringLocalizer,
             IActionContextAccessor actionContextAccessor
         ) : base(stringLocalizer, actionContextAccessor)
         {

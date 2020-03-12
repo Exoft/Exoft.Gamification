@@ -1,10 +1,12 @@
-﻿using Exoft.Gamification.Api.Data.Core.Entities;
-using Exoft.Gamification.Api.Data.Core.Helpers;
-using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Data.Core.Entities;
+using Exoft.Gamification.Api.Data.Core.Helpers;
+using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace Exoft.Gamification.Api.Data.Repositories
 {
@@ -14,12 +16,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
         {
         }
 
-        protected override IQueryable<RequestAchievement> IncludeAll()
-        {
-            return DbSet;
-        }
-
-        public async override Task<ReturnPagingInfo<RequestAchievement>> GetAllDataAsync(PagingInfo pagingInfo)
+        public override async Task<ReturnPagingInfo<RequestAchievement>> GetAllDataAsync(PagingInfo pagingInfo)
         {
             var query = IncludeAll().OrderBy(s => s.Id).AsQueryable();
             if (pagingInfo.PageSize != 0)
@@ -30,7 +27,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
             var items = await query.ToListAsync();
 
-            int allItemsCount = await IncludeAll().CountAsync();
+            var allItemsCount = await IncludeAll().CountAsync();
 
             var result = new ReturnPagingInfo<RequestAchievement>()
             {
@@ -42,6 +39,11 @@ namespace Exoft.Gamification.Api.Data.Repositories
             };
 
             return result;
+        }
+
+        protected override IQueryable<RequestAchievement> IncludeAll()
+        {
+            return DbSet;
         }
     }
 }

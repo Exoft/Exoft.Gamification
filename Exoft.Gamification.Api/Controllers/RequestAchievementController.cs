@@ -18,20 +18,17 @@ namespace Exoft.Gamification.Api.Controllers
     [ApiController]
     public class RequestAchievementController : GamificationController
     {
-        private readonly IAchievementService _achievementService;
         private readonly IRequestAchievementService _requestAchievementService;
-        private readonly IValidator<CreateRequestAchievementModel> _requestAchievementModelValidator;
+        private readonly IValidator<CreateRequestAchievementModel> _createRequestAchievementModelValidator;
 
         public RequestAchievementController
         (
-            IAchievementService achievementService,
             IRequestAchievementService requestAchievementService,
-            IValidator<CreateRequestAchievementModel> requestAchievementModelValidator
+            IValidator<CreateRequestAchievementModel> createRequestAchievementModelValidator
         )
         {
-            _achievementService = achievementService;
             _requestAchievementService = requestAchievementService;
-            _requestAchievementModelValidator = requestAchievementModelValidator;
+            _createRequestAchievementModelValidator = createRequestAchievementModelValidator;
         }
 
         /// <summary>
@@ -42,7 +39,7 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> AddRequestAsync([FromBody] CreateRequestAchievementModel model)
         {
-            var resultValidation = await _requestAchievementModelValidator.ValidateAsync(model);
+            var resultValidation = await _createRequestAchievementModelValidator.ValidateAsync(model);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -56,7 +53,7 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         /// <summary>
-        /// Returns all achievement requests 
+        /// Return all achievement requests 
         /// </summary>
         [HttpGet]
         [Authorize(Roles = GamificationRole.Admin)]
@@ -66,7 +63,7 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         /// <summary>
-        /// Deletes Request 
+        /// Delete request 
         /// </summary>
         [HttpDelete("{id}")]
         [Authorize(Roles = GamificationRole.Admin)]
@@ -84,7 +81,7 @@ namespace Exoft.Gamification.Api.Controllers
 
 
         /// <summary>
-        /// Approves Request  
+        /// Approve request  
         /// </summary>
         [HttpPost("{id}")]
         [Authorize(Roles = GamificationRole.Admin)]

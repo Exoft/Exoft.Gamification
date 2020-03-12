@@ -31,7 +31,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
             var items = await query.ToListAsync();
 
-            int allItemsCount = await IncludeAll().CountAsync();
+            var allItemsCount = await IncludeAll().CountAsync();
 
             var result = new ReturnPagingInfo<RequestOrder>()
             {

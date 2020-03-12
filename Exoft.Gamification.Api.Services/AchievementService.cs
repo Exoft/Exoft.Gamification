@@ -75,18 +75,18 @@ namespace Exoft.Gamification.Api.Services
             return _mapper.Map<ReadAchievementModel>(achievement);
         }
 
-        public async Task DeleteAchievementAsync(Guid Id)
+        public async Task DeleteAchievementAsync(Guid id)
         {
-            var achievement = await _achievementRepository.GetByIdAsync(Id);
+            var achievement = await _achievementRepository.GetByIdAsync(id);
 
             _achievementRepository.Delete(achievement);
 
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<ReadAchievementModel> GetAchievementByIdAsync(Guid Id)
+        public async Task<ReadAchievementModel> GetAchievementByIdAsync(Guid id)
         {
-            var achievement = await _achievementRepository.GetByIdAsync(Id);
+            var achievement = await _achievementRepository.GetByIdAsync(id);
 
             return _mapper.Map<ReadAchievementModel>(achievement);
         }
@@ -125,7 +125,7 @@ namespace Exoft.Gamification.Api.Services
 
             if (model.Icon != null)
             {
-                using (MemoryStream memory = new MemoryStream())
+                using (var memory = new MemoryStream())
                 {
                     await model.Icon.CopyToAsync(memory);
 
@@ -143,6 +143,7 @@ namespace Exoft.Gamification.Api.Services
                     achievement.IconId = file.Id;
                 }
             }
+
             _achievementRepository.Update(achievement);
 
             await _unitOfWork.SaveChangesAsync();

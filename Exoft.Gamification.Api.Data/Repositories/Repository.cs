@@ -1,18 +1,18 @@
-﻿using Exoft.Gamification.Api.Data.Core.Entities;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
+
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data.Repositories
 {
     public abstract class Repository<T> : IRepository<T> where T : Entity
     {
-        public Repository(UsersDbContext context)
+        protected Repository(UsersDbContext context)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
 
@@ -20,12 +20,8 @@ namespace Exoft.Gamification.Api.Data.Repositories
         }
 
         protected DbSet<T> DbSet { get; }
-        protected UsersDbContext Context { get; }
 
-        public T GetById(Guid id)
-        {
-            return IncludeAll().SingleOrDefault(i => i.Id == id);
-        }
+        protected UsersDbContext Context { get; }
 
         public async Task<T> GetByIdAsync(Guid id)
         {
@@ -73,7 +69,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
             var items = await query.ToListAsync();
 
-            int allItemsCount = await IncludeAll().CountAsync();
+            var allItemsCount = await IncludeAll().CountAsync();
 
             var result = new ReturnPagingInfo<T>()
             {
@@ -88,15 +84,5 @@ namespace Exoft.Gamification.Api.Data.Repositories
         }
 
         protected abstract IQueryable<T> IncludeAll();
-
-        public void AddRangeAsync(IEnumerable<T> entities)
-        {
-            Context.Set<T>().AddRange(entities);
-        }
-
-        public void UpdateRange(IEnumerable<T> entities)
-        {
-            Context.Set<T>().UpdateRange(entities);
-        }
     }
 }
