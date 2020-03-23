@@ -10,7 +10,7 @@ namespace Exoft.Gamification.Api.Test.TestData
         /// </summary>
         /// <param name="length">Length of the string.</param>
         /// <returns></returns>
-        public static string GetRandomString(int length)
+        public static string GetRandomString(int length = 20)
         {
             var str_build = new StringBuilder();
             var random = new Random();
@@ -42,10 +42,10 @@ namespace Exoft.Gamification.Api.Test.TestData
         /// Returns random number from 0 to 100.
         /// </summary>
         /// <returns></returns>
-        public static int GetRandomNumber()
+        public static int GetRandomNumber(int maxNumber = 100)
         {
             Random random = new Random();
-            return random.Next(0, 100);
+            return random.Next(0, maxNumber);
         }
     }
 }
