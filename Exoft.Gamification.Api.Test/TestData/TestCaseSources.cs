@@ -70,5 +70,28 @@ namespace Exoft.Gamification.Api.Test.TestData
             new TestCaseData(AchievementDumbData.GetRandomUpdateAchievementModel()),
             new TestCaseData(AchievementDumbData.GetRandomUpdateAchievementModel())
         };
+
+        public static readonly TestCaseData[] ValidCreateThankModels = new TestCaseData[]
+        {
+            new TestCaseData(ThankDumbData.GetCreateThankModel())
+        };
+
+        public static readonly TestCaseData[] ValidUpdateArticleModels = new TestCaseData[]
+        {
+            new TestCaseData(ArticleDumbData.GetRandomUpdateModel()),
+            new TestCaseData(ArticleDumbData.GetRandomUpdateModel())
+        };
+
+        public static readonly TestCaseData[] ValidCreateArticleModels = new TestCaseData[]
+        {
+            new TestCaseData(ArticleDumbData.GetRandomCreateArticleModel()),
+            new TestCaseData(ArticleDumbData.GetRandomCreateArticleModel())
+        };
+
+        public static readonly TestCaseData[] ValidCreateChapterModels = new TestCaseData[]
+        {
+            new TestCaseData(ArticleDumbData.GetRandomCreateChapterModel()),
+            new TestCaseData(ArticleDumbData.GetRandomCreateChapterModel())
+        };
     }
 }
