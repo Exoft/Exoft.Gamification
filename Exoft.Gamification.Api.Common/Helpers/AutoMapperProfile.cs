@@ -65,7 +65,7 @@ namespace Exoft.Gamification.Api.Common.Helpers
                 .ForMember(s => s.UserId, o => o.MapFrom(d => d.FromUser.Id));
 
             CreateMap<Order, ReadOrderModel>()
-                .ConvertUsing<ReadOrderModelConverter>();
+                .ConvertUsing<OrderToReadOrderModelConverter>();
 
             CreateMap<Category, ReadCategoryModel>();
 
@@ -89,12 +89,13 @@ namespace Exoft.Gamification.Api.Common.Helpers
             CreateMap<CreateRequestOrderModel, RequestOrder>();
         }
 
-        public class ReadOrderModelConverter : ITypeConverter<Order, ReadOrderModel>
+        public class OrderToReadOrderModelConverter : ITypeConverter<Order, ReadOrderModel>
         {
             public ReadOrderModel Convert(Order source, ReadOrderModel destination, ResolutionContext context)
             {
                 return new ReadOrderModel
                 {
+                    Id = source.Id,
                     Title = source.Title,
                     Description = source.Description,
                     Price = source.Price,
