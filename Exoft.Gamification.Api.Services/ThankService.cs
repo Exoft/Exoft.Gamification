@@ -1,11 +1,13 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Threading.Tasks;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
-using System;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services
 {
@@ -42,10 +44,6 @@ namespace Exoft.Gamification.Api.Services
         public async Task<ReadThankModel> GetLastThankAsync(Guid toUserId)
         {
             var thankEntity = await _thankRepository.GetLastThankAsync(toUserId);
-            if(thankEntity == null)
-            {
-                return null;
-            }
 
             return _mapper.Map<ReadThankModel>(thankEntity);
         }

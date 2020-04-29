@@ -8,8 +8,10 @@ namespace Exoft.Gamification.Api.Services.Helpers
         public OkResponse()
         {
             Type = GamificationEnums.ResponseType.Ok;
+
+            Message = string.Empty;
         }
-        
+
         public GamificationEnums.ResponseType Type { get; }
 
         public string Message { get; }

@@ -1,20 +1,25 @@
-﻿using AutoMapper;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+
 using File = Exoft.Gamification.Api.Data.Core.Entities.File;
 
 namespace Exoft.Gamification.Api.Services
 {
     public class AchievementService : IAchievementService
     {
+        private readonly IUserRepository _userRepository;
+        private readonly IUserAchievementRepository _userAchievementRepository;
         private readonly IAchievementRepository _achievementRepository;
         private readonly IFileRepository _fileRepository;
         private readonly IMapper _mapper;
@@ -22,12 +27,16 @@ namespace Exoft.Gamification.Api.Services
 
         public AchievementService
         (
+            IUserRepository userRepository,
+            IUserAchievementRepository userAchievementRepository,
             IAchievementRepository achievementRepository,
             IFileRepository fileRepository,
             IMapper mapper,
             IUnitOfWork unitOfWork
         )
         {
+            _userRepository = userRepository;
+            _userAchievementRepository = userAchievementRepository;
             _achievementRepository = achievementRepository;
             _fileRepository = fileRepository;
             _mapper = mapper;
@@ -66,32 +75,57 @@ namespace Exoft.Gamification.Api.Services
             return _mapper.Map<ReadAchievementModel>(achievement);
         }
 
-        public async Task DeleteAchievementAsync(Guid Id)
+        public async Task DeleteAchievementAsync(Guid id)
         {
-            var achievement = await _achievementRepository.GetByIdAsync(Id);
+            var achievement = await _achievementRepository.GetByIdAsync(id);
 
             _achievementRepository.Delete(achievement);
 
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<ReadAchievementModel> GetAchievementByIdAsync(Guid Id)
+        public async Task<ReadAchievementModel> GetAchievementByIdAsync(Guid id)
         {
-            var achievement = await _achievementRepository.GetByIdAsync(Id);
+            var achievement = await _achievementRepository.GetByIdAsync(id);
 
             return _mapper.Map<ReadAchievementModel>(achievement);
         }
 
-        public async Task<ReadAchievementModel> UpdateAchievementAsync(UpdateAchievementModel model, Guid Id)
+        public async Task<ReadAchievementModel> UpdateAchievementAsync(UpdateAchievementModel model, Guid id)
         {
-            var achievement = await _achievementRepository.GetByIdAsync(Id);
+            var achievement = await _achievementRepository.GetByIdAsync(id);
             achievement.Name = model.Name;
             achievement.Description = model.Description;
+
+            var difference = achievement.XP - model.XP;
+            if (difference != 0)
+            {
+                var pagingInfo = new PagingInfo
+                {
+                    CurrentPage = 1,
+                    PageSize = 0
+                };
+                var userAchievements = await _userAchievementRepository.GetAllUsersByAchievementAsync(pagingInfo, id);
+                foreach (var userAchievement in userAchievements.Data)
+                {
+                    if (userAchievement.Achievement.Id == id)
+                    {
+                        var user = await _userRepository.GetByIdAsync(userAchievement.User.Id);
+                        user.XP -= difference;
+                        user.XP = user.XP >= 0 ? user.XP : 0;
+
+                        _userRepository.Update(user);
+
+                        await _unitOfWork.SaveChangesAsync();
+                    }
+                }
+            }
+
             achievement.XP = model.XP;
 
             if (model.Icon != null)
             {
-                using (MemoryStream memory = new MemoryStream())
+                using (var memory = new MemoryStream())
                 {
                     await model.Icon.CopyToAsync(memory);
 
@@ -109,6 +143,7 @@ namespace Exoft.Gamification.Api.Services
                     achievement.IconId = file.Id;
                 }
             }
+
             _achievementRepository.Update(achievement);
 
             await _unitOfWork.SaveChangesAsync();

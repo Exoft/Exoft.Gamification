@@ -1,13 +1,15 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services
 {
@@ -50,6 +52,10 @@ namespace Exoft.Gamification.Api.Services
                 Achievement = achievement
             };
 
+            user.XP += achievement.XP;
+
+            _userRepository.Update(user);
+
             user.Achievements.Add(userAchievement);
 
             await _userAchievementRepository.AddAsync(userAchievement);
@@ -65,6 +71,13 @@ namespace Exoft.Gamification.Api.Services
 
             var user = await _userRepository.GetByIdAsync(userAchievement.User.Id);
 
+            user.XP -= userAchievement.Achievement.XP;
+            user.XP = user.XP >= 0 ? user.XP : 0;
+
+            _userRepository.Update(user);
+
+            user.Achievements.Add(userAchievement);
+
             _userAchievementRepository.Delete(userAchievement);
 
             user.Achievements.Remove(userAchievement);
@@ -74,13 +87,13 @@ namespace Exoft.Gamification.Api.Services
 
         public async Task<AchievementsInfoModel> GetAchievementsInfoByUserAsync(Guid userId)
         {
+            var user = await _userRepository.GetByIdAsync(userId);
             var countAchievements = await _userAchievementRepository.GetCountAchievementsByUserAsync(userId);
-            var summaryXP = await _userAchievementRepository.GetSummaryXpByUserAsync(userId);
             var countAchievementsByThisMonth = await _userAchievementRepository.GetCountAchievementsByThisMonthAsync(userId);
 
             return new AchievementsInfoModel()
             {
-                TotalXP = summaryXP,
+                TotalXP = user.XP,
                 TotalAchievements = countAchievements,
                 TotalAchievementsByThisMonth = countAchievementsByThisMonth
             };
@@ -153,6 +166,11 @@ namespace Exoft.Gamification.Api.Services
                             .Skip(j)
                             .First();
 
+                        lastAchievement.User.XP -= lastAchievement.Achievement.XP;
+                        lastAchievement.User.XP = lastAchievement.User.XP >= 0 ? lastAchievement.User.XP : 0;
+
+                        _userRepository.Update(lastAchievement.User);
+
                         _userAchievementRepository.Delete(lastAchievement);
                     }
                 }
@@ -170,6 +188,10 @@ namespace Exoft.Gamification.Api.Services
                 User = user,
                 Achievement = achievement
             };
+
+            user.XP += achievement.XP;
+
+            _userRepository.Update(user);
 
             await _userAchievementRepository.AddAsync(userAchievement);
         }

@@ -57,6 +57,21 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.ToTable("Articles");
                 });
 
+            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("IconId");
+
+                    b.Property<string>("Name")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Chapter", b =>
                 {
                     b.Property<Guid>("Id")
@@ -106,6 +121,45 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.ToTable("Files");
                 });
 
+            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Order", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Description");
+
+                    b.Property<Guid>("IconId");
+
+                    b.Property<int>("Popularity");
+
+                    b.Property<int>("Price");
+
+                    b.Property<string>("Title")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.OrderCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid>("CategoryId");
+
+                    b.Property<Guid>("OrderId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderCategory");
+                });
+
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.RequestAchievement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -124,6 +178,28 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RequestAchievements");
+                });
+
+            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.RequestOrder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Message");
+
+                    b.Property<Guid>("OrderId");
+
+                    b.Property<int>("Status");
+
+                    b.Property<Guid>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RequestOrders");
                 });
 
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.Role", b =>
@@ -180,6 +256,8 @@ namespace Exoft.Gamification.Api.Data.Migrations
 
                     b.Property<string>("UserName");
 
+                    b.Property<int>("XP");
+
                     b.HasKey("Id");
 
                     b.ToTable("Users");
@@ -233,11 +311,37 @@ namespace Exoft.Gamification.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
+            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.OrderCategory", b =>
+                {
+                    b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.Order", "Order")
+                        .WithMany("Categories")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.RequestAchievement", b =>
                 {
                     b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.Achievement")
                         .WithMany()
                         .HasForeignKey("AchievementId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("Exoft.Gamification.Api.Data.Core.Entities.RequestOrder", b =>
+                {
+                    b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Exoft.Gamification.Api.Data.Core.Entities.User")

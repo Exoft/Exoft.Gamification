@@ -14,7 +14,15 @@
         {
             Ok = 0,
             NotFound = 1,
-            UnknownError = 2
+            NotAllowed = 2,
+            UnknownError = 99
+        }
+
+        public enum RequestStatus
+        {
+            Pending = 0,
+            Approved = 1,
+            Declined = 2
         }
     }
 }

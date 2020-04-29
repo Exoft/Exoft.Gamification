@@ -1,9 +1,9 @@
-﻿using Exoft.Gamification.Api.Common.Helpers;
-using Exoft.Gamification.Api.Services.Interfaces.Services;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Common.Helpers;
+using Exoft.Gamification.Api.Services.Interfaces.Services;
 
 namespace Exoft.Gamification.Api.Services
 {
