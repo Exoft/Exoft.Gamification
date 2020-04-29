@@ -1,12 +1,15 @@
-﻿using Exoft.Gamification.Api.Common.Models;
+﻿using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+
 using FluentValidation;
 using FluentValidation.AspNetCore;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
 {
@@ -102,7 +105,8 @@ namespace Exoft.Gamification.Api.Controllers
         /// <summary>
         /// Get paged list of achievements current user
         /// </summary>
-        /// <responce code="200">Return all achievements current user</responce> 
+        /// <responce code="200">Return all achievements current user</responce>
+        /// <response code="422">When the model structure is correct but validation fails</response> 
         [HttpGet("current-user/achievements")]
         public async Task<IActionResult> GetUserAchievementsAsync([FromQuery] PagingInfo pagingInfo)
         {
@@ -135,7 +139,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// Change password for user
         /// </summary>
         /// <responce code="200">If password successful changed</responce>
-        /// <responce code="400">When newPassword or oldPassword is null or empty</responce>
+        /// <response code="422">When the model structure is correct but validation fails</response> 
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordModel model)
         {

@@ -21,26 +21,38 @@ namespace Exoft.Gamification.Api.Controllers
         private readonly IOrderService _orderService;
         private readonly IValidator<CreateOrderModel> _createOrderModelValidator;
         private readonly IValidator<UpdateOrderModel> _updateOrderModelValidator;
+        private readonly IValidator<PagingInfo> _pagingInfoValidator;
 
         public OrderController
         (
             IOrderService orderService,
             IValidator<CreateOrderModel> createOrderModelValidator,
-            IValidator<UpdateOrderModel> updateOrderModelValidator
+            IValidator<UpdateOrderModel> updateOrderModelValidator,
+            IValidator<PagingInfo> pagingInfoValidator
         )
         {
             _orderService = orderService;
             _createOrderModelValidator = createOrderModelValidator;
             _updateOrderModelValidator = updateOrderModelValidator;
+            _pagingInfoValidator = pagingInfoValidator;
         }
 
         /// <summary>
         /// Get paged list of orders
         /// </summary>
-        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of orders</responce> 
+        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of orders</responce>
+        /// <response code="422">When the model structure is correct but validation fails</response> 
         [HttpGet]
         public async Task<IActionResult> GetOrdersAsync([FromQuery] PagingInfo pagingInfo)
         {
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
             var list = await _orderService.GetAllOrderAsync(pagingInfo);
 
             return Ok(list);
@@ -92,7 +104,8 @@ namespace Exoft.Gamification.Api.Controllers
         /// <summary>
         /// Update order
         /// </summary>
-        /// <responce code="200">Return the updated order</responce> 
+        /// <responce code="200">Return the updated order</responce>
+        /// <response code="403">When user don't have permissions to this action</response>
         /// <responce code="404">When the order does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [Authorize(Roles = GamificationRole.Admin)]
@@ -122,6 +135,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// Delete order by Id
         /// </summary>
         /// <responce code="204">When the order successful delete</responce>
+        /// <response code="403">When user don't have permissions to this action</response>
         /// <response code="404">When the order does not exist</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpDelete("{orderId}")]

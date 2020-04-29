@@ -1,12 +1,15 @@
-﻿using Exoft.Gamification.Api.Common.Models.Achievement;
+﻿using System;
+using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+
 using FluentValidation;
 using FluentValidation.AspNetCore;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
 {
@@ -34,11 +37,11 @@ namespace Exoft.Gamification.Api.Controllers
             _pagingInfoValidator = pagingInfoValidator;
         }
 
-
         /// <summary>
         /// Get paged list of achievements
         /// </summary>
-        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of achievements</responce> 
+        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of achievements</responce>
+        /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpGet]
         public async Task<IActionResult> GetAchievementsAsync([FromQuery] PagingInfo pagingInfo)
         {
@@ -76,6 +79,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// Create a new achievement
         /// </summary>
         /// <response code="201">Return created achievement</response>
+        /// <response code="403">When user don't have permissions to this action</response>
         /// <response code="422">When the model structure is correct but validation fails</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost]
@@ -84,12 +88,13 @@ namespace Exoft.Gamification.Api.Controllers
             var resultValidation = await _createAchievementModelValidator.ValidateAsync(model);
             resultValidation.AddToModelState(ModelState, null);
 
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return UnprocessableEntity(ModelState);
             }
+
             var achievement = await _achievementService.AddAchievementAsync(model);
-            
+
             return CreatedAtRoute(
                 "GetAchievement",
                 new { achievementId = achievement.Id },
@@ -99,7 +104,8 @@ namespace Exoft.Gamification.Api.Controllers
         /// <summary>
         /// Update achievement
         /// </summary>
-        /// <responce code="200">Return the updated achievement</responce> 
+        /// <responce code="200">Return the updated achievement</responce>
+        /// <response code="403">When user don't have permissions to this action</response>
         /// <responce code="404">When the achievement does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [Authorize(Roles = GamificationRole.Admin)]
@@ -107,7 +113,7 @@ namespace Exoft.Gamification.Api.Controllers
         public async Task<IActionResult> UpdateAchievementAsync([FromForm] UpdateAchievementModel model, Guid achievementId)
         {
             var achievement = await _achievementService.GetAchievementByIdAsync(achievementId);
-            if(achievement == null)
+            if (achievement == null)
             {
                 return NotFound();
             }
@@ -119,6 +125,7 @@ namespace Exoft.Gamification.Api.Controllers
             {
                 return UnprocessableEntity(ModelState);
             }
+
             var item = await _achievementService.UpdateAchievementAsync(model, achievementId);
 
             return Ok(item);
@@ -128,6 +135,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// Delete achievement by Id
         /// </summary>
         /// <responce code="204">When the achievement successful delete</responce>
+        /// <response code="403">When user don't have permissions to this action</response>
         /// <response code="404">When the achievement does not exist</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpDelete("{achievementId}")]
@@ -138,7 +146,7 @@ namespace Exoft.Gamification.Api.Controllers
             {
                 return NotFound();
             }
-            
+
             await _achievementService.DeleteAchievementAsync(achievementId);
 
             return NoContent();

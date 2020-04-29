@@ -1,10 +1,13 @@
-﻿using Exoft.Gamification.Api.Common.Models;
+﻿using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+
 using FluentValidation;
 using FluentValidation.AspNetCore;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
 {
@@ -30,7 +33,7 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         /// <summary>
-        /// Get jwt
+        /// Get JWT
         /// </summary>
         /// <responce code="200">Return token</responce>
         /// <responce code="401">When userName or password is incorrent</responce>
@@ -49,7 +52,7 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         /// <summary>
-        /// Get jwt
+        /// Get JWT
         /// </summary>
         /// <responce code="200">Return token</responce>
         /// <responce code="401">When email or password is incorrent</responce>
@@ -68,7 +71,7 @@ namespace Exoft.Gamification.Api.Controllers
         }
 
         /// <summary>
-        /// Get new jwt
+        /// Get new JWT
         /// </summary>
         /// <responce code="200">Return new token</responce>
         /// <responce code="401">When userName or password is incorrent</responce>

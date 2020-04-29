@@ -60,6 +60,8 @@ namespace Exoft.Gamification.Api.Controllers
         /// <summary>
         /// Returns all order requests 
         /// </summary>
+        /// <response code="200">Return all requests</response>
+        /// <response code="403">When user don't have permissions to this action</response>
         [HttpGet]
         [Authorize(Roles = GamificationRole.Admin)]
         public async Task<IActionResult> GetAllOrderRequests()
@@ -70,6 +72,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <summary>
         /// Decline request
         /// </summary>
+        /// <response code="200">Decline achievement request with current Id</response>
+        /// <response code="403">When user don't have permissions to this action</response>
+        /// <response code="404">When request with current Id is not found</response>
         [HttpDelete("{id}")]
         [Authorize(Roles = GamificationRole.Admin)]
         public async Task<IActionResult> DeclineRequest(Guid id)
@@ -84,14 +89,22 @@ namespace Exoft.Gamification.Api.Controllers
             return Ok();
         }
 
-
         /// <summary>
         /// Approve request  
         /// </summary>
+        /// <response code="200">When request is approved</response>
+        /// <response code="403">When user don't have permissions to this action</response>
+        /// <response code="404">When request with current Id is not found</response>
         [HttpPost("{id}")]
         [Authorize(Roles = GamificationRole.Admin)]
         public async Task<IActionResult> ApproveRequest(Guid id)
         {
+            var requestOrder = await _requestOrderService.GetByIdAsync(id);
+            if (requestOrder == null)
+            {
+                return NotFound();
+            }
+
             await _requestOrderService.ApproveOrderRequestAsync(id);
 
             return Ok();
