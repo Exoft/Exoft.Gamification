@@ -20,27 +20,39 @@ namespace Exoft.Gamification.Api.Controllers
     {
         private readonly IValidator<CreateCategoryModel> _createCategoryModelValidator;
         private readonly IValidator<UpdateCategoryModel> _updateCategoryModelValidator;
+        private readonly IValidator<PagingInfo> _pagingInfoValidator;
         private readonly ICategoryService _categoryService;
 
         public CategoryController
         (
             IValidator<CreateCategoryModel> createCategoryModelValidator,
             IValidator<UpdateCategoryModel> updateCategoryModelValidator,
+            IValidator<PagingInfo> pagingInfoValidator,
             ICategoryService categoryService
         )
         {
             _createCategoryModelValidator = createCategoryModelValidator;
             _updateCategoryModelValidator = updateCategoryModelValidator;
+            _pagingInfoValidator = pagingInfoValidator;
             _categoryService = categoryService;
         }
 
         /// <summary>
         /// Get paged list of categories
         /// </summary>
-        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of categories</responce> 
+        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of categories</responce>
+        /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpGet]
         public async Task<IActionResult> GetCategoriesAsync([FromQuery] PagingInfo pagingInfo)
         {
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
             var list = await _categoryService.GetAllCategoryAsync(pagingInfo);
 
             return Ok(list);
@@ -92,7 +104,8 @@ namespace Exoft.Gamification.Api.Controllers
         /// <summary>
         /// Update category
         /// </summary>
-        /// <responce code="200">Return the updated category</responce> 
+        /// <responce code="200">Return the updated category</responce>
+        /// <response code="403">When user don't have permissions to this action</response>
         /// <responce code="404">When the order does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [Authorize(Roles = GamificationRole.Admin)]
@@ -122,6 +135,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// Delete category by Id
         /// </summary>
         /// <responce code="204">When the category successful delete</responce>
+        /// <response code="403">When user don't have permissions to this action</response>
         /// <response code="404">When the category does not exist</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpDelete("{categoryId}")]

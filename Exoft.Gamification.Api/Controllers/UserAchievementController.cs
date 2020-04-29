@@ -1,12 +1,15 @@
-﻿using Exoft.Gamification.Api.Common.Models;
+﻿using System;
+using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+
 using FluentValidation;
 using FluentValidation.AspNetCore;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
 {
@@ -34,8 +37,10 @@ namespace Exoft.Gamification.Api.Controllers
         /// <summary>
         /// Add or remove achievements into user
         /// </summary>
-        /// <responce code="200">Return Ok</responce> 
-        /// <responce code="404">When any achievement or user does not exist</responce> 
+        /// <responce code="200">Return Ok</responce>
+        /// <response code="403">When user don't have permissions to this action</response>
+        /// <responce code="404">When any achievement or user does not exist</responce>
+        /// <response code="422">When the model structure is correct but validation fails</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost("{userId}/achievements/")]
         public async Task<IActionResult> UpdateUserAchievements([FromBody] AssignAchievementsToUserModel model, Guid userId)
@@ -54,7 +59,8 @@ namespace Exoft.Gamification.Api.Controllers
         /// <summary>
         /// Get paged list of achievements current user
         /// </summary>
-        /// <responce code="200">Return all achievements current user</responce> 
+        /// <responce code="200">Return all achievements current user</responce>
+        /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpGet("{userId}/achievements")]
         public async Task<IActionResult> GetUserAchievementsAsync(Guid userId, [FromQuery] PagingInfo pagingInfo)
         {

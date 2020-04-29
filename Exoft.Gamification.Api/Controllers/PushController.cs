@@ -1,13 +1,17 @@
-﻿using Exoft.Gamification.Api.Common.Models;
+﻿using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+
 using FluentValidation;
 using FluentValidation.AspNetCore;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
 {
+    // todo: check if mobile client use this logic.
     [Route("api/push")]
     [Authorize]
     [ApiController]
@@ -48,6 +52,7 @@ namespace Exoft.Gamification.Api.Controllers
             {
                 return NoContent();
             }
+
             return Accepted();
         }
     }

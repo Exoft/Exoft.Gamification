@@ -1,6 +1,8 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Resources;
+
 using FluentValidation;
+
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Localization;
 
