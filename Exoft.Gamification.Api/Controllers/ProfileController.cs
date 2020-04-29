@@ -19,19 +19,22 @@ namespace Exoft.Gamification.Api.Controllers
         private readonly IUserAchievementService _userAchievementService;
         private readonly IValidator<UpdateUserModel> _updateUserModelValidator;
         private readonly IValidator<ChangePasswordModel> _changePasswordModelValidator;
+        private readonly IValidator<PagingInfo> _pagingInfoValidator;
 
         public ProfileController
         (
             IUserService userService,
             IUserAchievementService userAchievementService,
             IValidator<UpdateUserModel> updateUserModelValidator,
-            IValidator<ChangePasswordModel> changePasswordModelValidator
+            IValidator<ChangePasswordModel> changePasswordModelValidator,
+            IValidator<PagingInfo> pagingInfoValidator
         )
         {
             _userService = userService;
             _userAchievementService = userAchievementService;
             _updateUserModelValidator = updateUserModelValidator;
             _changePasswordModelValidator = changePasswordModelValidator;
+            _pagingInfoValidator = pagingInfoValidator;
         }
 
         /// <summary>
@@ -103,6 +106,14 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpGet("current-user/achievements")]
         public async Task<IActionResult> GetUserAchievementsAsync([FromQuery] PagingInfo pagingInfo)
         {
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
             var item = await _userAchievementService.GetAllAchievementsByUserAsync(pagingInfo, UserId);
 
             return Ok(item);

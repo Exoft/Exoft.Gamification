@@ -18,17 +18,20 @@ namespace Exoft.Gamification.Api.Controllers
         private readonly IAchievementService _achievementService;
         private readonly IValidator<CreateAchievementModel> _createAchievementModelValidator;
         private readonly IValidator<UpdateAchievementModel> _updateAchievementModelValidator;
+        private readonly IValidator<PagingInfo> _pagingInfoValidator;
 
         public AchievementsController
         (
             IAchievementService achievementService,
             IValidator<CreateAchievementModel> createAchievementModelValidator,
-            IValidator<UpdateAchievementModel> updateAchievementModelValidator
+            IValidator<UpdateAchievementModel> updateAchievementModelValidator,
+            IValidator<PagingInfo> pagingInfoValidator
         )
         {
             _achievementService = achievementService;
             _createAchievementModelValidator = createAchievementModelValidator;
             _updateAchievementModelValidator = updateAchievementModelValidator;
+            _pagingInfoValidator = pagingInfoValidator;
         }
 
 
@@ -39,6 +42,14 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAchievementsAsync([FromQuery] PagingInfo pagingInfo)
         {
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
             var allItems = await _achievementService.GetAllAchievementsAsync(pagingInfo);
 
             return Ok(allItems);

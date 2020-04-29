@@ -18,17 +18,20 @@ namespace Exoft.Gamification.Api.Controllers
         private readonly IUserService _userService;
         private readonly IValidator<CreateUserModel> _createUserModelValidator;
         private readonly IValidator<UpdateFullUserModel> _updateFullUserModelValidator;
+        private readonly IValidator<PagingInfo> _pagingInfoValidator;
 
         public UsersController
         (
             IUserService userService,
             IValidator<CreateUserModel> createUserModelValidator,
-            IValidator<UpdateFullUserModel> updateFullUserModelValidator
+            IValidator<UpdateFullUserModel> updateFullUserModelValidator,
+            IValidator<PagingInfo> pagingInfoValidator
         )
         {
             _userService = userService;
             _createUserModelValidator = createUserModelValidator;
             _updateFullUserModelValidator = updateFullUserModelValidator;
+            _pagingInfoValidator = pagingInfoValidator;
         }
 
         /// <summary>
@@ -38,6 +41,14 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpGet("with-short-info")]
         public async Task<IActionResult> GetUsersShortInfoAsync([FromQuery] PagingInfo pagingInfo)
         {
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
             var allItems = await _userService.GetAllUsersWithShortInfoAsync(pagingInfo);
 
             return Ok(allItems);
@@ -50,6 +61,14 @@ namespace Exoft.Gamification.Api.Controllers
         [HttpGet("with-full-info")]
         public async Task<IActionResult> GetUsersFullInfoAsync([FromQuery] PagingInfo pagingInfo)
         {
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
             var allItems = await _userService.GetAllUsersWithFullInfoAsync(pagingInfo);
 
             return Ok(allItems);
@@ -155,6 +174,14 @@ namespace Exoft.Gamification.Api.Controllers
         [Authorize(Roles = GamificationRole.Admin)]
         public async Task<ActionResult> GetAllUsers([FromQuery] PagingInfo pagingInfo)
         {
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
             var users = await _userService.GetAllUsersWithFullInfoAsync(pagingInfo);
 
             return Ok(users);
