@@ -1,7 +1,16 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
+using Exoft.Gamification.Api.Common.Models.Category;
+using Exoft.Gamification.Api.Common.Models.Order;
+using Exoft.Gamification.Api.Common.Models.RequestAchievement;
+using Exoft.Gamification.Api.Common.Models.RequestOrder;
 using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data;
@@ -16,15 +25,20 @@ using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Validators;
+
 using FluentValidation;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+
+using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -93,6 +107,9 @@ namespace Exoft.Gamification
             services.AddScoped<IRequestAchievementService, RequestAchievementService>();
             services.AddScoped<IReferenceBookService, ReferenceBookService>();
             services.AddScoped<IPushNotificationService, PushNotificationService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IRequestOrderService, RequestOrderService>();
 
             // Repositories
             services.AddTransient<IUserRepository, UserRepository>();
@@ -105,6 +122,9 @@ namespace Exoft.Gamification
             services.AddTransient<IRequestAchievementRepository, RequestAchievementRepository>();
             services.AddTransient<IArticleRepository, ArticleRepository>();
             services.AddTransient<IChapterRepository, ChapterRepository>();
+            services.AddTransient<IOrderRepository, OrderRepository>();
+            services.AddTransient<ICategoryRepository, CategoryRepository>();
+            services.AddTransient<IRequestOrderRepository, RequestOrderRepository>();
 
             // Validators
             services.AddTransient<IValidator<CreateUserModel>, CreateUserModelValidator>();
@@ -115,9 +135,15 @@ namespace Exoft.Gamification
             services.AddTransient<IValidator<CreateThankModel>, CreateThankModelValidator>();
             services.AddTransient<IValidator<ResetPasswordModel>, ResetPasswordModelValidator>();
             services.AddTransient<IValidator<RequestResetPasswordModel>, RequestResetPasswordModelValidator>();
-            services.AddTransient<IValidator<RequestAchievementModel>, RequestAchievementModelValidator>();
+            services.AddTransient<IValidator<CreateRequestAchievementModel>, CreateRequestAchievementModelValidator>();
             services.AddTransient<IValidator<PushRequestModel>, PushRequestModelValidator>();
             services.AddTransient<IValidator<ChangePasswordModel>, ChangePasswordModelValidator>();
+            services.AddTransient<IValidator<PagingInfo>, PagingInfoValidator>();
+            services.AddTransient<IValidator<CreateOrderModel>, CreateOrderModelValidator>();
+            services.AddTransient<IValidator<UpdateOrderModel>, UpdateOrderModelValidator>();
+            services.AddTransient<IValidator<CreateCategoryModel>, CreateCategoryModelValidator>();
+            services.AddTransient<IValidator<UpdateCategoryModel>, UpdateCategoryModelValidator>();
+            services.AddTransient<IValidator<CreateRequestOrderModel>, CreateRequestOrderModelValidator>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

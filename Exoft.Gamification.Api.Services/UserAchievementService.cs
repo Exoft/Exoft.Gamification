@@ -1,14 +1,15 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services
 {
@@ -51,21 +52,15 @@ namespace Exoft.Gamification.Api.Services
                 Achievement = achievement
             };
 
-            user.Achievements.Add(userAchievement);
             user.XP += achievement.XP;
+
+            _userRepository.Update(user);
+
+            user.Achievements.Add(userAchievement);
 
             await _userAchievementRepository.AddAsync(userAchievement);
 
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append("Got achievement ");
-            stringBuilder.Append(achievement.Name);
-            var eventEntity = new Event()
-            {
-                Description = stringBuilder.ToString(),
-                User = user,
-                Type = GamificationEnums.EventType.Records
-            };
-            await _eventRepository.AddAsync(eventEntity);
+            await CreateEventAsync(user, $"Got achievement {achievement.Name}", GamificationEnums.EventType.Records);
 
             await _unitOfWork.SaveChangesAsync();
         }
@@ -76,24 +71,29 @@ namespace Exoft.Gamification.Api.Services
 
             var user = await _userRepository.GetByIdAsync(userAchievement.User.Id);
 
+            user.XP -= userAchievement.Achievement.XP;
+            user.XP = user.XP >= 0 ? user.XP : 0;
+
+            _userRepository.Update(user);
+
+            user.Achievements.Add(userAchievement);
+
             _userAchievementRepository.Delete(userAchievement);
 
             user.Achievements.Remove(userAchievement);
-            user.XP -= userAchievement.Achievement.XP;
-
 
             await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<AchievementsInfoModel> GetAchievementsInfoByUserAsync(Guid userId)
         {
+            var user = await _userRepository.GetByIdAsync(userId);
             var countAchievements = await _userAchievementRepository.GetCountAchievementsByUserAsync(userId);
-            var summaryXP = await _userAchievementRepository.GetSummaryXpByUserAsync(userId);
             var countAchievementsByThisMonth = await _userAchievementRepository.GetCountAchievementsByThisMonthAsync(userId);
 
             return new AchievementsInfoModel()
             {
-                TotalXP = summaryXP,
+                TotalXP = user.XP,
                 TotalAchievements = countAchievements,
                 TotalAchievementsByThisMonth = countAchievementsByThisMonth
             };
@@ -128,18 +128,18 @@ namespace Exoft.Gamification.Api.Services
         {
             var user = await _userRepository.GetByIdAsync(userId);
 
-            var countOfAchievements = await _userAchievementRepository.GetCountAchievementsByUserAsync(userId);
             var page = new PagingInfo
             {
                 CurrentPage = 1,
-                PageSize = countOfAchievements
+                PageSize = 0
             };
             var currentAchievements = (await _userAchievementRepository.GetAllAchievementsByUserAsync(page, userId)).Data.ToList();
-
             var achievementsGroups = currentAchievements.GroupBy(i => i.Achievement.Id);
+
             foreach (var achievementWithCount in model.Achievements)
             {
-                var achievementsGroup = achievementsGroups.FirstOrDefault(i => i.Key == achievementWithCount.AchievementId);
+                var achievementsGroup = achievementsGroups
+                    .FirstOrDefault(i => i.Key == achievementWithCount.AchievementId);
 
                 if (achievementsGroup == null)
                 {
@@ -147,6 +147,7 @@ namespace Exoft.Gamification.Api.Services
                     {
                         var achievement = await _achievementRepository.GetByIdAsync(achievementWithCount.AchievementId);
                         await AddAchievementToUser(achievement, user);
+                        await CreateEventAsync(user, $"Got achievement {achievement.Name}", GamificationEnums.EventType.Records);
                     }
                 }
                 else
@@ -155,15 +156,22 @@ namespace Exoft.Gamification.Api.Services
                     {
                         var achievement = achievementsGroup.First().Achievement;
                         await AddAchievementToUser(achievement, user);
+                        await CreateEventAsync(user, $"Got achievement {achievement.Name}", GamificationEnums.EventType.Records);
                     }
 
-                    for (int i = achievementsGroup.Count(); i > achievementWithCount.Count; i--)
+                    for (int i = achievementsGroup.Count(), j = 0; i > achievementWithCount.Count; i--, j++)
                     {
-                        var lastAchievement = achievementsGroup.OrderByDescending(a => a.AddedTime).First();
+                        var lastAchievement = achievementsGroup
+                            .OrderByDescending(a => a.AddedTime)
+                            .Skip(j)
+                            .First();
+
+                        lastAchievement.User.XP -= lastAchievement.Achievement.XP;
+                        lastAchievement.User.XP = lastAchievement.User.XP >= 0 ? lastAchievement.User.XP : 0;
+
+                        _userRepository.Update(lastAchievement.User);
 
                         _userAchievementRepository.Delete(lastAchievement);
-
-                        user.XP -= lastAchievement.Achievement.XP;
                     }
                 }
             }
@@ -181,9 +189,22 @@ namespace Exoft.Gamification.Api.Services
                 Achievement = achievement
             };
 
-            await _userAchievementRepository.AddAsync(userAchievement);
+            user.XP += achievement.XP;
 
-            user.XP += userAchievement.Achievement.XP;
+            _userRepository.Update(user);
+
+            await _userAchievementRepository.AddAsync(userAchievement);
+        }
+
+        private async Task CreateEventAsync(User user, string text, GamificationEnums.EventType type)
+        {
+            var eventEntity = new Event()
+            {
+                Description = text,
+                User = user,
+                Type = type
+            };
+            await _eventRepository.AddAsync(eventEntity);
         }
     }
 }

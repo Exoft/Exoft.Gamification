@@ -1,4 +1,12 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using System.Web;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
@@ -8,14 +16,9 @@ using Exoft.Gamification.Api.Services.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Services.Resources;
+
 using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace Exoft.Gamification.Api.Services
 {
@@ -30,6 +33,7 @@ namespace Exoft.Gamification.Api.Services
         private readonly IMapper _mapper;
         private readonly ICacheManager<Guid> _cache;
         private readonly IResetPasswordSettings _resetPasswordSettings;
+        private readonly IUserAchievementRepository _userAchievementRepository;
         private readonly IStringLocalizer<HtmlPages> _stringLocalizer;
 
         public AuthService
@@ -43,6 +47,7 @@ namespace Exoft.Gamification.Api.Services
             IMapper mapper,
             ICacheManager<Guid> cache,
             IResetPasswordSettings resetPasswordSettings,
+            IUserAchievementRepository userAchievementRepository,
             IStringLocalizer<HtmlPages> stringLocalizer
         )
         {
@@ -55,6 +60,7 @@ namespace Exoft.Gamification.Api.Services
             _mapper = mapper;
             _cache = cache;
             _resetPasswordSettings = resetPasswordSettings;
+            _userAchievementRepository = userAchievementRepository;
             _stringLocalizer = stringLocalizer;
         }
 
@@ -66,7 +72,7 @@ namespace Exoft.Gamification.Api.Services
             {
                 return null;
             }
-            
+
             var refreshToken = new RefreshToken()
             {
                 Token = Guid.NewGuid().ToString(),
@@ -74,12 +80,12 @@ namespace Exoft.Gamification.Api.Services
             };
             await _refreshTokenProvider.AddAsync(refreshToken);
 
-            return GetJwtToken(userEntity, refreshToken);
+            return await GetJwtToken(userEntity, refreshToken);
         }
 
         public async Task<JwtTokenModel> AuthenticateByEmailAsync(string email, string password)
         {
-             var userEntity = await _userRepository.GetByEmailAsync(email);
+            var userEntity = await _userRepository.GetByEmailAsync(email);
 
             if (userEntity == null || !_hasher.Compare(password, userEntity.Password))
             {
@@ -93,65 +99,31 @@ namespace Exoft.Gamification.Api.Services
             };
             await _refreshTokenProvider.AddAsync(refreshToken);
 
-            return GetJwtToken(userEntity, refreshToken);
+            return await GetJwtToken(userEntity, refreshToken);
         }
 
         public async Task<JwtTokenModel> RefreshTokenAsync(string refreshToken)
         {
             var refreshTokenFromDB = await _refreshTokenProvider.GetRefreshTokenInfo(refreshToken);
-            if(refreshTokenFromDB == null)
+            if (refreshTokenFromDB == null)
             {
                 return null;
             }
-            
+
             var userId = refreshTokenFromDB.UserId;
             var userEntity = await _userRepository.GetByIdAsync(userId);
-            if(userEntity == null)
+            if (userEntity == null)
             {
                 return null;
             }
 
-            return GetJwtToken(userEntity, refreshTokenFromDB);
-        }
-
-        private JwtTokenModel GetJwtToken(User user, RefreshToken refreshToken)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-            };
-
-            foreach (var item in user.Roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, item.Role.Name));
-            }
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.Add(_jwtSecret.TimeToExpireToken),
-                SigningCredentials = new SigningCredentials
-                (
-                    new SymmetricSecurityKey(_jwtSecret.Secret),
-                    SecurityAlgorithms.HmacSha256Signature
-                )
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            var jwtTokenModel = _mapper.Map<JwtTokenModel>(user);
-            jwtTokenModel.Token = tokenHandler.WriteToken(token);
-            jwtTokenModel.RefreshToken = refreshToken.Token;
-            jwtTokenModel.TokenExpiration = token.ValidTo.ConvertToIso8601DateTimeUtc();
-
-            return jwtTokenModel;
+            return await GetJwtToken(userEntity, refreshTokenFromDB);
         }
 
         public async Task<IResponse> SendForgotPasswordAsync(string email, Uri resetPasswordPageLink)
         {
             var user = await _userRepository.GetByEmailAsync(email);
-            if(user == null)
+            if (user == null)
             {
                 return new NotFoundResponse("Email is not found!");
             }
@@ -165,7 +137,7 @@ namespace Exoft.Gamification.Api.Services
                 TimeToExpire = _resetPasswordSettings.TimeToExpireSecretString
             };
             await _cache.AddAsync(cacheObject);
-            
+
             var uriBuilder = new UriBuilder(resetPasswordPageLink);
             var query = HttpUtility.ParseQueryString(uriBuilder.Query);
             query["secretString"] = temporaryRandomString;
@@ -183,15 +155,49 @@ namespace Exoft.Gamification.Api.Services
         public async Task<IResponse> ResetPasswordAsync(string secretString, string newPassword)
         {
             var userId = await _cache.GetByKeyAsync(secretString);
-            if(userId == default(Guid))
+            if (userId == default)
             {
                 return new NotFoundResponse("Current secretString expired or not found!");
             }
+
             await _cache.DeleteAsync(secretString);
-            
+
             await _userService.UpdatePasswordAsync(userId, newPassword);
 
             return new OkResponse();
+        }
+
+        private async Task<JwtTokenModel> GetJwtToken(User user, RefreshToken refreshToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var claims = new List<Claim>
+                             {
+                                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                             };
+
+            foreach (var item in user.Roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, item.Role.Name));
+            }
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.Add(_jwtSecret.TimeToExpireToken),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(_jwtSecret.Secret),
+                    SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            var jwtTokenModel = _mapper.Map<JwtTokenModel>(user);
+            jwtTokenModel.BadgesCount = await _userAchievementRepository.GetCountAchievementsByUserAsync(user.Id);
+            jwtTokenModel.Token = tokenHandler.WriteToken(token);
+            jwtTokenModel.RefreshToken = refreshToken.Token;
+            jwtTokenModel.TokenExpiration = token.ValidTo.ConvertToIso8601DateTimeUtc();
+
+            return jwtTokenModel;
         }
     }
 }

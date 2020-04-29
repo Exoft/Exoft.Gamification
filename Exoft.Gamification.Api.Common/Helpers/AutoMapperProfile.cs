@@ -1,10 +1,16 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
+using Exoft.Gamification.Api.Common.Models.Category;
+using Exoft.Gamification.Api.Common.Models.Order;
+using Exoft.Gamification.Api.Common.Models.RequestAchievement;
+using Exoft.Gamification.Api.Common.Models.RequestOrder;
 using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Entities;
-using System.Linq;
 
 namespace Exoft.Gamification.Api.Common.Helpers
 {
@@ -58,8 +64,14 @@ namespace Exoft.Gamification.Api.Common.Helpers
                 .ForMember(s => s.AvatarId, o => o.MapFrom(d => d.FromUser.AvatarId))
                 .ForMember(s => s.UserId, o => o.MapFrom(d => d.FromUser.Id));
 
-            // map to entity
+            CreateMap<Order, ReadOrderModel>()
+                .ConvertUsing<OrderToReadOrderModelConverter>();
 
+            CreateMap<Category, ReadCategoryModel>();
+
+            CreateMap<RequestOrder, ReadRequestOrderModel>();
+
+            // map to entity
             CreateMap<UpdateAchievementModel, Achievement>();
 
             CreateMap<CreateUserModel, User>()
@@ -68,7 +80,32 @@ namespace Exoft.Gamification.Api.Common.Helpers
 
             CreateMap<CreateThankModel, Thank>();
 
-            CreateMap<RequestAchievementModel, RequestAchievement>();
+            CreateMap<CreateRequestAchievementModel, RequestAchievement>();
+
+            CreateMap<CreateOrderModel, Order>();
+
+            CreateMap<CreateCategoryModel, Category>();
+
+            CreateMap<CreateRequestOrderModel, RequestOrder>();
+        }
+
+        public class OrderToReadOrderModelConverter : ITypeConverter<Order, ReadOrderModel>
+        {
+            public ReadOrderModel Convert(Order source, ReadOrderModel destination, ResolutionContext context)
+            {
+                return new ReadOrderModel
+                {
+                    Id = source.Id,
+                    Title = source.Title,
+                    Description = source.Description,
+                    Price = source.Price,
+                    Popularity = source.Popularity,
+                    IconId = source.IconId,
+                    Categories = source.Categories
+                        .Select(i => context.Mapper.Map<ReadCategoryModel>(i.Category))
+                        .ToList()
+                };
+            }
         }
     }
 }

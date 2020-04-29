@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Exoft.Gamification.Api.Common.Models
+namespace Exoft.Gamification.Api.Common.Models.RequestAchievement
 {
-    public class RequestAchievementModel
+    public class CreateRequestAchievementModel
     {
         public string Message { get; set; }
 
