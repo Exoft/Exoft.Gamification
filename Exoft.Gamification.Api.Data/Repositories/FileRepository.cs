@@ -16,10 +16,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public async Task Delete(Guid fileId)
         {
-            SqlParameter parameter = new SqlParameter("@fileId", fileId.ToString());
-            RawSqlString cmd = new RawSqlString("DELETE FROM Files WHERE Id=@fileId");
-
-            await Context.Database.ExecuteSqlCommandAsync(cmd, parameter);
+            await Context.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM Files WHERE Id = {fileId}");
         }
 
         protected override IQueryable<File> IncludeAll()
