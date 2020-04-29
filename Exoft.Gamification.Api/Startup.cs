@@ -36,14 +36,8 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-
-using Swashbuckle.AspNetCore.Swagger;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace Exoft.Gamification
@@ -76,10 +70,8 @@ namespace Exoft.Gamification
             })
             .AddNewtonsoftJson();
 
-            services.AddDbContext<UsersDbContext>
-            (
-                options => options.UseSqlServer(Configuration.GetConnectionString("DataConnection"))
-            );
+            services.AddDbContext<UsersDbContext>(
+                options => options.UseSqlServer(Configuration.GetConnectionString("DataConnection")));
 
             // configure DI for application services
             services.AddTransient<IUnitOfWork, UnitOfWork>();
@@ -227,6 +219,7 @@ namespace Exoft.Gamification
             });
 
             app.UseRouting();
+
             // global cors policy
             app.UseCors(x => x
                 .AllowAnyOrigin()
@@ -236,7 +229,8 @@ namespace Exoft.Gamification
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => {
+            app.UseEndpoints(endpoints =>
+            {
                 endpoints.MapControllers();
             });
         }

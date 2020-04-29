@@ -19,24 +19,30 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public override async Task<ReturnPagingInfo<Order>> GetAllDataAsync(PagingInfo pagingInfo)
         {
-            var query = IncludeAll().OrderByDescending(s => s.Popularity).AsQueryable();
-            if (pagingInfo.PageSize != 0)
-            {
-                query = query.Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
-                    .Take(pagingInfo.PageSize);
-            }
+            var take = pagingInfo.PageSize;
+            var skip = (pagingInfo.CurrentPage - 1) * pagingInfo.PageSize;
 
-            var items = await query.ToListAsync();
+            var query = IncludeAll()
+                .OrderByDescending(s => s.Popularity)
+                .Select(i => new
+                {
+                    Data = i,
+                    TotalCount = IncludeAll().Count()
+                });
 
-            int allItemsCount = await IncludeAll().CountAsync();
+            var entities = pagingInfo.PageSize != 0
+                               ? await query.Skip(skip).Take(take).ToListAsync()
+                               : await query.ToListAsync();
 
-            var result = new ReturnPagingInfo<Order>()
+            var totalCount = entities.First().TotalCount;
+
+            var result = new ReturnPagingInfo<Order>
             {
                 CurrentPage = pagingInfo.CurrentPage,
-                PageSize = items.Count,
-                TotalItems = allItemsCount,
-                TotalPages = (int)Math.Ceiling((double)allItemsCount / (pagingInfo.PageSize == 0 ? allItemsCount : pagingInfo.PageSize)),
-                Data = items
+                PageSize = entities.Count,
+                TotalItems = totalCount,
+                TotalPages = (int)Math.Ceiling((double)totalCount / (pagingInfo.PageSize == 0 ? totalCount : pagingInfo.PageSize)),
+                Data = entities.Select(i => i.Data).ToList()
             };
 
             return result;
