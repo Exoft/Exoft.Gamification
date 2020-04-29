@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Exoft.Gamification.Api.Data.Repositories
 {
+    // todo: check if mobile client use this logic.
     public class ArticleRepository : Repository<Article>, IArticleRepository
     {
         public ArticleRepository(UsersDbContext context) : base(context)

@@ -19,27 +19,31 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public override async Task<ReturnPagingInfo<RequestOrder>> GetAllDataAsync(PagingInfo pagingInfo)
         {
+            var take = pagingInfo.PageSize;
+            var skip = (pagingInfo.CurrentPage - 1) * pagingInfo.PageSize;
+
             var query = IncludeAll()
-                .Where(i => i.Status == GamificationEnums.RequestStatus.Pending)
+                .Where(s => s.Status == GamificationEnums.RequestStatus.Pending)
                 .OrderBy(s => s.Id)
-                .AsQueryable();
-            if (pagingInfo.PageSize != 0)
-            {
-                query = query.Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
-                    .Take(pagingInfo.PageSize);
-            }
+                .Select(i => new
+                {
+                    Data = i,
+                    TotalCount = IncludeAll().Count()
+                });
 
-            var items = await query.ToListAsync();
+            var entities = pagingInfo.PageSize != 0
+                               ? await query.Skip(skip).Take(take).ToListAsync()
+                               : await query.ToListAsync();
 
-            var allItemsCount = await IncludeAll().CountAsync();
+            var totalCount = entities.First().TotalCount;
 
-            var result = new ReturnPagingInfo<RequestOrder>()
+            var result = new ReturnPagingInfo<RequestOrder>
             {
                 CurrentPage = pagingInfo.CurrentPage,
-                PageSize = items.Count,
-                TotalItems = allItemsCount,
-                TotalPages = (int)Math.Ceiling((double)allItemsCount / (pagingInfo.PageSize == 0 ? allItemsCount : pagingInfo.PageSize)),
-                Data = items
+                PageSize = entities.Count,
+                TotalItems = totalCount,
+                TotalPages = (int)Math.Ceiling((double)totalCount / (pagingInfo.PageSize == 0 ? totalCount : pagingInfo.PageSize)),
+                Data = entities.Select(i => i.Data).ToList()
             };
 
             return result;

@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore;
+﻿using System;
+
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
+
 using NLog.Web;
-using System;
 
 namespace Exoft.Gamification
 {
@@ -19,7 +21,7 @@ namespace Exoft.Gamification
             }
             catch (Exception ex)
             {
-                //NLog: catch setup errors
+                // NLog: catch setup errors
                 logger.Error(ex, "Stopped program because of exception");
                 throw;
             }
@@ -36,6 +38,7 @@ namespace Exoft.Gamification
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
+                    logging.AddConsole();
                     logging.SetMinimumLevel(LogLevel.Trace);
                 })
                 .UseNLog();  // NLog: setup NLog for Dependency injection

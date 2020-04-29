@@ -18,28 +18,31 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public async Task<ReturnPagingInfo<UserAchievement>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid userId)
         {
+            var take = pagingInfo.PageSize;
+            var skip = (pagingInfo.CurrentPage - 1) * pagingInfo.PageSize;
+
             var query = IncludeAll()
-                .Where(o => o.User.Id == userId)
-                .OrderByDescending(i => i.AddedTime)
-                .AsQueryable();
+                .Where(i => i.User.Id == userId)
+                .OrderByDescending(s => s.AddedTime)
+                .Select(i => new
+                {
+                    Data = i,
+                    TotalCount = IncludeAll().Count()
+                });
 
-            if (pagingInfo.PageSize != 0)
-            {
-                query = query.Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
-                    .Take(pagingInfo.PageSize);
-            }
+            var entities = pagingInfo.PageSize != 0
+                               ? await query.Skip(skip).Take(take).ToListAsync()
+                               : await query.ToListAsync();
 
-            var items = await query.ToListAsync();
+            var totalCount = entities.First().TotalCount;
 
-            int itemsCount = await query.CountAsync();
-
-            var result = new ReturnPagingInfo<UserAchievement>()
+            var result = new ReturnPagingInfo<UserAchievement>
             {
                 CurrentPage = pagingInfo.CurrentPage,
-                PageSize = items.Count,
-                TotalItems = itemsCount,
-                TotalPages = (int)Math.Ceiling((double)itemsCount / (pagingInfo.PageSize == 0 ? itemsCount : pagingInfo.PageSize)),
-                Data = items
+                PageSize = entities.Count,
+                TotalItems = totalCount,
+                TotalPages = (int)Math.Ceiling((double)totalCount / (pagingInfo.PageSize == 0 ? totalCount : pagingInfo.PageSize)),
+                Data = entities.Select(i => i.Data).ToList()
             };
 
             return result;
