@@ -98,23 +98,24 @@ namespace Exoft.Gamification.Api.Services.Resources {
         ///    &lt;title&gt;Exoft Support&lt;/title&gt;
         ///    &lt;style&gt;
         ///        .container {
-        ///            width: 300px;
-        ///            height: 170px;
+        ///            width: 750px;
+        ///            height: 300px;
         ///            position: absolute;
         ///            padding: 20px;
-        ///            background-color: #3A3E46;
+        ///            background-color: white;
+        ///            color: black;
         ///        }
         ///
-        ///        h3, p {
+        ///        h1, p {
         ///            text-align: center;
-        ///            color: white;
+        ///            color: #69b518;
         ///        }
-        ///    &lt;/style&gt;
-        ///&lt;/head&gt;
-        ///&lt;body&gt;
-        ///    &lt;div class=&quot;container&quot;&gt;
-        ///        &lt;h3&gt;Hello {FirstName}!&lt;/h3&gt;
-        ///        &lt;p&gt;You are registe [rest of string was truncated]&quot;;.
+        ///
+        ///        .brd {
+        ///            border: 4px double black;
+        ///            padding: 10px;
+        ///        }
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
         public static string RegisterPage {
             get {
@@ -151,6 +152,38 @@ namespace Exoft.Gamification.Api.Services.Resources {
         public static string RequestAchievementPage {
             get {
                 return ResourceManager.GetString("RequestAchievementPage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
+        ///&lt;html&gt;
+        ///&lt;head&gt;
+        ///    &lt;meta charset=&quot;utf-8&quot; /&gt;
+        ///    &lt;title&gt;Request order&lt;/title&gt;
+        ///    &lt;style&gt;
+        ///        .container {
+        ///            width: 300px;
+        ///            height: 170px;
+        ///            position: absolute;
+        ///            padding: 20px;
+        ///            background-color: #3A3E46;
+        ///        }
+        ///
+        ///        h3, p {
+        ///            text-align: center;
+        ///            color: white;
+        ///        }
+        ///    &lt;/style&gt;
+        ///&lt;/head&gt;
+        ///&lt;body&gt;
+        ///    &lt;div class=&quot;container&quot;&gt;
+        ///        &lt;h3&gt;Hello!&lt;/h3&gt;
+        ///        &lt;p&gt;User {userLastName} {userFi [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string RequestOrderPage {
+            get {
+                return ResourceManager.GetString("RequestOrderPage", resourceCulture);
             }
         }
     }

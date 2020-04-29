@@ -1,6 +1,7 @@
-﻿using Exoft.Gamification.Api.Common.Models;
+﻿using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Helpers;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services.Interfaces.Services
 {
