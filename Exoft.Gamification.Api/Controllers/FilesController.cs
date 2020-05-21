@@ -1,7 +1,9 @@
-﻿using Exoft.Gamification.Api.Services.Interfaces.Services;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Services.Interfaces.Services;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace Exoft.Gamification.Api.Controllers
 {
@@ -16,11 +18,16 @@ namespace Exoft.Gamification.Api.Controllers
             _fileService = fileService;
         }
 
+        /// <summary>
+        /// Get file stream
+        /// </summary>
+        /// <responce code="200">Return file stream</responce>
+        /// <response code="404">When file with current Id is not found</response> 
         [HttpGet("{fileId}")]
         public async Task<IActionResult> GetFile(Guid fileId)
         {
             var file = await _fileService.GetFileByIdAsync(fileId);
-            if(file == null)
+            if (file == null)
             {
                 return NotFound();
             }

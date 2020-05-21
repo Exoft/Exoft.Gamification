@@ -70,6 +70,15 @@ namespace Exoft.Gamification.Api.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Category is not found.
+        /// </summary>
+        public static string CategoryNotFound {
+            get {
+                return ResourceManager.GetString("CategoryNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {PropertyName} should not be empty.
         /// </summary>
         public static string EmptyField {
@@ -111,6 +120,15 @@ namespace Exoft.Gamification.Api.Resources {
         public static string OldPassword {
             get {
                 return ResourceManager.GetString("OldPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Order is not found.
+        /// </summary>
+        public static string OrderNotFound {
+            get {
+                return ResourceManager.GetString("OrderNotFound", resourceCulture);
             }
         }
         

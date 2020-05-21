@@ -1,18 +1,18 @@
-﻿using Exoft.Gamification.Api.Data.Core.Entities;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
+
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data.Repositories
 {
     public abstract class Repository<T> : IRepository<T> where T : Entity
     {
-        public Repository(UsersDbContext context)
+        protected Repository(UsersDbContext context)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
 
@@ -20,12 +20,8 @@ namespace Exoft.Gamification.Api.Data.Repositories
         }
 
         protected DbSet<T> DbSet { get; }
-        protected UsersDbContext Context { get; }
 
-        public T GetById(Guid id)
-        {
-            return IncludeAll().SingleOrDefault(i => i.Id == id);
-        }
+        protected UsersDbContext Context { get; }
 
         public async Task<T> GetByIdAsync(Guid id)
         {
@@ -64,39 +60,35 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public virtual async Task<ReturnPagingInfo<T>> GetAllDataAsync(PagingInfo pagingInfo)
         {
-            var query = IncludeAll().OrderBy(s => s.Id).AsQueryable();
-            if (pagingInfo.PageSize != 0)
-            {
-                query = query.Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
-                    .Take(pagingInfo.PageSize);
-            }
+            var take = pagingInfo.PageSize;
+            var skip = (pagingInfo.CurrentPage - 1) * pagingInfo.PageSize;
 
-            var items = await query.ToListAsync();
+            var query = IncludeAll()
+                .OrderBy(s => s.Id)
+                .Select(i => new
+                {
+                    Data = i, 
+                    TotalCount = IncludeAll().Count()
+                });
 
-            int allItemsCount = await IncludeAll().CountAsync();
+            var entities = pagingInfo.PageSize != 0
+                               ? await query.Skip(skip).Take(take).ToListAsync()
+                               : await query.ToListAsync();
 
-            var result = new ReturnPagingInfo<T>()
+            var totalCount = entities.First().TotalCount;
+
+            var result = new ReturnPagingInfo<T>
             {
                 CurrentPage = pagingInfo.CurrentPage,
-                PageSize = items.Count,
-                TotalItems = allItemsCount,
-                TotalPages = (int)Math.Ceiling((double)allItemsCount / (pagingInfo.PageSize == 0 ? allItemsCount : pagingInfo.PageSize)),
-                Data = items
+                PageSize = entities.Count,
+                TotalItems = totalCount,
+                TotalPages = (int)Math.Ceiling((double)totalCount / (pagingInfo.PageSize == 0 ? totalCount : pagingInfo.PageSize)),
+                Data = entities.Select(i => i.Data).ToList()
             };
 
             return result;
         }
 
         protected abstract IQueryable<T> IncludeAll();
-
-        public void AddRangeAsync(IEnumerable<T> entities)
-        {
-            Context.Set<T>().AddRange(entities);
-        }
-
-        public void UpdateRange(IEnumerable<T> entities)
-        {
-            Context.Set<T>().UpdateRange(entities);
-        }
     }
 }

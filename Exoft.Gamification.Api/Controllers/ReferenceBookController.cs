@@ -1,13 +1,16 @@
-﻿using Exoft.Gamification.Api.Common.Models.ReferenceBook;
+﻿using System;
+using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Common.Models.ReferenceBook;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
 {
+    // todo: check if mobile client use this logic.
     [Route("api/reference-book")]
     [Authorize]
     [ApiController]
@@ -41,6 +44,7 @@ namespace Exoft.Gamification.Api.Controllers
             {
                 return NoContent();
             }
+
             return BadRequest();
         }
 
@@ -57,6 +61,7 @@ namespace Exoft.Gamification.Api.Controllers
             {
                 return NoContent();
             }
+
             return BadRequest();
         }
 
@@ -73,6 +78,7 @@ namespace Exoft.Gamification.Api.Controllers
             {
                 return NoContent();
             }
+
             return BadRequest();
         }
 

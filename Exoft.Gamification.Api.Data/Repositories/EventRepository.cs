@@ -1,10 +1,12 @@
-﻿using Exoft.Gamification.Api.Data.Core.Entities;
-using Exoft.Gamification.Api.Data.Core.Helpers;
-using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Data.Core.Entities;
+using Exoft.Gamification.Api.Data.Core.Helpers;
+using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace Exoft.Gamification.Api.Data.Repositories
 {
@@ -16,24 +18,30 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         public override async Task<ReturnPagingInfo<Event>> GetAllDataAsync(PagingInfo pagingInfo)
         {
-            var query = IncludeAll().OrderBy(s => s.CreatedTime).AsQueryable();
-            if (pagingInfo.PageSize != 0)
-            {
-                query = query.Skip((pagingInfo.CurrentPage - 1) * pagingInfo.PageSize)
-                    .Take(pagingInfo.PageSize);
-            }
+            var take = pagingInfo.PageSize;
+            var skip = (pagingInfo.CurrentPage - 1) * pagingInfo.PageSize;
 
-            var items = await query.ToListAsync();
+            var query = IncludeAll()
+                .OrderByDescending(s => s.CreatedTime)
+                .Select(i => new
+                {
+                    Data = i,
+                    TotalCount = IncludeAll().Count()
+                });
 
-            int allItemsCount = await IncludeAll().CountAsync();
+            var entities = pagingInfo.PageSize != 0
+                               ? await query.Skip(skip).Take(take).ToListAsync()
+                               : await query.ToListAsync();
 
-            var result = new ReturnPagingInfo<Event>()
+            var totalCount = entities.First().TotalCount;
+
+            var result = new ReturnPagingInfo<Event>
             {
                 CurrentPage = pagingInfo.CurrentPage,
-                PageSize = items.Count,
-                TotalItems = allItemsCount,
-                TotalPages = (int)Math.Ceiling((double)allItemsCount / (pagingInfo.PageSize == 0 ? allItemsCount : pagingInfo.PageSize)),
-                Data = items
+                PageSize = entities.Count,
+                TotalItems = totalCount,
+                TotalPages = (int)Math.Ceiling((double)totalCount / (pagingInfo.PageSize == 0 ? totalCount : pagingInfo.PageSize)),
+                Data = entities.Select(i => i.Data).ToList()
             };
 
             return result;

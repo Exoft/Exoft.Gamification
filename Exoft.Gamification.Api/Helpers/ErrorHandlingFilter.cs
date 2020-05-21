@@ -1,6 +1,5 @@
 ﻿using Exoft.Gamification.Api.Common.Helpers;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -25,7 +24,7 @@ namespace Exoft.Gamification.Api.Helpers
             _logger = logger;
         }
 
-        public override void OnException(ExceptionContext context)
+        public override async void OnException(ExceptionContext context)
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append(string.Format("\r\n ---> QueryString: {0}", 
@@ -35,13 +34,13 @@ namespace Exoft.Gamification.Api.Helpers
 
             
             // if body
-            context.HttpContext.Request.EnableRewind();
+            context.HttpContext.Request.EnableBuffering();
             context.HttpContext.Request.Body.Seek(0, SeekOrigin.Begin);
 
             JObject jsonData = new JObject();
             using (StreamReader stream = new StreamReader(context.HttpContext.Request.Body))
             {
-                string body = stream.ReadToEnd();
+                string body = await stream.ReadToEndAsync();
                 if(!string.IsNullOrEmpty(body))
                 {
                     jsonData = JObject.Parse(body);
@@ -77,14 +76,14 @@ namespace Exoft.Gamification.Api.Helpers
             var excludedProperties = modelType.GetProperties().Where(prop =>
                                         IsDefined(prop, typeof(NonLoggedAttribute)));
 
-            if(excludedProperties.Count() == 0)
+            if(!excludedProperties.Any())
             {
                 return json;
             }
 
-            foreach (var propertyForExlude in excludedProperties)
+            foreach (var propertyForExclude in excludedProperties)
             {
-                var jToken = json.GetValue(propertyForExlude.Name, System.StringComparison.OrdinalIgnoreCase);
+                var jToken = json.GetValue(propertyForExclude.Name, System.StringComparison.OrdinalIgnoreCase);
 
                 if(jToken != null)
                 {

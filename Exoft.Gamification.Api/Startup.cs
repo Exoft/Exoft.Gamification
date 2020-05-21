@@ -1,7 +1,16 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
+using Exoft.Gamification.Api.Common.Models.Category;
+using Exoft.Gamification.Api.Common.Models.Order;
+using Exoft.Gamification.Api.Common.Models.RequestAchievement;
+using Exoft.Gamification.Api.Common.Models.RequestOrder;
 using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data;
@@ -16,21 +25,20 @@ using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Validators;
+
 using FluentValidation;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Swashbuckle.AspNetCore.Swagger;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using Microsoft.AspNetCore.DataProtection;
+using Microsoft.OpenApi.Models;
 
 namespace Exoft.Gamification
 {
@@ -50,21 +58,20 @@ namespace Exoft.Gamification
                 .PersistKeysToFileSystem(new DirectoryInfo(@".\server\share\"));
 
             services.AddCors();
-            services.AddMvc(options =>
+            services.AddControllers(options =>
             {
+                options.EnableEndpointRouting = true;
                 options.Filters.Add<ErrorHandlingFilter>();
             })
-                .AddDataAnnotationsLocalization(options =>
-                {
-                    options.DataAnnotationLocalizerProvider = (type, factory) =>
-                        factory.Create(typeof(ValidatorMessages));
-                })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            .AddDataAnnotationsLocalization(options =>
+            {
+                options.DataAnnotationLocalizerProvider = (type, factory) =>
+                    factory.Create(typeof(ValidatorMessages));
+            })
+            .AddNewtonsoftJson();
 
-            services.AddDbContext<UsersDbContext>
-            (
-                options => options.UseSqlServer(Configuration.GetConnectionString("DataConnection"))
-            );
+            services.AddDbContext<UsersDbContext>(
+                options => options.UseSqlServer(Configuration.GetConnectionString("DataConnection")));
 
             // configure DI for application services
             services.AddTransient<IUnitOfWork, UnitOfWork>();
@@ -92,6 +99,9 @@ namespace Exoft.Gamification
             services.AddScoped<IRequestAchievementService, RequestAchievementService>();
             services.AddScoped<IReferenceBookService, ReferenceBookService>();
             services.AddScoped<IPushNotificationService, PushNotificationService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IRequestOrderService, RequestOrderService>();
 
             // Repositories
             services.AddTransient<IUserRepository, UserRepository>();
@@ -104,6 +114,9 @@ namespace Exoft.Gamification
             services.AddTransient<IRequestAchievementRepository, RequestAchievementRepository>();
             services.AddTransient<IArticleRepository, ArticleRepository>();
             services.AddTransient<IChapterRepository, ChapterRepository>();
+            services.AddTransient<IOrderRepository, OrderRepository>();
+            services.AddTransient<ICategoryRepository, CategoryRepository>();
+            services.AddTransient<IRequestOrderRepository, RequestOrderRepository>();
 
             // Validators
             services.AddTransient<IValidator<CreateUserModel>, CreateUserModelValidator>();
@@ -114,9 +127,15 @@ namespace Exoft.Gamification
             services.AddTransient<IValidator<CreateThankModel>, CreateThankModelValidator>();
             services.AddTransient<IValidator<ResetPasswordModel>, ResetPasswordModelValidator>();
             services.AddTransient<IValidator<RequestResetPasswordModel>, RequestResetPasswordModelValidator>();
-            services.AddTransient<IValidator<RequestAchievementModel>, RequestAchievementModelValidator>();
+            services.AddTransient<IValidator<CreateRequestAchievementModel>, CreateRequestAchievementModelValidator>();
             services.AddTransient<IValidator<PushRequestModel>, PushRequestModelValidator>();
             services.AddTransient<IValidator<ChangePasswordModel>, ChangePasswordModelValidator>();
+            services.AddTransient<IValidator<PagingInfo>, PagingInfoValidator>();
+            services.AddTransient<IValidator<CreateOrderModel>, CreateOrderModelValidator>();
+            services.AddTransient<IValidator<UpdateOrderModel>, UpdateOrderModelValidator>();
+            services.AddTransient<IValidator<CreateCategoryModel>, CreateCategoryModelValidator>();
+            services.AddTransient<IValidator<UpdateCategoryModel>, UpdateCategoryModelValidator>();
+            services.AddTransient<IValidator<CreateRequestOrderModel>, CreateRequestOrderModelValidator>();
 
             // AutoMapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -148,26 +167,37 @@ namespace Exoft.Gamification
             // Swagger configuration
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "Gamification", Version = "0.0.0.1" });
-                
-                var security = new Dictionary<string, IEnumerable<string>>
-                {
-                    {"Bearer", new string[] { }},
-                };
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Gamification", Version = "0.0.0.1" });
 
-                c.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = "Example: \"Bearer {token}\"",
                     Name = "Authorization",
-                    In = "header",
-                    Type = "apiKey"
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey
                 });
-                c.AddSecurityRequirement(security);
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                        Reference = new OpenApiReference
+                            {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
+                        },
+                        new List<string>()
+                    }
+                });
             });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
@@ -180,7 +210,6 @@ namespace Exoft.Gamification
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
             }
 
             app.UseSwagger();
@@ -189,6 +218,8 @@ namespace Exoft.Gamification
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Gamification.Api");
             });
 
+            app.UseRouting();
+
             // global cors policy
             app.UseCors(x => x
                 .AllowAnyOrigin()
@@ -196,8 +227,12 @@ namespace Exoft.Gamification
                 .AllowAnyHeader());
 
             app.UseAuthentication();
+            app.UseAuthorization();
 
-            app.UseMvc();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }

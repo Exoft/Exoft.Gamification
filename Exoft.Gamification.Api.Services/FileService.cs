@@ -1,9 +1,11 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Threading.Tasks;
+
+using AutoMapper;
+
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
-using System;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services
 {
@@ -22,11 +24,11 @@ namespace Exoft.Gamification.Api.Services
             _mapper = mapper;
         }
 
-        public async Task<FileModel> GetFileByIdAsync(Guid Id)
+        public async Task<FileModel> GetFileByIdAsync(Guid id)
         {
-            var file = await _fileRepository.GetByIdAsync(Id);
+            var file = await _fileRepository.GetByIdAsync(id);
 
             return _mapper.Map<FileModel>(file);
-        } 
+        }
     }
 }

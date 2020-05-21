@@ -1,12 +1,15 @@
-﻿using Exoft.Gamification.Api.Common.Models.User;
+﻿using System;
+using System.Threading.Tasks;
+
+using Exoft.Gamification.Api.Common.Models.User;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
+
 using FluentValidation;
 using FluentValidation.AspNetCore;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
 {
@@ -18,26 +21,38 @@ namespace Exoft.Gamification.Api.Controllers
         private readonly IUserService _userService;
         private readonly IValidator<CreateUserModel> _createUserModelValidator;
         private readonly IValidator<UpdateFullUserModel> _updateFullUserModelValidator;
+        private readonly IValidator<PagingInfo> _pagingInfoValidator;
 
         public UsersController
         (
             IUserService userService,
             IValidator<CreateUserModel> createUserModelValidator,
-            IValidator<UpdateFullUserModel> updateFullUserModelValidator
+            IValidator<UpdateFullUserModel> updateFullUserModelValidator,
+            IValidator<PagingInfo> pagingInfoValidator
         )
         {
             _userService = userService;
             _createUserModelValidator = createUserModelValidator;
             _updateFullUserModelValidator = updateFullUserModelValidator;
+            _pagingInfoValidator = pagingInfoValidator;
         }
 
         /// <summary>
         /// Get paged list of users with short info
         /// </summary>
-        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of users</responce> 
+        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of users</responce>
+        /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpGet("with-short-info")]
         public async Task<IActionResult> GetUsersShortInfoAsync([FromQuery] PagingInfo pagingInfo)
         {
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
             var allItems = await _userService.GetAllUsersWithShortInfoAsync(pagingInfo);
 
             return Ok(allItems);
@@ -46,10 +61,19 @@ namespace Exoft.Gamification.Api.Controllers
         /// <summary>
         /// Get paged list of users with full info
         /// </summary>
-        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of users</responce> 
+        /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of users</responce>
+        /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpGet("with-full-info")]
         public async Task<IActionResult> GetUsersFullInfoAsync([FromQuery] PagingInfo pagingInfo)
         {
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
             var allItems = await _userService.GetAllUsersWithFullInfoAsync(pagingInfo);
 
             return Ok(allItems);
@@ -101,7 +125,8 @@ namespace Exoft.Gamification.Api.Controllers
         /// <summary>
         /// Update user
         /// </summary>
-        /// <responce code="200">Return the updated user</responce> 
+        /// <responce code="200">Return the updated user</responce>
+        /// <response code="403">When user don't have permissions to this action</response>
         /// <responce code="404">When the user does not exist</responce> 
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [Authorize(Roles = GamificationRole.Admin)]
@@ -150,11 +175,21 @@ namespace Exoft.Gamification.Api.Controllers
         /// <summary>
         /// Get all users
         /// </summary>
-        /// <responce code="200">Return users</responce> 
+        /// <responce code="200">Return users</responce>
+        /// <response code="403">When user don't have permissions to this action</response>
+        /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [HttpGet("get-all")]
         [Authorize(Roles = GamificationRole.Admin)]
         public async Task<ActionResult> GetAllUsers([FromQuery] PagingInfo pagingInfo)
         {
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            resultValidation.AddToModelState(ModelState, null);
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
             var users = await _userService.GetAllUsersWithFullInfoAsync(pagingInfo);
 
             return Ok(users);

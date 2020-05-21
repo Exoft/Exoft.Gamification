@@ -4,7 +4,7 @@ namespace Exoft.Gamification.Api.Data.Core.Entities
 {
     public abstract class Entity
     {
-        public Entity()
+        protected Entity()
         {
             Id = Guid.NewGuid();
         }
