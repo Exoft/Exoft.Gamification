@@ -104,26 +104,25 @@ namespace Exoft.Gamification.Api.Test
             var userAchievement = UserAchievementDumbData.GetRandomEntity();
 
             var countAchievementsByUser = RandomHelper.GetRandomNumber();
-            var summary = RandomHelper.GetRandomNumber();
             var countAchievementsByMonth = RandomHelper.GetRandomNumber();
             var expectedValue = new AchievementsInfoModel
             {
                 TotalAchievements = countAchievementsByUser,
-                TotalXP = summary,
+                TotalXP = userAchievement.User.XP,
                 TotalAchievementsByThisMonth = countAchievementsByMonth
             };
 
             _userAchievementRepository.Setup(x => x.GetCountAchievementsByUserAsync(It.IsAny<Guid>())).ReturnsAsync(countAchievementsByUser);
-            _userAchievementRepository.Setup(x => x.GetSummaryXpByUserAsync(It.IsAny<Guid>())).ReturnsAsync(summary);
             _userAchievementRepository.Setup(x => x.GetCountAchievementsByThisMonthAsync(It.IsAny<Guid>())).ReturnsAsync(countAchievementsByMonth);
+            _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(userAchievement.User));
 
             // Act
             var response = await userAchievementService.GetAchievementsInfoByUserAsync(userId);
 
             // Assert
             _userAchievementRepository.Verify(x => x.GetCountAchievementsByUserAsync(It.IsAny<Guid>()), Times.Once);
-            _userAchievementRepository.Verify(x => x.GetSummaryXpByUserAsync(It.IsAny<Guid>()), Times.Once);
             _userAchievementRepository.Verify(x => x.GetCountAchievementsByThisMonthAsync(It.IsAny<Guid>()), Times.Once);
+            _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
 
             response.Should().BeEquivalentTo(expectedValue);
         }

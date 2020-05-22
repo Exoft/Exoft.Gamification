@@ -30,9 +30,9 @@ namespace Exoft.Gamification.Api.Test.DumbData
             return list;
         }
 
-        public static RequestAchievementModel GetRequestAchievementModel(Guid achievementId = new Guid())
+        public static CreateRequestAchievementModel GetRequestAchievementModel(Guid achievementId = new Guid())
         {
-            return new RequestAchievementModel
+            return new CreateRequestAchievementModel
             {
                 AchievementId = achievementId,
                 Message = RandomHelper.GetRandomString(100)

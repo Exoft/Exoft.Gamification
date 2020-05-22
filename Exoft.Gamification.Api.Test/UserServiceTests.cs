@@ -193,7 +193,7 @@ namespace Exoft.Gamification.Api.Test
             var expectedUser = UserDumbData.GetRandomEntity();
             var badgetCount = RandomHelper.GetRandomNumber();
             var expectedValue = _mapper.Map<ReadFullUserModel>(expectedUser);
-            expectedValue.BadgetCount = badgetCount;
+            expectedValue.BadgesCount = badgetCount;
 
             _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(expectedUser));
             _userAchievementRepository.Setup(x => x.GetCountAchievementsByUserAsync(It.IsAny<Guid>())).ReturnsAsync(badgetCount);

@@ -20,6 +20,8 @@ namespace Exoft.Gamification.Api.Test
     public class AchievementServiceTests
     {
         private Mock<IFileRepository> _fileRepository;
+        private Mock<IUserRepository> _userRepository;
+        private Mock <IUserAchievementRepository> _userAchievementRepository;
         private Mock<IAchievementRepository> _achievementRepository;
         private IMapper _mapper;
         private Mock<IUnitOfWork> _unitOfWork;
@@ -37,8 +39,10 @@ namespace Exoft.Gamification.Api.Test
 
             _unitOfWork = new Mock<IUnitOfWork>();
             _achievementRepository = new Mock<IAchievementRepository>();
+            _userRepository = new Mock<IUserRepository>();
+            _userAchievementRepository = new Mock<IUserAchievementRepository>();
 
-            _achievementService = new AchievementService( _achievementRepository.Object, _fileRepository.Object,
+            _achievementService = new AchievementService( _userRepository.Object, _userAchievementRepository.Object, _achievementRepository.Object, _fileRepository.Object,
                 _mapper, _unitOfWork.Object);
         }
 
@@ -102,9 +106,14 @@ namespace Exoft.Gamification.Api.Test
         {
             //Arrange
             var achievement = AchievementDumbData.GetEntity(model);
+            var user = UserDumbData.GetRandomEntity();
+            var userAchievements = UserAchievementDumbData.GetRandomEntities(5, user, achievement);
+            var returnPagingInfo = ReturnPagingInfoDumbData.GetForModel(new PagingInfo(), userAchievements);
             var expectedValue = _mapper.Map<ReadAchievementModel>(achievement);
 
             _achievementRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(achievement));
+            _userAchievementRepository.Setup(x => x.GetAllUsersByAchievementAsync(It.IsAny<PagingInfo>(), It.IsAny<Guid>())).Returns(Task.FromResult(returnPagingInfo));
+            _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(user));
             _achievementRepository.Setup(x => x.Update(It.IsAny<Achievement>()));
             _fileRepository.Setup(x => x.Delete(It.IsAny<Guid>())).Returns(Task.CompletedTask);
             _fileRepository.Setup(x => x.AddAsync(It.IsAny<File>())).Returns(Task.CompletedTask);

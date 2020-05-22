@@ -59,7 +59,7 @@ namespace Exoft.Gamification.Api.Test
         }
 
         [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.ValidRequestAchievementModels))]
-        public async Task AddAsync_ValidRequestAchievementModel_ReturnsIResponse(RequestAchievementModel model)
+        public async Task AddAsync_ValidRequestAchievementModel_ReturnsIResponse(CreateRequestAchievementModel model)
         {
             //Arrange
             var user = UserDumbData.GetRandomEntity();
