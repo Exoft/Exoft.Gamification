@@ -93,5 +93,16 @@ namespace Exoft.Gamification.Api.Test.TestData
             new TestCaseData(ArticleDumbData.GetRandomCreateChapterModel()),
             new TestCaseData(ArticleDumbData.GetRandomCreateChapterModel())
         };
+
+        public static readonly TestCaseData[] ValidCreateCategoryModels = new TestCaseData[]
+        {
+            new TestCaseData(CategoryDumbData.GetRandomCreateCategoryModel())
+        };
+
+        public static readonly TestCaseData[] ValidUpdateCategoryModels = new TestCaseData[]
+        {
+            new TestCaseData(CategoryDumbData.GetRandomUpdateCategoryModel()),
+            new TestCaseData(CategoryDumbData.GetRandomUpdateCategoryModel())
+        };
     }
 }
