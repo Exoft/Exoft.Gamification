@@ -65,7 +65,7 @@ namespace Exoft.Gamification.Api.Test
         public async Task AddCategoryAsync_PagingInfo_ReturnsReturnPagingInfo_ReadCategoryModel(CreateCategoryModel model)
         {
             //Arrange
-            var expectedValue = CategoryDumbData.GetReadAchievementModel(model);
+            var expectedValue = CategoryDumbData.GetReadCategoryModel(model);
 
             _fileRepository.Setup(x => x.AddAsync(It.IsAny<File>())).Returns(Task.CompletedTask);
             _categoryRepository.Setup(x => x.AddAsync(It.IsAny<Category>())).Returns(Task.FromResult(expectedValue));

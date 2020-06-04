@@ -11,7 +11,6 @@ namespace Exoft.Gamification.Api.Test.DumbData
     {
         public static Category GetRandomEntity()
         {
-            var rnd = new Random();
             return new Category
             {
                 Name = RandomHelper.GetRandomString(20)
@@ -28,7 +27,16 @@ namespace Exoft.Gamification.Api.Test.DumbData
             return list;
         }
 
-        public static ReadCategoryModel GetReadAchievementModel(CreateCategoryModel model)
+        public static ReadCategoryModel GetRandomReadCategoryModel()
+        {
+            return new ReadCategoryModel
+            {
+                Id = Guid.NewGuid(),
+                Name = RandomHelper.GetRandomString(20)
+            };
+        }
+
+        public static ReadCategoryModel GetReadCategoryModel(CreateCategoryModel model)
         {
             return new ReadCategoryModel
             {
