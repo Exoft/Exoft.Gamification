@@ -116,5 +116,11 @@ namespace Exoft.Gamification.Api.Test.TestData
             new TestCaseData(OrderDumbData.GetUpdateOrderModel()),
             new TestCaseData(OrderDumbData.GetUpdateOrderModel())
         };
+
+        public static readonly TestCaseData[] ValidCreateRequestOrderModels = new TestCaseData[]
+        {
+            new TestCaseData(RequestOrderDumbData.GetCreateRequestOrderModel(), Guid.Parse("3d26662f-d257-4a53-a71f-12be80cf07bb")),
+            new TestCaseData(RequestOrderDumbData.GetCreateRequestOrderModel(), Guid.Parse("dd663aa2-08a4-4fa4-b032-2fd9aa0e4924"))
+        };
     }
 }

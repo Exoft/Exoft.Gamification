@@ -1,10 +1,8 @@
-﻿using Exoft.Gamification.Api.Common.Models.Category;
-using Exoft.Gamification.Api.Common.Models.Order;
+﻿using Exoft.Gamification.Api.Common.Models.Order;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Test.TestData;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Exoft.Gamification.Api.Test.DumbData
 {
@@ -17,7 +15,7 @@ namespace Exoft.Gamification.Api.Test.DumbData
                 Description = RandomHelper.GetRandomString(200),
                 Popularity = RandomHelper.GetRandomNumber(),
                 Price = RandomHelper.GetRandomNumber(),
-                Title = RandomHelper.GetRandomString(20),
+                Title = RandomHelper.GetRandomString(),
                 Categories = new List<OrderCategory>()
             };
             order.Categories.Add(new OrderCategory 
@@ -65,7 +63,7 @@ namespace Exoft.Gamification.Api.Test.DumbData
                 },
                 Description = RandomHelper.GetRandomString(200),
                 Price = RandomHelper.GetRandomNumber(),
-                Title = RandomHelper.GetRandomString(20)
+                Title = RandomHelper.GetRandomString()
             };
         }
 
@@ -80,7 +78,7 @@ namespace Exoft.Gamification.Api.Test.DumbData
                 },
                 Description = RandomHelper.GetRandomString(200),
                 Price = RandomHelper.GetRandomNumber(),
-                Title = RandomHelper.GetRandomString(20)
+                Title = RandomHelper.GetRandomString()
             };
         }
 
