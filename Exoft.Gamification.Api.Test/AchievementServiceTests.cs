@@ -32,15 +32,14 @@ namespace Exoft.Gamification.Api.Test
         public void SetUp()
         {
             _fileRepository = new Mock<IFileRepository>();
+            _achievementRepository = new Mock<IAchievementRepository>();
+            _userRepository = new Mock<IUserRepository>();
+            _userAchievementRepository = new Mock<IUserAchievementRepository>();
+            _unitOfWork = new Mock<IUnitOfWork>();
 
             var myProfile = new AutoMapperProfile();
             var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
             _mapper = new Mapper(configuration);
-
-            _unitOfWork = new Mock<IUnitOfWork>();
-            _achievementRepository = new Mock<IAchievementRepository>();
-            _userRepository = new Mock<IUserRepository>();
-            _userAchievementRepository = new Mock<IUserAchievementRepository>();
 
             _achievementService = new AchievementService( _userRepository.Object, _userAchievementRepository.Object, _achievementRepository.Object, _fileRepository.Object,
                 _mapper, _unitOfWork.Object);

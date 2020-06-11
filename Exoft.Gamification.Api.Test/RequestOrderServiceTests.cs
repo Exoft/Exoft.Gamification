@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Test
 {
+    [TestFixture]
     public class RequestOrderServiceTests
     {
         private Mock<IOrderRepository> _orderRepository;
@@ -33,7 +34,7 @@ namespace Exoft.Gamification.Api.Test
         private Mock<IEmailService> _emailService;
         private IMapper _mapper;
 
-        private RequestOrderService _requestOrderService;
+        private IRequestOrderService _requestOrderService;
 
         [SetUp]
         public void SetUp()

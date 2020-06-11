@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
-using Exoft.Gamification.Api.Common.Models.Achievement;
 using Exoft.Gamification.Api.Common.Models.Category;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
@@ -13,12 +12,11 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Test
 {
+    [TestFixture]
     public class CategoryServiceTests
     {
         private Mock<ICategoryRepository> _categoryRepository;

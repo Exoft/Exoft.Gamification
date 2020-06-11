@@ -33,32 +33,35 @@ namespace Exoft.Gamification.Api.Test
         private Mock<IEmailService> _emailService;
         private Mock<IUserAchievementRepository> _userAchievementRepository;
 
+        private IUserService _userService;
+
         [SetUp]
         public void SetUp()
         {
             _userRepository = new Mock<IUserRepository>();
             _fileRepository = new Mock<IFileRepository>();
             _roleRepository = new Mock<IRoleRepository>();
-
-            var myProfile = new AutoMapperProfile();
-            var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
-            _mapper = new Mapper(configuration);
+            _userAchievementRepository = new Mock<IUserAchievementRepository>();
 
             _unitOfWork = new Mock<IUnitOfWork>();
             _hasher = new Mock<IPasswordHasher>();
 
             _stringLocalizer = new Mock<IStringLocalizer<HtmlPages>>();
             _emailService = new Mock<IEmailService>();
-            _userAchievementRepository = new Mock<IUserAchievementRepository>();
+
+            var myProfile = new AutoMapperProfile();
+            var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
+            _mapper = new Mapper(configuration);
+
+            _userService = new UserService(_userRepository.Object, _fileRepository.Object, _roleRepository.Object,
+                _mapper, _unitOfWork.Object, _hasher.Object, _stringLocalizer.Object,
+                _emailService.Object, _userAchievementRepository.Object);
         }
 
         [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.ValidCreateUserModels))]
         public async Task AddUserAsync_ValidCreateUserModels_ReturnsReadFullUserInfo(CreateUserModel model)
         {
-            //Arrange
-            var userService = new UserService(_userRepository.Object, _fileRepository.Object, _roleRepository.Object,
-                _mapper, _unitOfWork.Object, _hasher.Object, _stringLocalizer.Object,
-                _emailService.Object, _userAchievementRepository.Object);
+            //Arrange            
 
             var expectedValue = UserDumbData.GetReadFullUserModel(model);
             _userRepository.Setup(x => x.AddAsync(It.IsAny<User>())).Returns(Task.CompletedTask);
@@ -74,7 +77,7 @@ namespace Exoft.Gamification.Api.Test
             _roleRepository.Setup(x => x.GetRoleByNameAsync(It.IsAny<string>())).Returns((string x) => Task.FromResult(RoleDumbData.GetEntity(x)));
 
             // Act
-            var response = await userService.AddUserAsync(model);
+            var response = await _userService.AddUserAsync(model);
             expectedValue.Id = response.Id;
 
             // Assert
@@ -94,10 +97,6 @@ namespace Exoft.Gamification.Api.Test
         public async Task DeleteUserAsync_ValidGuids()
         {
             //Arrange
-            var userService = new UserService(_userRepository.Object, _fileRepository.Object, _roleRepository.Object,
-                _mapper, _unitOfWork.Object, _hasher.Object, _stringLocalizer.Object,
-                _emailService.Object, _userAchievementRepository.Object);
-
             var user = UserDumbData.GetRandomEntity();
 
             _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(user);
@@ -105,7 +104,7 @@ namespace Exoft.Gamification.Api.Test
             _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
 
             // Act
-            await userService.DeleteUserAsync(user.Id);
+            await _userService.DeleteUserAsync(user.Id);
 
             // Assert
             _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
@@ -117,10 +116,6 @@ namespace Exoft.Gamification.Api.Test
         public async Task UpdatePasswordAsync_ValidUpdatePasswordAsyncModels(string newPassword)
         {
             //Arrange
-            var userService = new UserService(_userRepository.Object, _fileRepository.Object, _roleRepository.Object,
-                _mapper, _unitOfWork.Object, _hasher.Object, _stringLocalizer.Object,
-                _emailService.Object, _userAchievementRepository.Object);
-
             var user = UserDumbData.GetRandomEntity();
 
             _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(user));
@@ -129,7 +124,7 @@ namespace Exoft.Gamification.Api.Test
             _hasher.Setup(x => x.GetHash(It.IsAny<string>())).Returns(newPassword);
 
             // Act
-            await userService.UpdatePasswordAsync(user.Id, newPassword);
+            await _userService.UpdatePasswordAsync(user.Id, newPassword);
 
             // Assert
             _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
@@ -142,10 +137,6 @@ namespace Exoft.Gamification.Api.Test
         public async Task GetAllUsersWithShortInfoAsync_ValidPagingInfos_ReturnsReturnPagingInfo_ReadShortUserModel(PagingInfo pagingInfo)
         {
             //Arrange
-            var userService = new UserService(_userRepository.Object, _fileRepository.Object, _roleRepository.Object,
-                _mapper, _unitOfWork.Object, _hasher.Object, _stringLocalizer.Object,
-                _emailService.Object, _userAchievementRepository.Object);
-
             var listUsers = UserDumbData.GetRandomEntities(5);
             var expectedUsers = ReturnPagingInfoDumbData.GetForModel(pagingInfo, listUsers);
             var expectedValue = ReturnPagingInfoDumbData.GetWithModels<ReadShortUserModel, User>(expectedUsers, _mapper);
@@ -153,7 +144,7 @@ namespace Exoft.Gamification.Api.Test
             _userRepository.Setup(x => x.GetAllDataAsync(It.IsAny<PagingInfo>())).Returns(Task.FromResult(expectedUsers));
 
             // Act
-            var response = await userService.GetAllUsersWithShortInfoAsync(pagingInfo);
+            var response = await _userService.GetAllUsersWithShortInfoAsync(pagingInfo);
 
             // Assert
             _userRepository.Verify(x => x.GetAllDataAsync(It.IsAny<PagingInfo>()), Times.Once);
@@ -164,10 +155,6 @@ namespace Exoft.Gamification.Api.Test
         public async Task GetAllUsersWithFullInfoAsync_ValidPagingInfos_ReturnsReturnPagingInfo_ReadFullUserModel(PagingInfo pagingInfo)
         {
             //Arrange
-            var userService = new UserService(_userRepository.Object, _fileRepository.Object, _roleRepository.Object,
-                _mapper, _unitOfWork.Object, _hasher.Object, _stringLocalizer.Object,
-                _emailService.Object, _userAchievementRepository.Object);
-
             var listUsers = UserDumbData.GetRandomEntities(5);
             var expectedUsers = ReturnPagingInfoDumbData.GetForModel(pagingInfo, listUsers);
             var expectedValue = ReturnPagingInfoDumbData.GetWithModels<ReadFullUserModel, User>(expectedUsers, _mapper);
@@ -175,7 +162,7 @@ namespace Exoft.Gamification.Api.Test
             _userRepository.Setup(x => x.GetAllDataAsync(It.IsAny<PagingInfo>())).Returns(Task.FromResult(expectedUsers));
 
             // Act
-            var response = await userService.GetAllUsersWithFullInfoAsync(pagingInfo);
+            var response = await _userService.GetAllUsersWithFullInfoAsync(pagingInfo);
 
             // Assert
             _userRepository.Verify(x => x.GetAllDataAsync(It.IsAny<PagingInfo>()), Times.Once);
@@ -186,10 +173,6 @@ namespace Exoft.Gamification.Api.Test
         public async Task GetFullUserByIdAsync_ValidGuids_ReturnsReadFullUserModel()
         {
             //Arrange
-            var userService = new UserService(_userRepository.Object, _fileRepository.Object, _roleRepository.Object,
-                _mapper, _unitOfWork.Object, _hasher.Object, _stringLocalizer.Object,
-                _emailService.Object, _userAchievementRepository.Object);
-
             var expectedUser = UserDumbData.GetRandomEntity();
             var badgetCount = RandomHelper.GetRandomNumber();
             var expectedValue = _mapper.Map<ReadFullUserModel>(expectedUser);
@@ -199,7 +182,7 @@ namespace Exoft.Gamification.Api.Test
             _userAchievementRepository.Setup(x => x.GetCountAchievementsByUserAsync(It.IsAny<Guid>())).ReturnsAsync(badgetCount);
 
             // Act
-            var response = await userService.GetFullUserByIdAsync(expectedUser.Id);
+            var response = await _userService.GetFullUserByIdAsync(expectedUser.Id);
 
             // Assert
             _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
@@ -210,17 +193,13 @@ namespace Exoft.Gamification.Api.Test
         public async Task GetShortUserByIdAsync_ValidGuids_ReturnsReadShortUserModel()
         {
             //Arrange
-            var userService = new UserService(_userRepository.Object, _fileRepository.Object, _roleRepository.Object,
-                _mapper, _unitOfWork.Object, _hasher.Object, _stringLocalizer.Object,
-                _emailService.Object, _userAchievementRepository.Object);
-
             var expectedUser = UserDumbData.GetRandomEntity();
             var expectedValue = _mapper.Map<ReadShortUserModel>(expectedUser);
 
             _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(expectedUser));
 
             // Act
-            var response = await userService.GetShortUserByIdAsync(expectedUser.Id);
+            var response = await _userService.GetShortUserByIdAsync(expectedUser.Id);
 
             // Assert
             _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
@@ -231,10 +210,6 @@ namespace Exoft.Gamification.Api.Test
         public async Task UpdateUserAsync_ValidUpdateFullUserModelsWithIds_ReturnsReadFullUserModel(UpdateUserModel model)
         {
             //Arrange
-            var userService = new UserService(_userRepository.Object, _fileRepository.Object, _roleRepository.Object,
-                _mapper, _unitOfWork.Object, _hasher.Object, _stringLocalizer.Object,
-                _emailService.Object, _userAchievementRepository.Object);
-
             var expectedUser = UserDumbData.GetEntity(model);
             var expectedValue = _mapper.Map<ReadFullUserModel>(expectedUser);
 
@@ -246,7 +221,7 @@ namespace Exoft.Gamification.Api.Test
             _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
 
             // Act
-            var response = await userService.UpdateUserAsync(model, expectedUser.Id);
+            var response = await _userService.UpdateUserAsync(model, expectedUser.Id);
 
             // Assert
             _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);

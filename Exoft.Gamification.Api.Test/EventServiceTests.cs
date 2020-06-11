@@ -5,6 +5,7 @@ using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services;
+using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Test.DumbData;
 using Exoft.Gamification.Api.Test.TestData;
 using FluentAssertions;
@@ -14,12 +15,13 @@ using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Test
 {
+    [TestFixture]
     public class EventServiceTests
     {
         private Mock<IEventRepository> _eventRepository;
         private IMapper _mapper;
 
-        private EventService _eventService;
+        private IEventService _eventService;
 
         [SetUp]
         public void SetUp()

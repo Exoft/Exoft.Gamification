@@ -7,6 +7,7 @@ using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
+using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Test.DumbData;
 using Exoft.Gamification.Api.Test.TestData;
 using FluentAssertions;
@@ -15,11 +16,11 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Test
 {
+    [TestFixture]
     public class OrderServiceTests
     {
         private Mock<IOrderRepository> _orderRepository;
@@ -28,7 +29,7 @@ namespace Exoft.Gamification.Api.Test
         private Mock<IUnitOfWork> _unitOfWork;
         private IMapper _mapper;
 
-        private OrderService _orderService;
+        private IOrderService _orderService;
 
         [SetUp]
         public void SetUp()
