@@ -54,7 +54,7 @@ namespace Exoft.Gamification.Api.Services
         public async Task<ReadCategoryModel> AddCategoryAsync(CreateCategoryModel model)
         {
             var category = _mapper.Map<Category>(model);
-            category.IconId = (await _fileService.AddOrUpdateFileByIdAsync(model.Icon, category.IconId)).GetValueOrDefault();
+            category.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, category.IconId);
 
             await _categoryRepository.AddAsync(category);
 
@@ -67,7 +67,7 @@ namespace Exoft.Gamification.Api.Services
         {
             var category = await _categoryRepository.GetByIdAsync(id);
             category.Name = model.Name;
-            category.IconId = (await _fileService.AddOrUpdateFileByIdAsync(model.Icon, category.IconId)).GetValueOrDefault();
+            category.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, category.IconId);
 
             _categoryRepository.Update(category);
 

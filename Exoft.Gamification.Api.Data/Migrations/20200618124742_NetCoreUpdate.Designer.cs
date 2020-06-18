@@ -4,14 +4,16 @@ using Exoft.Gamification.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Exoft.Gamification.Api.Data.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    partial class UsersDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200618124742_NetCoreUpdate")]
+    partial class NetCoreUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,7 +75,7 @@ namespace Exoft.Gamification.Api.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("IconId")
+                    b.Property<Guid>("IconId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
@@ -153,7 +155,7 @@ namespace Exoft.Gamification.Api.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("IconId")
+                    b.Property<Guid>("IconId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Popularity")
