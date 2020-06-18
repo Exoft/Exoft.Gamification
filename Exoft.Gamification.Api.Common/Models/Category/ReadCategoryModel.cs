@@ -8,6 +8,6 @@ namespace Exoft.Gamification.Api.Common.Models.Category
 
         public string Name { get; set; }
 
-        public Guid IconId { get; set; }
+        public Guid? IconId { get; set; }
     }
 }
