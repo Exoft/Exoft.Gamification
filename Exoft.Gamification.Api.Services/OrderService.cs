@@ -40,7 +40,7 @@ namespace Exoft.Gamification.Api.Services
         public async Task<ReadOrderModel> AddOrderAsync(CreateOrderModel model)
         {
             var order = _mapper.Map<Order>(model);
-            order.IconId = (await _fileService.AddOrUpdateFileByIdAsync(model.Icon, order.IconId)).GetValueOrDefault();
+            order.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, order.IconId);
 
             foreach (var categoryId in model.CategoryIds)
             {
@@ -68,7 +68,7 @@ namespace Exoft.Gamification.Api.Services
             order.Title = model.Title;
             order.Description = model.Description;
             order.Price = model.Price;
-            order.IconId = (await _fileService.AddOrUpdateFileByIdAsync(model.Icon, order.IconId)).GetValueOrDefault();
+            order.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, order.IconId);
 
             var categoryIds = order.Categories.Select(i => i.Category.Id).ToList();
             foreach (var categoryId in categoryIds)
