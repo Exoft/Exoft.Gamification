@@ -6,6 +6,7 @@ using AutoMapper;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
+using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Microsoft.AspNetCore.Http;
 
@@ -14,15 +15,18 @@ namespace Exoft.Gamification.Api.Services
     public class FileService : IFileService
     {
         private readonly IFileRepository _fileRepository;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public FileService
         (
             IFileRepository fileRepository,
+            IUnitOfWork unitOfWork,
             IMapper mapper
         )
         {
             _fileRepository = fileRepository;
+            _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
@@ -54,6 +58,8 @@ namespace Exoft.Gamification.Api.Services
                 ContentType = image.ContentType
             };
             await _fileRepository.AddAsync(file);
+            await _unitOfWork.SaveChangesAsync();
+
             return file.Id;
         }
     }
