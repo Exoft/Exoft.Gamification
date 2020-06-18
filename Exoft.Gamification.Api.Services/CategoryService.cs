@@ -60,7 +60,7 @@ namespace Exoft.Gamification.Api.Services
 
             if (model.Icon != null)
             {
-                using (var memory = new MemoryStream())
+                await using (var memory = new MemoryStream())
                 {
                     await model.Icon.CopyToAsync(memory);
 
@@ -88,7 +88,7 @@ namespace Exoft.Gamification.Api.Services
 
             if (model.Icon != null)
             {
-                using (var memory = new MemoryStream())
+                await using (var memory = new MemoryStream())
                 {
                     await model.Icon.CopyToAsync(memory);
 

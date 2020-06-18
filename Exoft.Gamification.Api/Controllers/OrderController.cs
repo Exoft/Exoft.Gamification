@@ -118,7 +118,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return NotFound();
             }
 
-            var resultValidation = await this._updateOrderModelValidator.ValidateAsync(model);
+            var resultValidation = await _updateOrderModelValidator.ValidateAsync(model);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)

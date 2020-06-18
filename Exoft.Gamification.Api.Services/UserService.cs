@@ -175,7 +175,7 @@ namespace Exoft.Gamification.Api.Services
         {
             if (image != null)
             {
-                using (var memory = new MemoryStream())
+                await using (var memory = new MemoryStream())
                 {
                     await image.CopyToAsync(memory);
 
