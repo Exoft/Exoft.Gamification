@@ -122,5 +122,13 @@ namespace Exoft.Gamification.Api.Test.TestData
             new TestCaseData(RequestOrderDumbData.GetCreateRequestOrderModel(), Guid.Parse("3d26662f-d257-4a53-a71f-12be80cf07bb")),
             new TestCaseData(RequestOrderDumbData.GetCreateRequestOrderModel(), Guid.Parse("dd663aa2-08a4-4fa4-b032-2fd9aa0e4924"))
         };
+
+        public static readonly TestCaseData[] ValidIFormFileWithNullableGuid = new TestCaseData[]
+        {
+            new TestCaseData(FileDumbData.GetFile(), Guid.Parse("3d26662f-d257-4a53-a71f-12be80cf07bb")),
+            new TestCaseData(null, Guid.Parse("3d26662f-d257-4a53-a71f-12be80cf07bb")),
+            new TestCaseData(FileDumbData.GetFile(), null)
+        };
+
     }
 }
