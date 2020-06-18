@@ -18,6 +18,7 @@ using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Test
@@ -106,29 +107,33 @@ namespace Exoft.Gamification.Api.Test
             _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
         }
 
-        //poor written
-        //[TestCase]
+        [TestCase]
         public async Task GetAllAsync_ReturnsReadRequestAchievementModels()
         {
             //Arrange
-            var user = UserDumbData.GetRandomEntity();
-            var listRequestAchievements = RequestAchievementDumbData.GetRandomEntities(5);
+            int entitiesCount = 5;
+
+            var achievements = AchievementDumbData.GetRandomEntities(entitiesCount);
+            var users = UserDumbData.GetRandomEntities(entitiesCount);
+            var listRequestAchievements = RequestAchievementDumbData.GetEntities(achievements, users);
             var pagingInfo = ReturnPagingInfoDumbData.GetForModel(new PagingInfo(), listRequestAchievements);
+
+            var expectedValue = RequestAchievementDumbData.GetReadRequestAchievementModels(listRequestAchievements, achievements, users);
             
 
             _requestAchievementRepository.Setup(x => x.GetAllDataAsync(It.IsAny<PagingInfo>())).Returns(Task.FromResult(pagingInfo));
-            _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(user));
-            _achievementRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns((Guid x) => Task.FromResult(AchievementDumbData.GetRandomEntity()));
-            _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
+            _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns((Guid x) => Task.FromResult(users.FirstOrDefault(y => y.Id == x)));
+            _achievementRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns((Guid x) => Task.FromResult(achievements.FirstOrDefault(y => y.Id == x)));
 
             // Act
             var response = await _requestAchievementService.GetAllAsync();
 
             // Assert
-            _requestAchievementRepository.Verify(x => x.Delete(It.IsAny<RequestAchievement>()), Times.Once);
-            _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
-            _achievementRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
-            _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
+            _requestAchievementRepository.Verify(x => x.GetAllDataAsync(It.IsAny<PagingInfo>()), Times.Once);
+            _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Exactly(listRequestAchievements.Count));
+            _achievementRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Exactly(listRequestAchievements.Count));
+
+            response.Should().BeEquivalentTo(expectedValue);
         }
 
         [TestCase]

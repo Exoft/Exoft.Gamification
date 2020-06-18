@@ -62,7 +62,7 @@ namespace Exoft.Gamification.Api.Test
             expectedValue.Id = response.Id;
 
             // Assert
-            //_fileRepository.Verify(x => x.AddAsync(It.IsAny<File>()), Times.Once);
+            _fileService.Verify(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>()), Times.Once);
             _achievementRepository.Verify(x => x.AddAsync(It.IsAny<Achievement>()), Times.Once);
             _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
             response.Should().BeEquivalentTo(expectedValue);

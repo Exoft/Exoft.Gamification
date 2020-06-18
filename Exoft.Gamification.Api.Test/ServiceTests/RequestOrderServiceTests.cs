@@ -28,7 +28,6 @@ namespace Exoft.Gamification.Api.Test
         private Mock<IOrderRepository> _orderRepository;
         private Mock<IUserRepository> _userRepository;
         private Mock<IRequestOrderRepository> _requestOrderRepository;
-        private Mock<IFileRepository> _fileRepository;
         private Mock<IUnitOfWork> _unitOfWork;
         private Mock<IStringLocalizer<HtmlPages>> _stringLocalizer;
         private Mock<IEmailService> _emailService;
@@ -42,7 +41,6 @@ namespace Exoft.Gamification.Api.Test
             _orderRepository = new Mock<IOrderRepository>();
             _userRepository = new Mock<IUserRepository>();
             _requestOrderRepository = new Mock<IRequestOrderRepository>();
-            _fileRepository = new Mock<IFileRepository>();
             _unitOfWork = new Mock<IUnitOfWork>();
 
             _stringLocalizer = new Mock<IStringLocalizer<HtmlPages>>();
@@ -87,7 +85,6 @@ namespace Exoft.Gamification.Api.Test
             var response = await _requestOrderService.AddAsync(model, userId);
 
             // Assert
-            //_fileRepository.Verify(x => x.AddAsync(It.IsAny<File>()), Times.Once);
             _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
             _orderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
             if (enoughXP)
