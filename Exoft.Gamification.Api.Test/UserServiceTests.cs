@@ -17,6 +17,7 @@ using FluentAssertions;
 using System;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Test.DumbData;
+using Microsoft.AspNetCore.Http;
 
 namespace Exoft.Gamification.Api.Test
 {
@@ -24,7 +25,7 @@ namespace Exoft.Gamification.Api.Test
     public class UserServiceTests
     {
         private Mock<IUserRepository> _userRepository;
-        private Mock<IFileRepository> _fileRepository;
+        private Mock<IFileService> _fileService;
         private Mock<IRoleRepository> _roleRepository;
         private IMapper _mapper;
         private Mock<IUnitOfWork> _unitOfWork;
@@ -39,7 +40,7 @@ namespace Exoft.Gamification.Api.Test
         public void SetUp()
         {
             _userRepository = new Mock<IUserRepository>();
-            _fileRepository = new Mock<IFileRepository>();
+            _fileService = new Mock<IFileService>();
             _roleRepository = new Mock<IRoleRepository>();
             _userAchievementRepository = new Mock<IUserAchievementRepository>();
 
@@ -53,7 +54,7 @@ namespace Exoft.Gamification.Api.Test
             var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
             _mapper = new Mapper(configuration);
 
-            _userService = new UserService(_userRepository.Object, _fileRepository.Object, _roleRepository.Object,
+            _userService = new UserService(_userRepository.Object, _fileService.Object, _roleRepository.Object,
                 _mapper, _unitOfWork.Object, _hasher.Object, _stringLocalizer.Object,
                 _emailService.Object, _userAchievementRepository.Object);
         }
@@ -72,8 +73,7 @@ namespace Exoft.Gamification.Api.Test
             var localizedString = new LocalizedString(key, key);
             _stringLocalizer.Setup(_ => _[key]).Returns(localizedString);
             _hasher.Setup(x => x.GetHash(It.IsAny<string>())).Returns(model.Password);
-            _fileRepository.Setup(x => x.AddAsync(It.IsAny<File>())).Returns(Task.CompletedTask);
-            _fileRepository.Setup(x => x.Delete(It.IsAny<Guid>())).Returns(Task.CompletedTask);
+            _fileService.Setup(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>())).Returns(Task.FromResult(expectedValue.AvatarId));
             _roleRepository.Setup(x => x.GetRoleByNameAsync(It.IsAny<string>())).Returns((string x) => Task.FromResult(RoleDumbData.GetEntity(x)));
 
             // Act
@@ -86,8 +86,7 @@ namespace Exoft.Gamification.Api.Test
             _emailService.Verify(x => x.SendEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             _stringLocalizer.Verify(_ => _[key], Times.Once);
             _hasher.Verify(x => x.GetHash(It.IsAny<string>()), Times.Once);
-            //_fileRepository.Verify(x => x.AddAsync(It.IsAny<File>()), Times.Once);
-            //_fileRepository.Verify(x => x.Delete(It.IsAny<Guid>()), Times.Once);
+            _fileService.Verify(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>()), Times.Once);
             _roleRepository.Verify(x => x.GetRoleByNameAsync(It.IsAny<string>()), Times.Once);
             Assert.IsNotNull(response);
             expectedValue.Should().BeEquivalentTo(response);
@@ -215,8 +214,7 @@ namespace Exoft.Gamification.Api.Test
 
             _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(expectedUser));
             _userRepository.Setup(x => x.Update(It.IsAny<User>()));
-            _fileRepository.Setup(x => x.AddAsync(It.IsAny<File>())).Returns(Task.CompletedTask);
-            _fileRepository.Setup(x => x.Delete(It.IsAny<Guid>())).Returns(Task.CompletedTask);
+            _fileService.Setup(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>())).Returns(Task.FromResult(expectedValue.AvatarId));
             _roleRepository.Setup(x => x.GetRoleByNameAsync(It.IsAny<string>())).Returns((string x) => Task.FromResult(RoleDumbData.GetEntity(x))).Verifiable();
             _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
 
@@ -226,8 +224,7 @@ namespace Exoft.Gamification.Api.Test
             // Assert
             _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
             _userRepository.Verify(x => x.Update(It.IsAny<User>()), Times.Once);
-            //_fileRepository.Verify(x => x.AddAsync(It.IsAny<File>()), Times.Once);
-            //_fileRepository.Verify(x => x.Delete(It.IsAny<Guid>()), Times.Once);
+            _fileService.Verify(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>()), Times.Once);
             _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
             _roleRepository.Verify(x => x.GetRoleByNameAsync(It.IsAny<string>()), Times.Once);
             response.Should().BeEquivalentTo(expectedValue);

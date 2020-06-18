@@ -6,9 +6,11 @@ using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
+using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Test.DumbData;
 using Exoft.Gamification.Api.Test.TestData;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -20,7 +22,7 @@ namespace Exoft.Gamification.Api.Test
     public class CategoryServiceTests
     {
         private Mock<ICategoryRepository> _categoryRepository;
-        private Mock<IFileRepository> _fileRepository;
+        private Mock<IFileService> _fileService;
         private IMapper _mapper;
         private Mock<IUnitOfWork> _unitOfWork;
 
@@ -30,7 +32,7 @@ namespace Exoft.Gamification.Api.Test
         public void SetUp()
         {
             _categoryRepository = new Mock<ICategoryRepository>();
-            _fileRepository = new Mock<IFileRepository>();
+            _fileService = new Mock<IFileService>();
             _unitOfWork = new Mock<IUnitOfWork>();
 
             var myProfile = new AutoMapperProfile();
@@ -38,7 +40,7 @@ namespace Exoft.Gamification.Api.Test
             _mapper = new Mapper(configuration);
 
             _categoryService = new CategoryService(_categoryRepository.Object,
-                _fileRepository.Object, _unitOfWork.Object, _mapper);
+                _fileService.Object, _unitOfWork.Object, _mapper);
         }
 
         [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.PagingInfos))]
@@ -65,7 +67,7 @@ namespace Exoft.Gamification.Api.Test
             //Arrange
             var expectedValue = CategoryDumbData.GetReadCategoryModel(model);
 
-            _fileRepository.Setup(x => x.AddAsync(It.IsAny<File>())).Returns(Task.CompletedTask);
+            _fileService.Setup(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>())).Returns(Task.FromResult((Guid?)expectedValue.IconId));
             _categoryRepository.Setup(x => x.AddAsync(It.IsAny<Category>())).Returns(Task.FromResult(expectedValue));
             _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
 
@@ -74,7 +76,7 @@ namespace Exoft.Gamification.Api.Test
             expectedValue.Id = response.Id;
 
             // Assert
-            //_fileRepository.Verify(x => x.AddAsync(It.IsAny<File>()), Times.Once);
+            _fileService.Verify(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>()), Times.Once);
             _categoryRepository.Verify(x => x.AddAsync(It.IsAny<Category>()), Times.Once);
             _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
             response.Should().BeEquivalentTo(expectedValue);
@@ -123,8 +125,7 @@ namespace Exoft.Gamification.Api.Test
 
             _categoryRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(category));
             _categoryRepository.Setup(x => x.Update(It.IsAny<Category>()));
-            _fileRepository.Setup(x => x.Delete(It.IsAny<Guid>())).Returns(Task.CompletedTask);
-            _fileRepository.Setup(x => x.AddAsync(It.IsAny<File>())).Returns(Task.CompletedTask);
+            _fileService.Setup(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>())).Returns(Task.FromResult((Guid?)expectedValue.IconId));
             _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
 
             // Act
@@ -133,8 +134,7 @@ namespace Exoft.Gamification.Api.Test
             // Assert
             _categoryRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
             _categoryRepository.Verify(x => x.Update(It.IsAny<Category>()), Times.Once);
-            //_fileRepository.Verify(x => x.AddAsync(It.IsAny<File>()), Times.Once);
-            //_fileRepository.Verify(x => x.Delete(It.IsAny<Guid>()), Times.Once);
+            _fileService.Verify(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>()), Times.Once);
             _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
             response.Should().BeEquivalentTo(expectedValue);
         }

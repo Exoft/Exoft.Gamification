@@ -11,6 +11,7 @@ using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Test.DumbData;
 using Exoft.Gamification.Api.Test.TestData;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -25,7 +26,7 @@ namespace Exoft.Gamification.Api.Test
     {
         private Mock<IOrderRepository> _orderRepository;
         private Mock<ICategoryRepository> _categoryRepository;
-        private Mock<IFileRepository> _fileRepository;
+        private Mock<IFileService> _fileService;
         private Mock<IUnitOfWork> _unitOfWork;
         private IMapper _mapper;
 
@@ -36,7 +37,7 @@ namespace Exoft.Gamification.Api.Test
         {
             _orderRepository = new Mock<IOrderRepository>();
             _categoryRepository = new Mock<ICategoryRepository>();
-            _fileRepository = new Mock<IFileRepository>();
+            _fileService = new Mock<IFileService>();
             _unitOfWork = new Mock<IUnitOfWork>();
 
 
@@ -46,7 +47,7 @@ namespace Exoft.Gamification.Api.Test
 
             _orderService = new OrderService(
                 _orderRepository.Object, _categoryRepository.Object,
-                _fileRepository.Object, _unitOfWork.Object,  _mapper);
+                _fileService.Object, _unitOfWork.Object,  _mapper);
         }
 
         [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.ValidCreateOrderModels))]
@@ -58,7 +59,7 @@ namespace Exoft.Gamification.Api.Test
             model.CategoryIds = categoriesList.Select(x => x.Id);
             expectedValue.Categories = _mapper.Map<List<ReadCategoryModel>>(categoriesList);
 
-            _fileRepository.Setup(x => x.AddAsync(It.IsAny<File>())).Returns(Task.CompletedTask);
+            _fileService.Setup(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>())).Returns(Task.FromResult((Guid?)expectedValue.IconId));
             _categoryRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns((Guid x) => Task.FromResult(categoriesList.FirstOrDefault(y => y.Id == x)));
             _orderRepository.Setup(x => x.AddAsync(It.IsAny<Order>())).Returns(Task.CompletedTask);
             _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
@@ -68,7 +69,7 @@ namespace Exoft.Gamification.Api.Test
             expectedValue.Id = response.Id;
 
             // Assert
-            //_fileRepository.Verify(x => x.AddAsync(It.IsAny<File>()), Times.Once);
+            _fileService.Verify(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>()), Times.Once);
             _categoryRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Exactly(2));
             _orderRepository.Verify(x => x.AddAsync(It.IsAny<Order>()), Times.Once);
             _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
@@ -86,8 +87,7 @@ namespace Exoft.Gamification.Api.Test
             expectedValue.Categories = _mapper.Map<List<ReadCategoryModel>>(categoriesList);
 
             _orderRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(order));
-            _fileRepository.Setup(x => x.AddAsync(It.IsAny<File>())).Returns(Task.CompletedTask);
-            _fileRepository.Setup(x => x.Delete(It.IsAny<Guid>())).Returns(Task.CompletedTask);
+            _fileService.Setup(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>())).Returns(Task.FromResult((Guid?)expectedValue.IconId));
             _categoryRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns((Guid x) => Task.FromResult(categoriesList.FirstOrDefault(y => y.Id == x)));
             _orderRepository.Setup(x => x.Update(It.IsAny<Order>()));
             _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
@@ -96,8 +96,8 @@ namespace Exoft.Gamification.Api.Test
             var response = await _orderService.UpdateOrderAsync(model, order.Id);
 
             // Assert
-            //_fileRepository.Verify(x => x.AddAsync(It.IsAny<File>()), Times.Once);
             _categoryRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Exactly(2));
+            _fileService.Verify(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>()), Times.Once);
             _orderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
             _orderRepository.Verify(x => x.Update(It.IsAny<Order>()), Times.Once);
             _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);

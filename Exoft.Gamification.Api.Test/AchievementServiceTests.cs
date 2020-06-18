@@ -6,9 +6,11 @@ using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
+using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Test.DumbData;
 using Exoft.Gamification.Api.Test.TestData;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
 using System;
@@ -19,7 +21,7 @@ namespace Exoft.Gamification.Api.Test
     [TestFixture]
     public class AchievementServiceTests
     {
-        private Mock<IFileRepository> _fileRepository;
+        private Mock<IFileService> _fileService;
         private Mock<IUserRepository> _userRepository;
         private Mock <IUserAchievementRepository> _userAchievementRepository;
         private Mock<IAchievementRepository> _achievementRepository;
@@ -31,7 +33,7 @@ namespace Exoft.Gamification.Api.Test
         [SetUp]
         public void SetUp()
         {
-            _fileRepository = new Mock<IFileRepository>();
+            _fileService = new Mock<IFileService>();
             _achievementRepository = new Mock<IAchievementRepository>();
             _userRepository = new Mock<IUserRepository>();
             _userAchievementRepository = new Mock<IUserAchievementRepository>();
@@ -41,7 +43,7 @@ namespace Exoft.Gamification.Api.Test
             var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
             _mapper = new Mapper(configuration);
 
-            _achievementService = new AchievementService( _userRepository.Object, _userAchievementRepository.Object, _achievementRepository.Object, _fileRepository.Object,
+            _achievementService = new AchievementService( _userRepository.Object, _userAchievementRepository.Object, _achievementRepository.Object, _fileService.Object,
                 _mapper, _unitOfWork.Object);
         }
 
@@ -51,7 +53,7 @@ namespace Exoft.Gamification.Api.Test
             //Arrange
             var expectedValue = AchievementDumbData.GetReadAchievementModel(model);
 
-            _fileRepository.Setup(x => x.AddAsync(It.IsAny<File>())).Returns(Task.CompletedTask);
+            _fileService.Setup(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>())).Returns(Task.FromResult(expectedValue.IconId));
             _achievementRepository.Setup(x => x.AddAsync(It.IsAny<Achievement>())).Returns(Task.FromResult(expectedValue));
             _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
 
@@ -114,8 +116,7 @@ namespace Exoft.Gamification.Api.Test
             _userAchievementRepository.Setup(x => x.GetAllUsersByAchievementAsync(It.IsAny<PagingInfo>(), It.IsAny<Guid>())).Returns(Task.FromResult(returnPagingInfo));
             _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(user));
             _achievementRepository.Setup(x => x.Update(It.IsAny<Achievement>()));
-            _fileRepository.Setup(x => x.Delete(It.IsAny<Guid>())).Returns(Task.CompletedTask);
-            _fileRepository.Setup(x => x.AddAsync(It.IsAny<File>())).Returns(Task.CompletedTask);
+            _fileService.Setup(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>())).Returns(Task.FromResult(expectedValue.IconId));
             _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
 
             // Act
@@ -124,8 +125,7 @@ namespace Exoft.Gamification.Api.Test
             // Assert
             _achievementRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
             _achievementRepository.Verify(x => x.Update(It.IsAny<Achievement>()), Times.Once);
-            //_fileRepository.Verify(x => x.AddAsync(It.IsAny<File>()), Times.Once);
-            //_fileRepository.Verify(x => x.Delete(It.IsAny<Guid>()), Times.Once);
+            _fileService.Verify(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>()), Times.Once);
             _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
             response.Should().BeEquivalentTo(expectedValue);
         }

@@ -91,7 +91,7 @@ namespace Exoft.Gamification.Api.Test.DumbData
             return new ReadFullUserModel
             {
                 Id = Guid.NewGuid(),
-                AvatarId = null,
+                AvatarId = Guid.NewGuid(),
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,

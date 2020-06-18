@@ -1,10 +1,8 @@
-﻿using Exoft.Gamification.Api.Common.Models;
-using Exoft.Gamification.Api.Common.Models.RequestAchievement;
+﻿using Exoft.Gamification.Api.Common.Models.RequestAchievement;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Test.TestData;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Exoft.Gamification.Api.Test.DumbData
 {
@@ -14,9 +12,9 @@ namespace Exoft.Gamification.Api.Test.DumbData
         {
             return new RequestAchievement
             {
-                AchievementId = new Guid(),
+                AchievementId = Guid.NewGuid(),
                 Message = RandomHelper.GetRandomString(100),
-                UserId = new Guid()
+                UserId = Guid.NewGuid()
             };
         }
 
@@ -43,12 +41,12 @@ namespace Exoft.Gamification.Api.Test.DumbData
         {
             return new ReadRequestAchievementModel
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 Message = RandomHelper.GetRandomString(100),
                 AchievementName = RandomHelper.GetRandomString(100),
                 UserName = RandomHelper.GetRandomString(100),
-                AchievementId = new Guid(),
-                UserId = new Guid()
+                AchievementId = Guid.NewGuid(),
+                UserId = Guid.NewGuid()
             };
         }
 

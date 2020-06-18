@@ -35,7 +35,7 @@ namespace Exoft.Gamification.Api.Test.DumbData
                 Name = updateModel.Name,
                 Description = updateModel.Description,
                 XP = updateModel.XP,
-                IconId = null
+                IconId = Guid.NewGuid()
             };
         }
 
@@ -47,7 +47,7 @@ namespace Exoft.Gamification.Api.Test.DumbData
                 Name = model.Name,
                 Description = model.Description,
                 XP = model.XP,
-                IconId = null
+                IconId = Guid.NewGuid()
             };
         }
 
