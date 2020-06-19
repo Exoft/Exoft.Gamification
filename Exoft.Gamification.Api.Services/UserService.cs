@@ -166,7 +166,7 @@ namespace Exoft.Gamification.Api.Services
 
             return _mapper.Map<ReadFullUserModel>(user);
         }
-
+        
         private async Task SetRolesForUserModel(IEnumerable<string> roles, User user)
         {
             foreach (var role in roles)

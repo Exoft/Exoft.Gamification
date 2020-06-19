@@ -55,7 +55,7 @@ namespace Exoft.Gamification
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDataProtection()
-                .PersistKeysToFileSystem(new DirectoryInfo(@".\server\share\"));
+                .PersistKeysToFileSystem(new DirectoryInfo(@".\Resources\"));
 
             services.AddCors();
             services.AddControllers(options =>

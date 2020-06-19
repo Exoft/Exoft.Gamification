@@ -35,7 +35,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
                                ? await query.Skip(skip).Take(take).ToListAsync()
                                : await query.ToListAsync();
 
-            var totalCount = entities.First().TotalCount;
+            var totalCount = entities.FirstOrDefault()?.TotalCount ?? 0;
 
             var result = new ReturnPagingInfo<RequestOrder>
             {

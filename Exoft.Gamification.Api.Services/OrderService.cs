@@ -40,6 +40,7 @@ namespace Exoft.Gamification.Api.Services
         public async Task<ReadOrderModel> AddOrderAsync(CreateOrderModel model)
         {
             var order = _mapper.Map<Order>(model);
+            
             order.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, order.IconId);
 
             foreach (var categoryId in model.CategoryIds)
