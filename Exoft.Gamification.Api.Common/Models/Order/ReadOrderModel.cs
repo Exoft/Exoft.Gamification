@@ -24,6 +24,6 @@ namespace Exoft.Gamification.Api.Common.Models.Order
 
         public ICollection<ReadCategoryModel> Categories { get; set; }
 
-        public Guid IconId { get; set; }
+        public Guid? IconId { get; set; }
     }
 }

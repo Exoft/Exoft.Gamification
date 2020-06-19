@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,27 +11,25 @@ using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 
-using File = Exoft.Gamification.Api.Data.Core.Entities.File;
-
 namespace Exoft.Gamification.Api.Services
 {
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
-        private readonly IFileRepository _fileRepository;
+        private readonly IFileService _fileService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public CategoryService
         (
             ICategoryRepository categoryRepository,
-            IFileRepository fileRepository,
+            IFileService fileService,
             IUnitOfWork unitOfWork,
             IMapper mapper
         )
         {
             _categoryRepository = categoryRepository;
-            _fileRepository = fileRepository;
+            _fileService = fileService;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
@@ -57,22 +54,7 @@ namespace Exoft.Gamification.Api.Services
         public async Task<ReadCategoryModel> AddCategoryAsync(CreateCategoryModel model)
         {
             var category = _mapper.Map<Category>(model);
-
-            if (model.Icon != null)
-            {
-                using (var memory = new MemoryStream())
-                {
-                    await model.Icon.CopyToAsync(memory);
-
-                    var file = new File
-                    {
-                        Data = memory.ToArray(),
-                        ContentType = model.Icon.ContentType
-                    };
-                    await _fileRepository.AddAsync(file);
-                    category.IconId = file.Id;
-                }
-            }
+            category.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, category.IconId);
 
             await _categoryRepository.AddAsync(category);
 
@@ -85,26 +67,7 @@ namespace Exoft.Gamification.Api.Services
         {
             var category = await _categoryRepository.GetByIdAsync(id);
             category.Name = model.Name;
-
-            if (model.Icon != null)
-            {
-                using (var memory = new MemoryStream())
-                {
-                    await model.Icon.CopyToAsync(memory);
-
-                    await _fileRepository.Delete(category.IconId);
-
-                    var file = new File
-                    {
-                        Data = memory.ToArray(),
-                        ContentType = model.Icon.ContentType
-                    };
-
-                    await _fileRepository.AddAsync(file);
-
-                    category.IconId = file.Id;
-                }
-            }
+            category.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, category.IconId);
 
             _categoryRepository.Update(category);
 

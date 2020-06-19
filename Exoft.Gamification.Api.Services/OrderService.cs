@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,15 +11,13 @@ using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 
-using File = Exoft.Gamification.Api.Data.Core.Entities.File;
-
 namespace Exoft.Gamification.Api.Services
 {
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
         private readonly ICategoryRepository _categoryRepository;
-        private readonly IFileRepository _fileRepository;
+        private readonly IFileService _fileService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
@@ -28,14 +25,14 @@ namespace Exoft.Gamification.Api.Services
         (
             IOrderRepository orderRepository,
             ICategoryRepository categoryRepository,
-            IFileRepository fileRepository,
+            IFileService fileService,
             IUnitOfWork unitOfWork,
             IMapper mapper
         )
         {
             _orderRepository = orderRepository;
             _categoryRepository = categoryRepository;
-            _fileRepository = fileRepository;
+            _fileService = fileService;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
@@ -43,22 +40,7 @@ namespace Exoft.Gamification.Api.Services
         public async Task<ReadOrderModel> AddOrderAsync(CreateOrderModel model)
         {
             var order = _mapper.Map<Order>(model);
-
-            if (model.Icon != null)
-            {
-                using (var memory = new MemoryStream())
-                {
-                    await model.Icon.CopyToAsync(memory);
-
-                    var file = new File
-                    {
-                        Data = memory.ToArray(),
-                        ContentType = model.Icon.ContentType
-                    };
-                    await _fileRepository.AddAsync(file);
-                    order.IconId = file.Id;
-                }
-            }
+            order.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, order.IconId);
 
             foreach (var categoryId in model.CategoryIds)
             {
@@ -86,26 +68,7 @@ namespace Exoft.Gamification.Api.Services
             order.Title = model.Title;
             order.Description = model.Description;
             order.Price = model.Price;
-
-            if (model.Icon != null)
-            {
-                using (var memory = new MemoryStream())
-                {
-                    await model.Icon.CopyToAsync(memory);
-
-                    await _fileRepository.Delete(order.IconId);
-
-                    var file = new File
-                    {
-                        Data = memory.ToArray(),
-                        ContentType = model.Icon.ContentType
-                    };
-
-                    await _fileRepository.AddAsync(file);
-
-                    order.IconId = file.Id;
-                }
-            }
+            order.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, order.IconId);
 
             var categoryIds = order.Categories.Select(i => i.Category.Id).ToList();
             foreach (var categoryId in categoryIds)
