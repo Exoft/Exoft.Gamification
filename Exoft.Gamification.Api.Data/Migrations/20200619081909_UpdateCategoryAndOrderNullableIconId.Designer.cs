@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Exoft.Gamification.Api.Data.Migrations
 {
     [DbContext(typeof(UsersDbContext))]
-    [Migration("20200618124843_UpdateOrderEntityIconIdNullable")]
-    partial class UpdateOrderEntityIconIdNullable
+    [Migration("20200619081909_UpdateCategoryAndOrderNullableIconId")]
+    partial class UpdateCategoryAndOrderNullableIconId
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -75,7 +75,7 @@ namespace Exoft.Gamification.Api.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("IconId")
+                    b.Property<Guid?>("IconId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
