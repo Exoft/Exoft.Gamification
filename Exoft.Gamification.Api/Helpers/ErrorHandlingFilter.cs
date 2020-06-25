@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Exoft.Gamification.Api.Helpers
@@ -27,20 +28,19 @@ namespace Exoft.Gamification.Api.Helpers
         public override async void OnException(ExceptionContext context)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append(string.Format("\r\n ---> QueryString: {0}", 
-                string.Join("\r\n\t -->", context.HttpContext.Request.Query)));
-            stringBuilder.Append(string.Format("\r\n ---> Params: {0}",
-                string.Join("\r\n\t -->", context.RouteData.Values)));
+            stringBuilder.Append(
+                $"\r\n ---> QueryString: {string.Join("\r\n\t -->", context.HttpContext.Request.Query)}");
+            stringBuilder.Append($"\r\n ---> Params: {string.Join("\r\n\t -->", context.RouteData.Values)}");
 
             
             // if body
             context.HttpContext.Request.EnableBuffering();
             context.HttpContext.Request.Body.Seek(0, SeekOrigin.Begin);
 
-            JObject jsonData = new JObject();
-            using (StreamReader stream = new StreamReader(context.HttpContext.Request.Body))
+            var jsonData = new JObject();
+            using (var stream = new StreamReader(context.HttpContext.Request.Body))
             {
-                string body = await stream.ReadToEndAsync();
+                var body = await stream.ReadToEndAsync();
                 if(!string.IsNullOrEmpty(body))
                 {
                     jsonData = JObject.Parse(body);
@@ -58,7 +58,7 @@ namespace Exoft.Gamification.Api.Helpers
             {
                 var clearJson = RemoveExcludedProperties(jsonData, context);
 
-                stringBuilder.Append(string.Format("\r\n ---> Data: {0} \r\n", clearJson.ToString()));
+                stringBuilder.Append($"\r\n ---> Data: {clearJson} \r\n");
             }
 
             _logger.LogError(context.Exception, stringBuilder.ToString());
@@ -66,22 +66,32 @@ namespace Exoft.Gamification.Api.Helpers
 
         private JObject RemoveExcludedProperties(JObject json, ExceptionContext context)
         {
-            var controllerActionDescriptor = (context.ActionDescriptor) as ControllerActionDescriptor;
-            var method = controllerActionDescriptor.MethodInfo;
-            var parameter = method.GetParameters().SingleOrDefault(param =>
-                        param.IsDefined(typeof(FromBodyAttribute), false) ||
-                        param.IsDefined(typeof(FromFormAttribute), false));
-
-            var modelType = parameter.ParameterType;
-            var excludedProperties = modelType.GetProperties().Where(prop =>
-                                        IsDefined(prop, typeof(NonLoggedAttribute)));
-
-            if(!excludedProperties.Any())
+            if (!(context.ActionDescriptor is ControllerActionDescriptor controllerActionDescriptor))
             {
                 return json;
             }
 
-            foreach (var propertyForExclude in excludedProperties)
+            var method = controllerActionDescriptor.MethodInfo;
+            var parameter = method.GetParameters().SingleOrDefault(param =>
+                param.IsDefined(typeof(FromBodyAttribute), false) ||
+                param.IsDefined(typeof(FromFormAttribute), false));
+
+            if (parameter == null)
+            {
+                return json;
+            }
+
+            var modelType = parameter.ParameterType;
+            var excludedProperties = modelType.GetProperties().Where(prop =>
+                IsDefined(prop, typeof(NonLoggedAttribute)));
+
+            var propertyForExcludes = excludedProperties as PropertyInfo[] ?? excludedProperties.ToArray();
+            if(!propertyForExcludes.Any())
+            {
+                return json;
+            }
+
+            foreach (var propertyForExclude in propertyForExcludes)
             {
                 var jToken = json.GetValue(propertyForExclude.Name, System.StringComparison.OrdinalIgnoreCase);
 

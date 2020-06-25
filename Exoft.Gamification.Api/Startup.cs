@@ -40,7 +40,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
-namespace Exoft.Gamification
+namespace Exoft.Gamification.Api
 {
     public class Startup
     {
@@ -181,14 +181,14 @@ namespace Exoft.Gamification
                     {
                         new OpenApiSecurityScheme
                         {
-                        Reference = new OpenApiReference
+                            Reference = new OpenApiReference
                             {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
                             },
                             Scheme = "oauth2",
                             Name = "Bearer",
-                            In = ParameterLocation.Header,
+                            In = ParameterLocation.Header
                         },
                         new List<string>()
                     }
@@ -197,14 +197,13 @@ namespace Exoft.Gamification
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
-                using (var context = scope.ServiceProvider.GetService<UsersDbContext>())
-                {
-                    ContextInitializer.Initialize(context);
-                }
+                using var context = scope.ServiceProvider.GetService<UsersDbContext>();
+
+                ContextInitializer.Initialize(context);
             }
 
             if (env.IsDevelopment())

@@ -2,17 +2,17 @@
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
-using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using System;
+using Exoft.Gamification.Api.Services.Interfaces;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Services
 {
+    [Obsolete("Will remove in next release.", false)]
     public class ReferenceBookService : IReferenceBookService
     {
         private readonly IChapterRepository _chapterRepository;
@@ -84,23 +84,17 @@ namespace Exoft.Gamification.Api.Services
                 if (articleModel.ChapterId != null && articleModel.ChapterId != default(Guid))
                 {
                     var chapter = await _chapterRepository.GetByIdAsync(articleModel.ChapterId.Value);
-                    var article = new Article();
-                    article.Text = articleModel.Text;
-                    article.Title = articleModel.Title;
-                    int maxUnitNumber = 0;
-                    try
-                    {
-                        var tempArt = chapter.Articles.LastOrDefault(d => d.UnitNumber != null);
-                        maxUnitNumber = tempArt != null ? int.Parse(tempArt.UnitNumber.ToString().Split(".")[1]) : 0;
-                    }
-                    catch { }
+                    var article = new Article {Text = articleModel.Text, Title = articleModel.Title};
+                    var tempArt = chapter.Articles.LastOrDefault(d => d.UnitNumber != null);
+                    var maxUnitNumber = tempArt != null ? int.Parse(tempArt.UnitNumber.ToString().Split(".")[1]) : 0;
                     article.UnitNumber = double.Parse($"{chapter.OrderId}.{++maxUnitNumber}", CultureInfo.InvariantCulture);
                     chapter.Articles.Add(article);
                     _chapterRepository.Update(chapter);
                     await _unitOfWork.SaveChangesAsync();
                     return true;
                 }
-                else return false;
+
+                return false;
             }
             catch
             {

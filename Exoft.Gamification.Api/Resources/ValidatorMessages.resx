@@ -166,7 +166,7 @@
     <value>Is not a unique name</value>
   </data>
   <data name="UniqueUserName" xml:space="preserve">
-    <value>Is not a unique userName</value>
+    <value>Is not a unique login</value>
   </data>
   <data name="UnknownSecretString" xml:space="preserve">
     <value>Current secretString expired or not found</value>

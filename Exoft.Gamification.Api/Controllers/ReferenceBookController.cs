@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Exoft.Gamification.Api.Controllers
 {
-    // todo: check if mobile client use this logic.
+    [Obsolete("Wll remove in next release.", false)]
     [Route("api/reference-book")]
     [Authorize]
     [ApiController]

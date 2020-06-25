@@ -60,19 +60,20 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
         {
-            bool exists = await _userRepository.DoesEmailExistsAsync(email);
+            var exists = await _userRepository.DoesEmailExistsAsync(email);
             return !exists;
         }
 
         private async Task<bool> CheckRolesAsync(IEnumerable<string> roles, CancellationToken cancellationToken)
         {
-            // is it better option?
-            //return roles.All(x => _roleRepository.GetRoleByNameAsync(x).Result != null);
             foreach (var role in roles)
+            {
                 if (await _roleRepository.GetRoleByNameAsync(role) == null)
                 {
                     return false;
                 }
+            }
+
             return true;
         }
 

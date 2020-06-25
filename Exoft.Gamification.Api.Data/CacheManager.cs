@@ -24,8 +24,8 @@ namespace Exoft.Gamification.Api.Data
                 AbsoluteExpirationRelativeToNow = entity.TimeToExpire
             };
             
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            using (MemoryStream memoryStream = new MemoryStream())
+            var binaryFormatter = new BinaryFormatter();
+            await using (var memoryStream = new MemoryStream())
             {
                 binaryFormatter.Serialize(memoryStream, entity.Value);
 
@@ -47,17 +47,17 @@ namespace Exoft.Gamification.Api.Data
         {
             if(string.IsNullOrEmpty(key))
             {
-                return default(T);
+                return default;
             }
 
             var value = await _cache.GetAsync(key);
             if(value == null)
             {
-                return default(T);
+                return default;
             }
 
-            BinaryFormatter binaryFormatter = new BinaryFormatter();
-            using (MemoryStream memoryStream = new MemoryStream())
+            var binaryFormatter = new BinaryFormatter();
+            await using (var memoryStream = new MemoryStream())
             {
                 await memoryStream.WriteAsync(value, 0, value.Length);
                 memoryStream.Seek(0, SeekOrigin.Begin);

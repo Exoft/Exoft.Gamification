@@ -62,7 +62,7 @@ namespace Exoft.Gamification.Api.Services.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
-        ///&lt;html&gt;
+        ///&lt;html lang=&quot;en&quot;&gt;
         ///&lt;head&gt;
         ///    &lt;meta charset=&quot;utf-8&quot; /&gt;
         ///    &lt;title&gt;Reset password&lt;/title&gt;
@@ -81,8 +81,7 @@ namespace Exoft.Gamification.Api.Services.Resources {
         ///            color: #3A3E46;
         ///            text-decoration: none;
         ///        }
-        ///        h3, p {
-        ///     [rest of string was truncated]&quot;;.
+        ///        h3, [rest of string was truncated]&quot;;.
         /// </summary>
         public static string ForgotPasswordPage {
             get {
@@ -92,7 +91,7 @@ namespace Exoft.Gamification.Api.Services.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
-        ///&lt;html&gt;
+        ///&lt;html lang=&quot;en&quot;&gt;
         ///&lt;head&gt;
         ///    &lt;meta charset=&quot;utf-8&quot; /&gt;
         ///    &lt;title&gt;Exoft Support&lt;/title&gt;
@@ -114,8 +113,7 @@ namespace Exoft.Gamification.Api.Services.Resources {
         ///        .brd {
         ///            border: 4px double black;
         ///            padding: 10px;
-        ///        }
-        /// [rest of string was truncated]&quot;;.
+        ///  [rest of string was truncated]&quot;;.
         /// </summary>
         public static string RegisterPage {
             get {
@@ -125,7 +123,7 @@ namespace Exoft.Gamification.Api.Services.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
-        ///&lt;html&gt;
+        ///&lt;html lang=&quot;en&quot;&gt;
         ///&lt;head&gt;
         ///    &lt;meta charset=&quot;utf-8&quot; /&gt;
         ///    &lt;title&gt;Request achievement&lt;/title&gt;
@@ -147,7 +145,7 @@ namespace Exoft.Gamification.Api.Services.Resources {
         ///&lt;body&gt;
         ///    &lt;div class=&quot;container&quot;&gt;
         ///        &lt;h3&gt;Hello!&lt;/h3&gt;
-        ///        &lt;p&gt;User {userLastName} { [rest of string was truncated]&quot;;.
+        ///        &lt;p&gt;User {userL [rest of string was truncated]&quot;;.
         /// </summary>
         public static string RequestAchievementPage {
             get {
@@ -157,7 +155,7 @@ namespace Exoft.Gamification.Api.Services.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;!DOCTYPE html&gt;
-        ///&lt;html&gt;
+        ///&lt;html lang=&quot;en&quot;&gt;
         ///&lt;head&gt;
         ///    &lt;meta charset=&quot;utf-8&quot; /&gt;
         ///    &lt;title&gt;Request order&lt;/title&gt;
@@ -179,7 +177,7 @@ namespace Exoft.Gamification.Api.Services.Resources {
         ///&lt;body&gt;
         ///    &lt;div class=&quot;container&quot;&gt;
         ///        &lt;h3&gt;Hello!&lt;/h3&gt;
-        ///        &lt;p&gt;User {userLastName} {userFi [rest of string was truncated]&quot;;.
+        ///        &lt;p&gt;User {userLastNam [rest of string was truncated]&quot;;.
         /// </summary>
         public static string RequestOrderPage {
             get {

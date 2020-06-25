@@ -2,7 +2,6 @@
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 

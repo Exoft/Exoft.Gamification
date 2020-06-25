@@ -2,7 +2,7 @@
 {
     public abstract class ResponseModel
     {
-        public ResponseModel(bool isSussessful)
+        protected ResponseModel(bool isSussessful)
         {
             IsSuccessful = isSussessful;
         }

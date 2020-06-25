@@ -1,19 +1,17 @@
-﻿using System;
-
-using Microsoft.AspNetCore;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
-
 using NLog.Web;
+using System;
 
-namespace Exoft.Gamification
+namespace Exoft.Gamification.Api
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {
             // NLog: setup the logger first to catch all errors
-            var logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+            var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
             try
             {
                 logger.Debug("init main");

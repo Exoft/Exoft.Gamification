@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
@@ -56,6 +57,7 @@ namespace Exoft.Gamification.Api.Controllers
         /// </summary>
         /// <responce code="200">Return token</responce>
         /// <responce code="401">When email or password is incorrent</responce>
+        [Obsolete("Wll remove in next release.", false)]
         [AllowAnonymous]
         [HttpPost("by-email")]
         public async Task<IActionResult> AuthenticateByEmailAsync([FromBody] UserLoginByEmailModel userModel)

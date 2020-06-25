@@ -65,9 +65,9 @@ namespace Exoft.Gamification.Api.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(Guid userAchievementId)
+        public async Task DeleteAsync(Guid userAchievementsId)
         {
-            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementId);
+            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementsId);
 
             var user = await _userRepository.GetByIdAsync(userAchievement.User.Id);
 
@@ -117,9 +117,9 @@ namespace Exoft.Gamification.Api.Services
             return result;
         }
 
-        public async Task<ReadUserAchievementModel> GetUserAchievementByIdAsync(Guid userAchievementId)
+        public async Task<ReadUserAchievementModel> GetUserAchievementByIdAsync(Guid userAchievementsId)
         {
-            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementId);
+            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementsId);
 
             return _mapper.Map<ReadUserAchievementModel>(userAchievement);
         }

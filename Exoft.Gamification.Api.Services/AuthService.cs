@@ -64,9 +64,9 @@ namespace Exoft.Gamification.Api.Services
             _stringLocalizer = stringLocalizer;
         }
 
-        public async Task<JwtTokenModel> AuthenticateAsync(string userName, string password)
+        public async Task<JwtTokenModel> AuthenticateAsync(string login, string password)
         {
-            var userEntity = await _userRepository.GetByUserNameAsync(userName);
+            var userEntity = await _userRepository.GetByUserNameAsync(login);
 
             if (userEntity == null || !_hasher.Compare(password, userEntity.Password))
             {

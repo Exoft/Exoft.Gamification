@@ -118,6 +118,8 @@ namespace Exoft.Gamification.Api.Services
                 }
             }
 
+            await _unitOfWork.SaveChangesAsync();
+
             foreach (var categoryId in model.CategoryIds)
             {
                 if (!categoryIds.Contains(categoryId))

@@ -57,7 +57,6 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckRoleAsync(ICollection<string> roles, CancellationToken cancellationToken)
         {
-            var result = true;
             foreach (var role in roles)
             {
                 var roleEntity = await _roleRepository.GetRoleByNameAsync(role);
@@ -66,7 +65,8 @@ namespace Exoft.Gamification.Api.Validators
                     return false;
                 }
             }
-            return result;
+
+            return true;
         }
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
