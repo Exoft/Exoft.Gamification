@@ -265,3 +265,6 @@ Exoft.Gamification.Api/LogFiles/
 
 # Data protection files
 Exoft.Gamification.Api/Resources/*.xml
+
+# Sonarqube auto generated files
+.sonarqube/

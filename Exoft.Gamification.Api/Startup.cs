@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-using AutoMapper;
-
+﻿using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Common.Models.Achievement;
@@ -25,9 +20,7 @@ using Exoft.Gamification.Api.Services;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Validators;
-
 using FluentValidation;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -39,8 +32,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
-namespace Exoft.Gamification
+namespace Exoft.Gamification.Api
 {
     public class Startup
     {
@@ -49,7 +46,7 @@ namespace Exoft.Gamification
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -61,7 +58,7 @@ namespace Exoft.Gamification
             services.AddControllers(options =>
             {
                 options.EnableEndpointRouting = true;
-                options.Filters.Add<ErrorHandlingFilter>();
+                options.Filters.Add<ErrorHandlingFilterAttribute>();
             })
             .AddDataAnnotationsLocalization(options =>
             {
@@ -75,6 +72,7 @@ namespace Exoft.Gamification
 
             // configure DI for application services
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<ContextInitializer>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddTransient<IPasswordHasher, PasswordHasher>();
             services.AddTransient<IRefreshTokenProvider, RefreshTokenProvider>();
@@ -181,14 +179,14 @@ namespace Exoft.Gamification
                     {
                         new OpenApiSecurityScheme
                         {
-                        Reference = new OpenApiReference
+                            Reference = new OpenApiReference
                             {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
                             },
                             Scheme = "oauth2",
                             Name = "Bearer",
-                            In = ParameterLocation.Header,
+                            In = ParameterLocation.Header
                         },
                         new List<string>()
                     }
@@ -197,19 +195,18 @@ namespace Exoft.Gamification
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
-            {
-                using (var context = scope.ServiceProvider.GetService<UsersDbContext>())
-                {
-                    ContextInitializer.Initialize(context);
-                }
-            }
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+            }
+
+            using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var contextInitializer = scope.ServiceProvider.GetService<ContextInitializer>();
+
+                Task.Run(() => contextInitializer.InitializeAsync());
             }
 
             app.UseSwagger();

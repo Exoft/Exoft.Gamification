@@ -65,9 +65,9 @@ namespace Exoft.Gamification.Api.Services
             await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(Guid userAchievementId)
+        public async Task DeleteAsync(Guid userAchievementsId)
         {
-            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementId);
+            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementsId);
 
             var user = await _userRepository.GetByIdAsync(userAchievement.User.Id);
 
@@ -117,9 +117,9 @@ namespace Exoft.Gamification.Api.Services
             return result;
         }
 
-        public async Task<ReadUserAchievementModel> GetUserAchievementByIdAsync(Guid userAchievementId)
+        public async Task<ReadUserAchievementModel> GetUserAchievementByIdAsync(Guid userAchievementsId)
         {
-            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementId);
+            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementsId);
 
             return _mapper.Map<ReadUserAchievementModel>(userAchievement);
         }
@@ -134,7 +134,7 @@ namespace Exoft.Gamification.Api.Services
                 PageSize = 0
             };
             var currentAchievements = (await _userAchievementRepository.GetAllAchievementsByUserAsync(page, userId)).Data.ToList();
-            var achievementsGroups = currentAchievements.GroupBy(i => i.Achievement.Id);
+            var achievementsGroups = currentAchievements.GroupBy(i => i.Achievement.Id).ToArray();
 
             foreach (var achievementWithCount in model.Achievements)
             {
@@ -143,7 +143,7 @@ namespace Exoft.Gamification.Api.Services
 
                 if (achievementsGroup == null)
                 {
-                    for (int i = 0; i < achievementWithCount.Count; i++)
+                    for (var i = 0; i < achievementWithCount.Count; i++)
                     {
                         var achievement = await _achievementRepository.GetByIdAsync(achievementWithCount.AchievementId);
                         await AddAchievementToUser(achievement, user);
@@ -152,7 +152,7 @@ namespace Exoft.Gamification.Api.Services
                 }
                 else
                 {
-                    for (int i = achievementsGroup.Count(); i < achievementWithCount.Count; i++)
+                    for (var i = achievementsGroup.Count(); i < achievementWithCount.Count; i++)
                     {
                         var achievement = achievementsGroup.First().Achievement;
                         await AddAchievementToUser(achievement, user);

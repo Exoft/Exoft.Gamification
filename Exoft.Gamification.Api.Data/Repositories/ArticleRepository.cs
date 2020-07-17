@@ -1,10 +1,11 @@
 ﻿using Exoft.Gamification.Api.Data.Core.Entities;
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
+using System;
 using System.Linq;
 
 namespace Exoft.Gamification.Api.Data.Repositories
 {
-    // todo: check if mobile client use this logic.
+    [Obsolete("Wll remove in next release.", false)]
     public class ArticleRepository : Repository<Article>, IArticleRepository
     {
         public ArticleRepository(UsersDbContext context) : base(context)

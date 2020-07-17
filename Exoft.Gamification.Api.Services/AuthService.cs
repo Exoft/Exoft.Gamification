@@ -64,16 +64,16 @@ namespace Exoft.Gamification.Api.Services
             _stringLocalizer = stringLocalizer;
         }
 
-        public async Task<JwtTokenModel> AuthenticateAsync(string userName, string password)
+        public async Task<JwtTokenModel> AuthenticateAsync(string login, string password)
         {
-            var userEntity = await _userRepository.GetByUserNameAsync(userName);
+            var userEntity = await _userRepository.GetByUserNameAsync(login);
 
             if (userEntity == null || !_hasher.Compare(password, userEntity.Password))
             {
                 return null;
             }
 
-            var refreshToken = new RefreshToken()
+            var refreshToken = new RefreshToken
             {
                 Token = Guid.NewGuid().ToString(),
                 UserId = userEntity.Id
@@ -92,7 +92,7 @@ namespace Exoft.Gamification.Api.Services
                 return null;
             }
 
-            var refreshToken = new RefreshToken()
+            var refreshToken = new RefreshToken
             {
                 Token = Guid.NewGuid().ToString(),
                 UserId = userEntity.Id
@@ -104,20 +104,20 @@ namespace Exoft.Gamification.Api.Services
 
         public async Task<JwtTokenModel> RefreshTokenAsync(string refreshToken)
         {
-            var refreshTokenFromDB = await _refreshTokenProvider.GetRefreshTokenInfo(refreshToken);
-            if (refreshTokenFromDB == null)
+            var refreshTokenFromDb = await _refreshTokenProvider.GetRefreshTokenInfo(refreshToken);
+            if (refreshTokenFromDb == null)
             {
                 return null;
             }
 
-            var userId = refreshTokenFromDB.UserId;
+            var userId = refreshTokenFromDb.UserId;
             var userEntity = await _userRepository.GetByIdAsync(userId);
             if (userEntity == null)
             {
                 return null;
             }
 
-            return await GetJwtToken(userEntity, refreshTokenFromDB);
+            return await GetJwtToken(userEntity, refreshTokenFromDb);
         }
 
         public async Task<IResponse> SendForgotPasswordAsync(string email, Uri resetPasswordPageLink)
@@ -141,7 +141,7 @@ namespace Exoft.Gamification.Api.Services
             var uriBuilder = new UriBuilder(resetPasswordPageLink);
             var query = HttpUtility.ParseQueryString(uriBuilder.Query);
             query["secretString"] = temporaryRandomString;
-            uriBuilder.Query = query.ToString();
+            uriBuilder.Query = query.ToString() ?? string.Empty;
 
             var forgotPasswordPage = _stringLocalizer["ForgotPasswordPage"].ToString();
 

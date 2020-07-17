@@ -12,7 +12,7 @@ namespace Exoft.Gamification.Api.Validators
         protected readonly IStringLocalizer<ValidatorMessages> _stringLocalizer;
         protected readonly IActionContextAccessor _actionContextAccessor;
 
-        public BaseValidator
+        protected BaseValidator
         (
             IStringLocalizer<ValidatorMessages> stringLocalizer,
             IActionContextAccessor actionContextAccessor

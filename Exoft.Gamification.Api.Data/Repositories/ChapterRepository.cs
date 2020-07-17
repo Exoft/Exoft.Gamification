@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data.Repositories
 {
-    // todo: check if mobile client use this logic.
+    [Obsolete("Wll remove in next release.", false)]
     public class ChapterRepository : Repository<Chapter>, IChapterRepository
     {
         public ChapterRepository(UsersDbContext context) : base(context)

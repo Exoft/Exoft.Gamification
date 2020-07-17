@@ -62,24 +62,12 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
             var items = await query.ToListAsync();
 
-            //// todo: use this code after update core >= 3.0.0
-            ////var result = new ReturnPagingInfo<UserAchievement>()
-            ////{
-            ////    CurrentPage = pagingInfo.CurrentPage,
-            ////    PageSize = items.Count,
-            ////    TotalItems = query.Count(),
-            ////    TotalPages = (int)Math.Ceiling((double)query.Count() / (pagingInfo.PageSize == 0 ? query.Count() : pagingInfo.PageSize)),
-            ////    Data = items
-            ////};
-
-            int itemsCount = await query.CountAsync();
-
             var result = new ReturnPagingInfo<UserAchievement>()
             {
                 CurrentPage = pagingInfo.CurrentPage,
                 PageSize = items.Count,
-                TotalItems = itemsCount,
-                TotalPages = (int)Math.Ceiling((double)itemsCount / (pagingInfo.PageSize == 0 ? itemsCount : pagingInfo.PageSize)),
+                TotalItems = query.Count(),
+                TotalPages = (int)Math.Ceiling((double)query.Count() / (pagingInfo.PageSize == 0 ? query.Count() : pagingInfo.PageSize)),
                 Data = items
             };
 

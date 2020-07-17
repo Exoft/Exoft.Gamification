@@ -1,17 +1,15 @@
-﻿using System.Threading.Tasks;
-
-using Exoft.Gamification.Api.Common.Models;
+﻿using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
-
 using FluentValidation;
 using FluentValidation.AspNetCore;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Controllers
 {
-    // todo: check if mobile client use this logic.
+    [Obsolete("Wll remove in next release.", false)]
     [Route("api/push")]
     [Authorize]
     [ApiController]

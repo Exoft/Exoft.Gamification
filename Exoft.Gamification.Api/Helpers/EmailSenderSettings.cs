@@ -1,6 +1,5 @@
 ﻿using Exoft.Gamification.Api.Common.Helpers;
 using Microsoft.Extensions.Configuration;
-using System;
 
 namespace Exoft.Gamification.Api.Helpers
 {
