@@ -13,13 +13,13 @@ using System.Text;
 
 namespace Exoft.Gamification.Api.Helpers
 {
-    public class ErrorHandlingFilter : ExceptionFilterAttribute
+    public class ErrorHandlingFilterAttribute : ExceptionFilterAttribute
     {
-        private readonly ILogger<ErrorHandlingFilter> _logger;
+        private readonly ILogger<ErrorHandlingFilterAttribute> _logger;
 
-        public ErrorHandlingFilter
+        public ErrorHandlingFilterAttribute
         (
-            ILogger<ErrorHandlingFilter> logger
+            ILogger<ErrorHandlingFilterAttribute> logger
         )
         {
             _logger = logger;

@@ -8,14 +8,14 @@ namespace Exoft.Gamification.Api
 {
     public static class Program
     {
-        public static void Main(string[] args)
+        public static void Main()
         {
             // NLog: setup the logger first to catch all errors
             var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
             try
             {
                 logger.Debug("init main");
-                CreateWebHostBuilder(args).Build().Run();
+                CreateWebHostBuilder().Build().Run();
             }
             catch (Exception ex)
             {
@@ -30,8 +30,8 @@ namespace Exoft.Gamification.Api
             }
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        private static IWebHostBuilder CreateWebHostBuilder() =>
+            WebHost.CreateDefaultBuilder()
                 .UseStartup<Startup>()
                 .ConfigureLogging(logging =>
                 {

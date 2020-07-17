@@ -10,7 +10,7 @@ namespace Exoft.Gamification.Api.Data
 {
     public class CacheManager<T> : ICacheManager<T>
     {
-        protected readonly IDistributedCache _cache;
+        private readonly IDistributedCache _cache;
 
         public CacheManager(IDistributedCache cache)
         {
@@ -33,14 +33,19 @@ namespace Exoft.Gamification.Api.Data
             }
         }
 
-        public async Task DeleteAsync(string key)
+        public Task DeleteAsync(string key)
         {
             if(string.IsNullOrEmpty(key))
             {
                 throw new ArgumentNullException(nameof(key));
             }
 
-            await _cache.RemoveAsync(key);
+            return DeleteInternalAsync(key);
+        }
+
+        private async Task DeleteInternalAsync(string key)
+        {
+            await  _cache.RemoveAsync(key);
         }
 
         public async Task<T> GetByKeyAsync(string key)

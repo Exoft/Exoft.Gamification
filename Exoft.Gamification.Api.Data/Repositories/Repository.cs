@@ -28,13 +28,18 @@ namespace Exoft.Gamification.Api.Data.Repositories
             return await IncludeAll().SingleOrDefaultAsync(i => i.Id == id);
         }
 
-        public virtual async Task AddAsync(T entity)
+        public virtual Task AddAsync(T entity)
         {
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
 
+            return AddInternalAsync(entity);
+        }
+
+        private async Task AddInternalAsync(T entity)
+        {
             await DbSet.AddAsync(entity);
         }
 
