@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,8 +11,6 @@ using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 
-using File = Exoft.Gamification.Api.Data.Core.Entities.File;
-
 namespace Exoft.Gamification.Api.Services
 {
     public class AchievementService : IAchievementService
@@ -21,7 +18,7 @@ namespace Exoft.Gamification.Api.Services
         private readonly IUserRepository _userRepository;
         private readonly IUserAchievementRepository _userAchievementRepository;
         private readonly IAchievementRepository _achievementRepository;
-        private readonly IFileRepository _fileRepository;
+        private readonly IFileService _fileService;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
 
@@ -30,7 +27,7 @@ namespace Exoft.Gamification.Api.Services
             IUserRepository userRepository,
             IUserAchievementRepository userAchievementRepository,
             IAchievementRepository achievementRepository,
-            IFileRepository fileRepository,
+            IFileService fileService,
             IMapper mapper,
             IUnitOfWork unitOfWork
         )
@@ -38,7 +35,7 @@ namespace Exoft.Gamification.Api.Services
             _userRepository = userRepository;
             _userAchievementRepository = userAchievementRepository;
             _achievementRepository = achievementRepository;
-            _fileRepository = fileRepository;
+            _fileService = fileService;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
@@ -49,24 +46,9 @@ namespace Exoft.Gamification.Api.Services
             {
                 Name = model.Name,
                 Description = model.Description,
-                XP = model.XP
+                XP = model.XP                
             };
-
-            if (model.Icon != null)
-            {
-                using (MemoryStream memory = new MemoryStream())
-                {
-                    await model.Icon.CopyToAsync(memory);
-
-                    var file = new File()
-                    {
-                        Data = memory.ToArray(),
-                        ContentType = model.Icon.ContentType
-                    };
-                    await _fileRepository.AddAsync(file);
-                    achievement.IconId = file.Id;
-                }
-            }
+            achievement.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, achievement.IconId);
 
             await _achievementRepository.AddAsync(achievement);
 
@@ -122,27 +104,7 @@ namespace Exoft.Gamification.Api.Services
             }
 
             achievement.XP = model.XP;
-
-            if (model.Icon != null)
-            {
-                await using (var memory = new MemoryStream())
-                {
-                    await model.Icon.CopyToAsync(memory);
-
-                    if (achievement.IconId != null)
-                    {
-                        await _fileRepository.Delete(achievement.IconId.Value);
-                    }
-
-                    var file = new File()
-                    {
-                        Data = memory.ToArray(),
-                        ContentType = model.Icon.ContentType
-                    };
-                    await _fileRepository.AddAsync(file);
-                    achievement.IconId = file.Id;
-                }
-            }
+            achievement.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, achievement.IconId);
 
             _achievementRepository.Update(achievement);
 

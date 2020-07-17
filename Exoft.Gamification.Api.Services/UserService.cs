@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,17 +14,14 @@ using Exoft.Gamification.Api.Services.Interfaces;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
 using Exoft.Gamification.Api.Services.Resources;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Localization;
-
-using File = Exoft.Gamification.Api.Data.Core.Entities.File;
 
 namespace Exoft.Gamification.Api.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IFileRepository _fileRepository;
+        private readonly IFileService _fileService;
         private readonly IRoleRepository _roleRepository;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
@@ -37,7 +33,7 @@ namespace Exoft.Gamification.Api.Services
         public UserService
         (
             IUserRepository userRepository,
-            IFileRepository fileRepository,
+            IFileService fileService,
             IRoleRepository roleRepository,
             IMapper mapper,
             IUnitOfWork unitOfWork,
@@ -48,7 +44,7 @@ namespace Exoft.Gamification.Api.Services
         )
         {
             _userRepository = userRepository;
-            _fileRepository = fileRepository;
+            _fileService = fileService;
             _roleRepository = roleRepository;
             _mapper = mapper;
             _unitOfWork = unitOfWork;
@@ -64,7 +60,7 @@ namespace Exoft.Gamification.Api.Services
 
             await SetRolesForUserModel(model.Roles, user);
 
-            await SetAvatarForUserModel(model.Avatar, user);
+            user.AvatarId = await _fileService.AddOrUpdateFileByIdAsync(model.Avatar, user.AvatarId);
 
             user.Password = _hasher.GetHash(model.Password);
 
@@ -163,38 +159,14 @@ namespace Exoft.Gamification.Api.Services
                 await SetRolesForUserModel(updateFullUserModel.Roles, user);
             }
 
-            await SetAvatarForUserModel(model.Avatar, user);
+            user.AvatarId = await _fileService.AddOrUpdateFileByIdAsync(model.Avatar, user.AvatarId);
             _userRepository.Update(user);
 
             await _unitOfWork.SaveChangesAsync();
 
             return _mapper.Map<ReadFullUserModel>(user);
         }
-
-        private async Task SetAvatarForUserModel(IFormFile image, User user)
-        {
-            if (image != null)
-            {
-                await using (var memory = new MemoryStream())
-                {
-                    await image.CopyToAsync(memory);
-
-                    if (user.AvatarId != null)
-                    {
-                        await _fileRepository.Delete(user.AvatarId.Value);
-                    }
-
-                    var file = new File()
-                    {
-                        Data = memory.ToArray(),
-                        ContentType = image.ContentType
-                    };
-                    await _fileRepository.AddAsync(file);
-                    user.AvatarId = file.Id;
-                }
-            }
-        }
-
+        
         private async Task SetRolesForUserModel(IEnumerable<string> roles, User user)
         {
             foreach (var role in roles)
