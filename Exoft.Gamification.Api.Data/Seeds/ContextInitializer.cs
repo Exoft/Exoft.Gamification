@@ -26,12 +26,12 @@ namespace Exoft.Gamification.Api.Data.Seeds
 
             var user1 = new User
             {
-                FirstName = "Ostap",
-                LastName = "Roik",
-                Email = "ostap2308@gmail.com",
-                UserName = "OstapRoik",
+                FirstName = "Admin",
+                LastName = "Exoft",
+                Email = "admin@exoft.net",
+                UserName = "AdminExoft",
                 XP = 30,
-                Password = _passwordHasher.GetHash("Password123"),
+                Password = _passwordHasher.GetHash("Pa$$word123"),
                 Status = "Status bla bla bla"
             };
             var user2 = new User
@@ -41,7 +41,17 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 Email = "tanyagermain23@gmail.com",
                 UserName = "TanyaGogina",
                 XP = 40,
-                Password = _passwordHasher.GetHash("Password123"),
+                Password = _passwordHasher.GetHash("Pa$$word123"),
+                Status = "Status 123"
+            };
+            var user3 = new User
+            {
+                FirstName = "Ostap",
+                LastName = "Roik",
+                Email = "ostap2308@gmail.com",
+                UserName = "OstapRoik",
+                XP = 0,
+                Password = _passwordHasher.GetHash("Pa$$word123"),
                 Status = "Status 123"
             };
             var achievement1 = new Achievement
@@ -129,11 +139,6 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 await _context.UserRoles.AddAsync(new UserRoles
                 {
                     User = user1,
-                    Role = role2
-                });
-                await _context.UserRoles.AddAsync(new UserRoles
-                {
-                    User = user1,
                     Role = role1
                 });
                 await _context.UserRoles.AddAsync(new UserRoles
@@ -143,8 +148,8 @@ namespace Exoft.Gamification.Api.Data.Seeds
                 });
                 await _context.UserRoles.AddAsync(new UserRoles
                 {
-                    User = user2,
-                    Role = role1
+                    User = user3,
+                    Role = role2
                 });
                 await _context.SaveChangesAsync();
             }

@@ -206,7 +206,7 @@ namespace Exoft.Gamification.Api
             {
                 var contextInitializer = scope.ServiceProvider.GetService<ContextInitializer>();
 
-                Task.Run(() => contextInitializer.InitializeAsync());
+                contextInitializer.InitializeAsync().GetAwaiter().GetResult();
             }
 
             app.UseSwagger();
