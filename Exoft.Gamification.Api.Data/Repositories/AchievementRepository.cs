@@ -10,7 +10,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
     public class AchievementRepository : Repository<Achievement>, IAchievementRepository
     {
 
-        public AchievementRepository(UsersDbContext context) : base(context)
+        public AchievementRepository(GamificationDbContext context) : base(context)
         {
         }
 

@@ -13,7 +13,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 {
     public class OrderRepository : Repository<Order>, IOrderRepository
     {
-        public OrderRepository(UsersDbContext context)
+        public OrderRepository(GamificationDbContext context)
             : base(context)
         {
         }

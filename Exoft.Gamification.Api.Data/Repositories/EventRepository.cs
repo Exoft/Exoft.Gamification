@@ -13,7 +13,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 {
     public class EventRepository : Repository<Event>, IEventRepository
     {
-        public EventRepository(UsersDbContext context) : base(context)
+        public EventRepository(GamificationDbContext context) : base(context)
         {
         }
 

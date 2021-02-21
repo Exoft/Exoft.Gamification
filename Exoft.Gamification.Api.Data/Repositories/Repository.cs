@@ -13,7 +13,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 {
     public abstract class Repository<T> : IRepository<T> where T : Entity
     {
-        protected Repository(UsersDbContext context)
+        protected Repository(GamificationDbContext context)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
 
@@ -22,7 +22,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         protected DbSet<T> DbSet { get; }
 
-        protected UsersDbContext Context { get; }
+        protected GamificationDbContext Context { get; }
 
         public async Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {

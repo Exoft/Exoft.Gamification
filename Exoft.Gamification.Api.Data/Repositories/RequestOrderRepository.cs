@@ -13,7 +13,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 {
     public class RequestOrderRepository : Repository<RequestOrder>, IRequestOrderRepository
     {
-        public RequestOrderRepository(UsersDbContext context)
+        public RequestOrderRepository(GamificationDbContext context)
             : base(context)
         {
         }

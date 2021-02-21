@@ -66,7 +66,7 @@ namespace Exoft.Gamification.Api
             })
             .AddNewtonsoftJson();
 
-            services.AddDbContext<UsersDbContext>(
+            services.AddDbContext<GamificationDbContext>(
                 options => options.UseSqlServer(Configuration.GetConnectionString("DataConnection")));
 
             // configure DI for application services

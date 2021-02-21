@@ -7,9 +7,9 @@ namespace Exoft.Gamification.Api.Data
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
-        private readonly UsersDbContext _context;
+        private readonly GamificationDbContext _context;
 
-        public UnitOfWork(UsersDbContext context)
+        public UnitOfWork(GamificationDbContext context)
         {
             _context = context;
         }

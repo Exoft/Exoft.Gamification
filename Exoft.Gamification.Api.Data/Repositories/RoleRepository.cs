@@ -9,7 +9,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 {
     public class RoleRepository : Repository<Role>, IRoleRepository
     {
-        public RoleRepository(UsersDbContext context) : base(context)
+        public RoleRepository(GamificationDbContext context) : base(context)
         {
         }
 

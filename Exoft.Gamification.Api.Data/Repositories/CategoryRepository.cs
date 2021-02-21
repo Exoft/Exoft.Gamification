@@ -11,7 +11,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 {
     public class CategoryRepository : Repository<Category>, ICategoryRepository
     {
-        public CategoryRepository(UsersDbContext context)
+        public CategoryRepository(GamificationDbContext context)
             : base(context)
         {
         }

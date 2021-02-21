@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
 using System;
+using System.Collections.Generic;
 
 namespace Exoft.Gamification.Api
 {
@@ -30,7 +31,8 @@ namespace Exoft.Gamification.Api
             }
         }
 
-        private static IWebHostBuilder CreateWebHostBuilder() =>
+        // The argument 'args' is really important for EntityFramework tools.
+        private static IWebHostBuilder CreateWebHostBuilder(string[] args = null) =>
             WebHost.CreateDefaultBuilder()
                 .UseStartup<Startup>()
                 .ConfigureLogging(logging =>

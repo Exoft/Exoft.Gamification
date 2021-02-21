@@ -12,9 +12,9 @@ namespace Exoft.Gamification.Api.Data.Seeds
     public class ContextInitializer
     {
         private readonly IPasswordHasher _passwordHasher;
-        private readonly UsersDbContext _context;
+        private readonly GamificationDbContext _context;
 
-        public ContextInitializer(IPasswordHasher passwordHasher, UsersDbContext context)
+        public ContextInitializer(IPasswordHasher passwordHasher, GamificationDbContext context)
         {
             _passwordHasher = passwordHasher;
             _context = context;

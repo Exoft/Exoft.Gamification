@@ -1,14 +1,15 @@
-﻿using Exoft.Gamification.Api.Data.Configurations;
+﻿using System.Reflection;
 using Exoft.Gamification.Api.Data.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Exoft.Gamification.Api.Data
 {
-    public class UsersDbContext : DbContext
+    public class GamificationDbContext : DbContext
     {
-        public UsersDbContext() { }
+        public GamificationDbContext() { }
 
-        public UsersDbContext(DbContextOptions<UsersDbContext> options) : base(options) { }
+        public GamificationDbContext(DbContextOptions<GamificationDbContext> options) : base(options) { }
+
 
         public DbSet<User> Users { get; set; }
 
@@ -43,15 +44,7 @@ namespace Exoft.Gamification.Api.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new UserAchievementConfiguration());
-            modelBuilder.ApplyConfiguration(new UserRolesConfiguration());
-            modelBuilder.ApplyConfiguration(new ThankConfiguration());
-            modelBuilder.ApplyConfiguration(new EventConfiguration());
-            modelBuilder.ApplyConfiguration(new RequestAchievementConfiguration());
-            modelBuilder.ApplyConfiguration(new OrderConfiguration());
-            modelBuilder.ApplyConfiguration(new CategoryConfiguration());
-            modelBuilder.ApplyConfiguration(new OrderCategoryConfiguration());
-            modelBuilder.ApplyConfiguration(new RequestOrderConfiguration());
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 {
     public class UserRepository : Repository<User>, IUserRepository
     {
-        public UserRepository(UsersDbContext context) : base(context)
+        public UserRepository(GamificationDbContext context) : base(context)
         {
         }
 

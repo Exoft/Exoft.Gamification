@@ -10,7 +10,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
 {
     public class ThankRepository : Repository<Thank>, IThankRepository
     {
-        public ThankRepository(UsersDbContext context) : base(context)
+        public ThankRepository(GamificationDbContext context) : base(context)
         {
         }
 
