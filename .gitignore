@@ -268,3 +268,6 @@ Exoft.Gamification.Api/Resources/*.xml
 
 # Sonarqube auto generated files
 .sonarqube/
+
+# Database if we use SQLite
+/Exoft.Gamification.Api/GamificationDB.db
