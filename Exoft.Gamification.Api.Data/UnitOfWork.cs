@@ -1,5 +1,6 @@
 ﻿using Exoft.Gamification.Api.Services.Interfaces;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data
@@ -13,9 +14,9 @@ namespace Exoft.Gamification.Api.Data
             _context = context;
         }
 
-        public async Task SaveChangesAsync()
+        public async Task SaveChangesAsync(CancellationToken cancellationToken)
         {
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         #region IDisposable Support

@@ -36,7 +36,7 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckDoesAchievementExistAsync(Guid achievementId, CancellationToken cancellationToken)
         {
-            var achievement = await _achievementService.GetAchievementByIdAsync(achievementId);
+            var achievement = await _achievementService.GetAchievementByIdAsync(achievementId, cancellationToken);
 
             return achievement != null;
         }

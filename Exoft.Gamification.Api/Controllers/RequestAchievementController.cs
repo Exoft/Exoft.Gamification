@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Common.Models.RequestAchievement;
@@ -34,12 +35,12 @@ namespace Exoft.Gamification.Api.Controllers
         /// <summary>
         /// Create new request achievement
         /// </summary>
-        /// <response code="200">When request success sended and added</response>
+        /// <response code="200">When request success sent and added</response>
         /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpPost]
-        public async Task<IActionResult> AddRequestAsync([FromBody] CreateRequestAchievementModel model)
+        public async Task<IActionResult> AddRequestAsync([FromBody] CreateRequestAchievementModel model, CancellationToken cancellationToken)
         {
-            var resultValidation = await _createRequestAchievementModelValidator.ValidateAsync(model);
+            var resultValidation = await _createRequestAchievementModelValidator.ValidateAsync(model, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -47,7 +48,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            await _requestAchievementService.AddAsync(model, UserId);
+            await _requestAchievementService.AddAsync(model, UserId, cancellationToken);
 
             return Ok();
         }
@@ -59,9 +60,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="403">When user don't have permissions to this action</response>
         [HttpGet]
         [Authorize(Roles = GamificationRole.Admin)]
-        public async Task<IActionResult> GetAllAchievementRequests()
+        public async Task<IActionResult> GetAllAchievementRequests(CancellationToken cancellationToken)
         {
-            return Ok(await _requestAchievementService.GetAllAsync());
+            return Ok(await _requestAchievementService.GetAllAsync(cancellationToken));
         }
 
         /// <summary>
@@ -72,15 +73,15 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="404">When request with current Id is not found</response>
         [HttpDelete("{id}")]
         [Authorize(Roles = GamificationRole.Admin)]
-        public async Task<IActionResult> DeclineRequest(Guid id)
+        public async Task<IActionResult> DeclineRequest(Guid id, CancellationToken cancellationToken)
         {
-            var achievementRequest = await _requestAchievementService.GetByIdAsync(id);
+            var achievementRequest = await _requestAchievementService.GetByIdAsync(id, cancellationToken);
             if (achievementRequest == null)
             {
                 return NotFound();
             }
 
-            await _requestAchievementService.DeleteAsync(achievementRequest);
+            await _requestAchievementService.DeleteAsync(achievementRequest, cancellationToken);
             return Ok();
         }
 
@@ -92,15 +93,15 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="404">When request with current Id is not found</response>
         [HttpPost("{id}")]
         [Authorize(Roles = GamificationRole.Admin)]
-        public async Task<IActionResult> ApproveRequest(Guid id)
+        public async Task<IActionResult> ApproveRequest(Guid id, CancellationToken cancellationToken)
         {
-            var achievementRequest = await _requestAchievementService.GetByIdAsync(id);
+            var achievementRequest = await _requestAchievementService.GetByIdAsync(id, cancellationToken);
             if (achievementRequest == null)
             {
                 return NotFound();
             }
 
-            await _requestAchievementService.ApproveAchievementRequestAsync(id);
+            await _requestAchievementService.ApproveAchievementRequestAsync(id, cancellationToken);
 
             return Ok();
         }

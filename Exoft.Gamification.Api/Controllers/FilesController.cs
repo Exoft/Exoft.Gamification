@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Services.Interfaces.Services;
@@ -24,9 +25,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return file stream</responce>
         /// <response code="404">When file with current Id is not found</response> 
         [HttpGet("{fileId}")]
-        public async Task<IActionResult> GetFile(Guid fileId)
+        public async Task<IActionResult> GetFile(Guid fileId, CancellationToken cancellationToken)
         {
-            var file = await _fileService.GetFileByIdAsync(fileId);
+            var file = await _fileService.GetFileByIdAsync(fileId, cancellationToken);
             if (file == null)
             {
                 return NotFound();

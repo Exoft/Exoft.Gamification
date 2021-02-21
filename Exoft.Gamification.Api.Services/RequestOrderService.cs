@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using AutoMapper;
@@ -48,10 +49,10 @@ namespace Exoft.Gamification.Api.Services
             _emailService = emailService;
         }
 
-        public async Task<IResponse> AddAsync(CreateRequestOrderModel model, Guid userId)
+        public async Task<IResponse> AddAsync(CreateRequestOrderModel model, Guid userId, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            var order = await _orderRepository.GetByIdAsync(model.OrderId);
+            var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
+            var order = await _orderRepository.GetByIdAsync(model.OrderId, cancellationToken);
 
             if (user.XP < order.Price)
             {
@@ -64,9 +65,9 @@ namespace Exoft.Gamification.Api.Services
             pageWithParams = pageWithParams.Replace("{message}", model.Message);
             pageWithParams = pageWithParams.Replace("{orderTitle}", order.Title);
 
-            var emails = await _userRepository.GetAdminsEmailsAsync();
+            var emails = await _userRepository.GetAdminsEmailsAsync(cancellationToken);
 
-            await _emailService.SendEmailsAsync("Request order", pageWithParams, emails.ToArray());
+            await _emailService.SendEmailsAsync("Request order", pageWithParams, cancellationToken, emails.ToArray());
 
             var entity = _mapper.Map<RequestOrder>(model);
             entity.UserId = userId;
@@ -76,20 +77,20 @@ namespace Exoft.Gamification.Api.Services
 
             _userRepository.Update(user);
 
-            await _requestOrderRepository.AddAsync(entity);
-            await _unitOfWork.SaveChangesAsync();
+            await _requestOrderRepository.AddAsync(entity, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new OkResponse();
         }
 
-        public async Task<ReadRequestOrderModel> GetByIdAsync(Guid id)
+        public async Task<ReadRequestOrderModel> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var requestOrder = await _requestOrderRepository.GetByIdAsync(id);
+            var requestOrder = await _requestOrderRepository.GetByIdAsync(id, cancellationToken);
 
             return _mapper.Map<ReadRequestOrderModel>(requestOrder);
         }
 
-        public async Task<IEnumerable<ReadRequestOrderModel>> GetAllAsync()
+        public async Task<IEnumerable<ReadRequestOrderModel>> GetAllAsync(CancellationToken cancellationToken)
         {
             var pagingInfo = new PagingInfo
             {
@@ -99,11 +100,11 @@ namespace Exoft.Gamification.Api.Services
 
             var readRequestOrderModels = new List<ReadRequestOrderModel>();
 
-            var requestOrders = await _requestOrderRepository.GetAllDataAsync(pagingInfo);
+            var requestOrders = await _requestOrderRepository.GetAllDataAsync(pagingInfo, cancellationToken);
             foreach (var item in requestOrders.Data)
             {
-                var user = await _userRepository.GetByIdAsync(item.UserId);
-                var order = await _orderRepository.GetByIdAsync(item.OrderId);
+                var user = await _userRepository.GetByIdAsync(item.UserId, cancellationToken);
+                var order = await _orderRepository.GetByIdAsync(item.OrderId, cancellationToken);
                 readRequestOrderModels.Add(new ReadRequestOrderModel
                 {
                     Id = item.Id,
@@ -118,23 +119,23 @@ namespace Exoft.Gamification.Api.Services
             return readRequestOrderModels;
         }
 
-        public async Task ApproveOrderRequestAsync(Guid id)
+        public async Task ApproveOrderRequestAsync(Guid id, CancellationToken cancellationToken)
         {
-            var requestOrder = await _requestOrderRepository.GetByIdAsync(id);
+            var requestOrder = await _requestOrderRepository.GetByIdAsync(id, cancellationToken);
 
             requestOrder.Status = GamificationEnums.RequestStatus.Approved;
 
             _requestOrderRepository.Update(requestOrder);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task DeclineOrderRequestAsync(Guid id)
+        public async Task DeclineOrderRequestAsync(Guid id, CancellationToken cancellationToken)
         {
-            var requestOrder = await _requestOrderRepository.GetByIdAsync(id);
+            var requestOrder = await _requestOrderRepository.GetByIdAsync(id, cancellationToken);
 
-            var order = await _orderRepository.GetByIdAsync(requestOrder.OrderId);
-            var user = await _userRepository.GetByIdAsync(requestOrder.UserId);
+            var order = await _orderRepository.GetByIdAsync(requestOrder.OrderId, cancellationToken);
+            var user = await _userRepository.GetByIdAsync(requestOrder.UserId, cancellationToken);
 
             user.XP += order.Price;
 
@@ -144,7 +145,7 @@ namespace Exoft.Gamification.Api.Services
 
             _requestOrderRepository.Update(requestOrder);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 }

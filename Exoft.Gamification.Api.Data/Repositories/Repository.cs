@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Data.Core.Entities;
@@ -23,24 +24,24 @@ namespace Exoft.Gamification.Api.Data.Repositories
 
         protected UsersDbContext Context { get; }
 
-        public async Task<T> GetByIdAsync(Guid id)
+        public async Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            return await IncludeAll().SingleOrDefaultAsync(i => i.Id == id);
+            return await IncludeAll().SingleOrDefaultAsync(i => i.Id == id, cancellationToken);
         }
 
-        public virtual Task AddAsync(T entity)
+        public virtual Task AddAsync(T entity, CancellationToken cancellationToken)
         {
             if (entity == null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
 
-            return AddInternalAsync(entity);
+            return AddInternalAsync(entity, cancellationToken);
         }
 
-        private async Task AddInternalAsync(T entity)
+        private async Task AddInternalAsync(T entity, CancellationToken cancellationToken)
         {
-            await DbSet.AddAsync(entity);
+            await DbSet.AddAsync(entity, cancellationToken);
         }
 
         public virtual void Update(T entity)
@@ -63,7 +64,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
             DbSet.Remove(entity);
         }
 
-        public virtual async Task<ReturnPagingInfo<T>> GetAllDataAsync(PagingInfo pagingInfo)
+        public virtual async Task<ReturnPagingInfo<T>> GetAllDataAsync(PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
             var take = pagingInfo.PageSize;
             var skip = (pagingInfo.CurrentPage - 1) * pagingInfo.PageSize;
@@ -77,8 +78,8 @@ namespace Exoft.Gamification.Api.Data.Repositories
                 });
 
             var entities = pagingInfo.PageSize != 0
-                               ? await query.Skip(skip).Take(take).ToListAsync()
-                               : await query.ToListAsync();
+                               ? await query.Skip(skip).Take(take).ToListAsync(cancellationToken)
+                               : await query.ToListAsync(cancellationToken);
 
             var totalCount = entities.First().TotalCount;
 

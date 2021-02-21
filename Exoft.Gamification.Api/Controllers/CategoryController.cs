@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Common.Models.Category;
@@ -43,9 +44,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of categories</responce>
         /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpGet]
-        public async Task<IActionResult> GetCategoriesAsync([FromQuery] PagingInfo pagingInfo)
+        public async Task<IActionResult> GetCategoriesAsync([FromQuery] PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
-            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -53,7 +54,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var list = await _categoryService.GetAllCategoryAsync(pagingInfo);
+            var list = await _categoryService.GetAllCategoryAsync(pagingInfo, cancellationToken);
 
             return Ok(list);
         }
@@ -64,9 +65,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return some category</responce> 
         /// <responce code="404">When category does not exist</responce> 
         [HttpGet("{categoryId}", Name = "GetCategory")]
-        public async Task<IActionResult> GetCategoryByIdAsync(Guid categoryId)
+        public async Task<IActionResult> GetCategoryByIdAsync(Guid categoryId, CancellationToken cancellationToken)
         {
-            var item = await _categoryService.GetCategoryByIdAsync(categoryId);
+            var item = await _categoryService.GetCategoryByIdAsync(categoryId, cancellationToken);
             if (item == null)
             {
                 return NotFound();
@@ -83,9 +84,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="422">When the model structure is correct but validation fails</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost]
-        public async Task<IActionResult> AddCategoryAsync([FromForm] CreateCategoryModel model)
+        public async Task<IActionResult> AddCategoryAsync([FromForm] CreateCategoryModel model, CancellationToken cancellationToken)
         {
-            var resultValidation = await _createCategoryModelValidator.ValidateAsync(model);
+            var resultValidation = await _createCategoryModelValidator.ValidateAsync(model, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -93,7 +94,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var category = await _categoryService.AddCategoryAsync(model);
+            var category = await _categoryService.AddCategoryAsync(model, cancellationToken);
 
             return CreatedAtRoute(
                 "GetCategory",
@@ -110,15 +111,15 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpPut("{categoryId}")]
-        public async Task<IActionResult> UpdateCategoryAsync([FromForm] UpdateCategoryModel model, Guid categoryId)
+        public async Task<IActionResult> UpdateCategoryAsync([FromForm] UpdateCategoryModel model, Guid categoryId, CancellationToken cancellationToken)
         {
-            var category = await _categoryService.GetCategoryByIdAsync(categoryId);
+            var category = await _categoryService.GetCategoryByIdAsync(categoryId, cancellationToken);
             if (category == null)
             {
                 return NotFound();
             }
 
-            var resultValidation = await _updateCategoryModelValidator.ValidateAsync(model);
+            var resultValidation = await _updateCategoryModelValidator.ValidateAsync(model, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -126,7 +127,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var item = await _categoryService.UpdateCategoryAsync(model, categoryId);
+            var item = await _categoryService.UpdateCategoryAsync(model, categoryId, cancellationToken);
 
             return Ok(item);
         }
@@ -139,15 +140,15 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="404">When the category does not exist</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpDelete("{categoryId}")]
-        public async Task<IActionResult> DeleteCategoryAsync(Guid categoryId)
+        public async Task<IActionResult> DeleteCategoryAsync(Guid categoryId, CancellationToken cancellationToken)
         {
-            var category = await _categoryService.GetCategoryByIdAsync(categoryId);
+            var category = await _categoryService.GetCategoryByIdAsync(categoryId, cancellationToken);
             if (category == null)
             {
                 return NotFound();
             }
 
-            await _categoryService.DeleteCategoryAsync(categoryId);
+            await _categoryService.DeleteCategoryAsync(categoryId, cancellationToken);
 
             return NoContent();
         }

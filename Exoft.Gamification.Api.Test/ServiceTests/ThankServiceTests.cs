@@ -1,4 +1,7 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models.Thank;
 using Exoft.Gamification.Api.Data.Core.Entities;
@@ -10,10 +13,8 @@ using Exoft.Gamification.Api.Test.DumbData;
 using Exoft.Gamification.Api.Test.TestData;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Threading.Tasks;
 
-namespace Exoft.Gamification.Api.Test
+namespace Exoft.Gamification.Api.Test.ServiceTests
 {
     [TestFixture]
     public class ThankServiceTests
@@ -45,32 +46,35 @@ namespace Exoft.Gamification.Api.Test
         public async Task AddAsync_ValidCreateThankModel(CreateThankModel model)
         {
             //Arrange
+            var cancellationToken = new CancellationToken();
+            
             var user = UserDumbData.GetRandomEntity();
-            _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(user));
-            _thankRepository.Setup(x => x.AddAsync(It.IsAny<Thank>())).Returns(Task.CompletedTask);
-            _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
+            _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken)).Returns(Task.FromResult(user));
+            _thankRepository.Setup(x => x.AddAsync(It.IsAny<Thank>(), cancellationToken)).Returns(Task.CompletedTask);
+            _unitOfWork.Setup(x => x.SaveChangesAsync(cancellationToken)).Returns(Task.CompletedTask);
 
             // Act
-            await _thankService.AddAsync(model, user.Id);
+            await _thankService.AddAsync(model, user.Id, cancellationToken);
 
             // Assert
-            _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
-            _thankRepository.Verify(x => x.AddAsync(It.IsAny<Thank>()), Times.Once);
-            _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
+            _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken), Times.Once);
+            _thankRepository.Verify(x => x.AddAsync(It.IsAny<Thank>(), cancellationToken), Times.Once);
+            _unitOfWork.Verify(x => x.SaveChangesAsync(cancellationToken), Times.Once);
         }
 
         [TestCase]
         public async Task GetLastThankAsync()
         {
             //Arrange
+            var cancellationToken = new CancellationToken();
             var user = UserDumbData.GetRandomEntity();
-            _thankRepository.Setup(x => x.GetLastThankAsync(It.IsAny<Guid>())).Returns(Task.FromResult(ThankDumbData.GetRandomEntity()));
+            _thankRepository.Setup(x => x.GetLastThankAsync(It.IsAny<Guid>(), cancellationToken)).Returns(Task.FromResult(ThankDumbData.GetRandomEntity()));
 
             // Act
-            await _thankService.GetLastThankAsync(user.Id);
+            await _thankService.GetLastThankAsync(user.Id, cancellationToken);
 
             // Assert
-            _thankRepository.Verify(x => x.GetLastThankAsync(It.IsAny<Guid>()), Times.Once);
+            _thankRepository.Verify(x => x.GetLastThankAsync(It.IsAny<Guid>(), cancellationToken), Times.Once);
         }
     }
 }

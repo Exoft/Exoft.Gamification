@@ -13,14 +13,14 @@ namespace Exoft.Gamification.Api.Data.Core.Helpers
 
         public string GetHash(string input)
         {
-            using (SHA512 algorithm = SHA512.Create())
+            using (var algorithm = SHA512.Create())
             {
-                byte[] data = algorithm.ComputeHash(Encoding.UTF8.GetBytes(input));
+                var data = algorithm.ComputeHash(Encoding.UTF8.GetBytes(input));
 
-                StringBuilder sBuilder = new StringBuilder();
-                for (int i = 0; i < data.Length; i++)
+                var sBuilder = new StringBuilder();
+                foreach (var c in data)
                 {
-                    sBuilder.Append(data[i].ToString("x2"));
+                    sBuilder.Append(c.ToString("x2"));
                 }
 
                 return sBuilder.ToString();

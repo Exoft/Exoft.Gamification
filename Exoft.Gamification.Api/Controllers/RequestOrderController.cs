@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Common.Models.RequestOrder;
@@ -34,13 +35,13 @@ namespace Exoft.Gamification.Api.Controllers
         /// <summary>
         /// Create new request order
         /// </summary>
-        /// <response code="200">When request success sended and added</response>
+        /// <response code="200">When request success sent and added</response>
         /// <response code="401">If the user doesn't have enough Xp</response>
         /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpPost]
-        public async Task<IActionResult> AddRequestAsync([FromBody] CreateRequestOrderModel model)
+        public async Task<IActionResult> AddRequestAsync([FromBody] CreateRequestOrderModel model, CancellationToken cancellationToken)
         {
-            var resultValidation = await _requestOrderModelValidator.ValidateAsync(model);
+            var resultValidation = await _requestOrderModelValidator.ValidateAsync(model, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -48,7 +49,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var result = await _requestOrderService.AddAsync(model, UserId);
+            var result = await _requestOrderService.AddAsync(model, UserId, cancellationToken);
             if (result.Type == GamificationEnums.ResponseType.NotAllowed)
             {
                 return Unauthorized();
@@ -64,9 +65,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="403">When user don't have permissions to this action</response>
         [HttpGet]
         [Authorize(Roles = GamificationRole.Admin)]
-        public async Task<IActionResult> GetAllOrderRequests()
+        public async Task<IActionResult> GetAllOrderRequests(CancellationToken cancellationToken)
         {
-            return Ok(await _requestOrderService.GetAllAsync());
+            return Ok(await _requestOrderService.GetAllAsync(cancellationToken));
         }
 
         /// <summary>
@@ -77,15 +78,15 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="404">When request with current Id is not found</response>
         [HttpDelete("{id}")]
         [Authorize(Roles = GamificationRole.Admin)]
-        public async Task<IActionResult> DeclineRequest(Guid id)
+        public async Task<IActionResult> DeclineRequest(Guid id, CancellationToken cancellationToken)
         {
-            var requestOrder = await _requestOrderService.GetByIdAsync(id);
+            var requestOrder = await _requestOrderService.GetByIdAsync(id, cancellationToken);
             if (requestOrder == null)
             {
                 return NotFound();
             }
 
-            await _requestOrderService.DeclineOrderRequestAsync(id);
+            await _requestOrderService.DeclineOrderRequestAsync(id, cancellationToken);
             return Ok();
         }
 
@@ -97,15 +98,15 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="404">When request with current Id is not found</response>
         [HttpPost("{id}")]
         [Authorize(Roles = GamificationRole.Admin)]
-        public async Task<IActionResult> ApproveRequest(Guid id)
+        public async Task<IActionResult> ApproveRequest(Guid id, CancellationToken cancellationToken)
         {
-            var requestOrder = await _requestOrderService.GetByIdAsync(id);
+            var requestOrder = await _requestOrderService.GetByIdAsync(id, cancellationToken);
             if (requestOrder == null)
             {
                 return NotFound();
             }
 
-            await _requestOrderService.ApproveOrderRequestAsync(id);
+            await _requestOrderService.ApproveOrderRequestAsync(id, cancellationToken);
 
             return Ok();
         }

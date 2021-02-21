@@ -59,7 +59,7 @@ namespace Exoft.Gamification.Api.Validators
         {
             foreach (var role in roles)
             {
-                var roleEntity = await _roleRepository.GetRoleByNameAsync(role);
+                var roleEntity = await _roleRepository.GetRoleByNameAsync(role, cancellationToken);
                 if (roleEntity == null)
                 {
                     return false;
@@ -71,21 +71,21 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
         {
-            if (_actionContextAccessor.ActionContext.RouteData.Values.TryGetValue("userId", out object userIdObject))
+            if (_actionContextAccessor.ActionContext.RouteData.Values.TryGetValue("userId", out var userIdObject))
             {
                 if (!Guid.TryParse(userIdObject as string, out var userId))
                 {
                     return false;
                 }
 
-                var user = await _userRepository.GetByIdAsync(userId);
+                var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
                 if (user.Email == email)
                 {
                     return true;
                 }
 
-                bool exists = await _userRepository.DoesEmailExistsAsync(email);
+                bool exists = await _userRepository.DoesEmailExistsAsync(email, cancellationToken);
                 return !exists;
             }
             else
@@ -104,14 +104,14 @@ namespace Exoft.Gamification.Api.Validators
                     return false;
                 }
 
-                var user = await _userRepository.GetByIdAsync(userId);
+                var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
                 if (user.UserName == userName)
                 {
                     return true;
                 }
 
-                var userEntity = await _userRepository.GetByUserNameAsync(userName);
+                var userEntity = await _userRepository.GetByUserNameAsync(userName, cancellationToken);
                 if (userEntity == null)
                 {
                     return true;

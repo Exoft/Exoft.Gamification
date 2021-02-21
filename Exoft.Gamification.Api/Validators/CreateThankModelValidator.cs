@@ -39,7 +39,7 @@ namespace Exoft.Gamification.Api.Validators
                 return false;
             }
 
-            var user = await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
             return user != null;
         }

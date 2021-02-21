@@ -28,10 +28,6 @@ namespace Exoft.Gamification.Api.Data
 
         public DbSet<RequestAchievement> RequestAchievements { get; set; }
 
-        public DbSet<Article> Articles { get; set; }
-
-        public DbSet<Chapter> Chapters { get; set; }
-
         public DbSet<Order> Orders { get; set; }
 
         public DbSet<Category> Categories { get; set; }
@@ -52,7 +48,6 @@ namespace Exoft.Gamification.Api.Data
             modelBuilder.ApplyConfiguration(new ThankConfiguration());
             modelBuilder.ApplyConfiguration(new EventConfiguration());
             modelBuilder.ApplyConfiguration(new RequestAchievementConfiguration());
-            modelBuilder.ApplyConfiguration(new ChapterConfiguration());
             modelBuilder.ApplyConfiguration(new OrderConfiguration());
             modelBuilder.ApplyConfiguration(new CategoryConfiguration());
             modelBuilder.ApplyConfiguration(new OrderCategoryConfiguration());

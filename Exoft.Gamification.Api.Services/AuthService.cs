@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -64,9 +65,9 @@ namespace Exoft.Gamification.Api.Services
             _stringLocalizer = stringLocalizer;
         }
 
-        public async Task<JwtTokenModel> AuthenticateAsync(string login, string password)
+        public async Task<JwtTokenModel> AuthenticateAsync(string login, string password, CancellationToken cancellationToken)
         {
-            var userEntity = await _userRepository.GetByUserNameAsync(login);
+            var userEntity = await _userRepository.GetByUserNameAsync(login, cancellationToken);
 
             if (userEntity == null || !_hasher.Compare(password, userEntity.Password))
             {
@@ -78,14 +79,14 @@ namespace Exoft.Gamification.Api.Services
                 Token = Guid.NewGuid().ToString(),
                 UserId = userEntity.Id
             };
-            await _refreshTokenProvider.AddAsync(refreshToken);
+            await _refreshTokenProvider.AddAsync(refreshToken, cancellationToken);
 
-            return await GetJwtToken(userEntity, refreshToken);
+            return await GetJwtToken(userEntity, refreshToken, cancellationToken);
         }
 
-        public async Task<JwtTokenModel> AuthenticateByEmailAsync(string email, string password)
+        public async Task<JwtTokenModel> AuthenticateByEmailAsync(string email, string password, CancellationToken cancellationToken)
         {
-            var userEntity = await _userRepository.GetByEmailAsync(email);
+            var userEntity = await _userRepository.GetByEmailAsync(email, cancellationToken);
 
             if (userEntity == null || !_hasher.Compare(password, userEntity.Password))
             {
@@ -97,32 +98,32 @@ namespace Exoft.Gamification.Api.Services
                 Token = Guid.NewGuid().ToString(),
                 UserId = userEntity.Id
             };
-            await _refreshTokenProvider.AddAsync(refreshToken);
+            await _refreshTokenProvider.AddAsync(refreshToken, cancellationToken);
 
-            return await GetJwtToken(userEntity, refreshToken);
+            return await GetJwtToken(userEntity, refreshToken, cancellationToken);
         }
 
-        public async Task<JwtTokenModel> RefreshTokenAsync(string refreshToken)
+        public async Task<JwtTokenModel> RefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
         {
-            var refreshTokenFromDb = await _refreshTokenProvider.GetRefreshTokenInfo(refreshToken);
+            var refreshTokenFromDb = await _refreshTokenProvider.GetRefreshTokenInfo(refreshToken, cancellationToken);
             if (refreshTokenFromDb == null)
             {
                 return null;
             }
 
             var userId = refreshTokenFromDb.UserId;
-            var userEntity = await _userRepository.GetByIdAsync(userId);
+            var userEntity = await _userRepository.GetByIdAsync(userId, cancellationToken);
             if (userEntity == null)
             {
                 return null;
             }
 
-            return await GetJwtToken(userEntity, refreshTokenFromDb);
+            return await GetJwtToken(userEntity, refreshTokenFromDb, cancellationToken);
         }
 
-        public async Task<IResponse> SendForgotPasswordAsync(string email, Uri resetPasswordPageLink)
+        public async Task<IResponse> SendForgotPasswordAsync(string email, Uri resetPasswordPageLink, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByEmailAsync(email);
+            var user = await _userRepository.GetByEmailAsync(email, cancellationToken);
             if (user == null)
             {
                 return new NotFoundResponse("Email is not found!");
@@ -136,7 +137,7 @@ namespace Exoft.Gamification.Api.Services
                 Value = user.Id,
                 TimeToExpire = _resetPasswordSettings.TimeToExpireSecretString
             };
-            await _cache.AddAsync(cacheObject);
+            await _cache.AddAsync(cacheObject, cancellationToken);
 
             var uriBuilder = new UriBuilder(resetPasswordPageLink);
             var query = HttpUtility.ParseQueryString(uriBuilder.Query);
@@ -147,27 +148,27 @@ namespace Exoft.Gamification.Api.Services
 
             var pageWithParams = forgotPasswordPage.Replace("{link}", uriBuilder.ToString());
 
-            await _emailService.SendEmailAsync("Reset your password", pageWithParams, email);
+            await _emailService.SendEmailAsync("Reset your password", pageWithParams, email, cancellationToken);
 
             return new OkResponse();
         }
 
-        public async Task<IResponse> ResetPasswordAsync(string secretString, string newPassword)
+        public async Task<IResponse> ResetPasswordAsync(string secretString, string newPassword, CancellationToken cancellationToken)
         {
-            var userId = await _cache.GetByKeyAsync(secretString);
+            var userId = await _cache.GetByKeyAsync(secretString, cancellationToken);
             if (userId == default)
             {
                 return new NotFoundResponse("Current secretString expired or not found!");
             }
 
-            await _cache.DeleteAsync(secretString);
+            await _cache.DeleteAsync(secretString, cancellationToken);
 
-            await _userService.UpdatePasswordAsync(userId, newPassword);
+            await _userService.UpdatePasswordAsync(userId, newPassword, cancellationToken);
 
             return new OkResponse();
         }
 
-        private async Task<JwtTokenModel> GetJwtToken(User user, RefreshToken refreshToken)
+        private async Task<JwtTokenModel> GetJwtToken(User user, RefreshToken refreshToken, CancellationToken cancellationToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -192,7 +193,7 @@ namespace Exoft.Gamification.Api.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             var jwtTokenModel = _mapper.Map<JwtTokenModel>(user);
-            jwtTokenModel.BadgesCount = await _userAchievementRepository.GetCountAchievementsByUserAsync(user.Id);
+            jwtTokenModel.BadgesCount = await _userAchievementRepository.GetCountAchievementsByUserAsync(user.Id, cancellationToken);
             jwtTokenModel.Token = tokenHandler.WriteToken(token);
             jwtTokenModel.RefreshToken = refreshToken.Token;
             jwtTokenModel.TokenExpiration = token.ValidTo.ConvertToIso8601DateTimeUtc();

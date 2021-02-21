@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using AutoMapper;
@@ -37,15 +38,15 @@ namespace Exoft.Gamification.Api.Services
             _mapper = mapper;
         }
 
-        public async Task<ReadOrderModel> AddOrderAsync(CreateOrderModel model)
+        public async Task<ReadOrderModel> AddOrderAsync(CreateOrderModel model, CancellationToken cancellationToken)
         {
             var order = _mapper.Map<Order>(model);
             
-            order.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, order.IconId);
+            order.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, order.IconId, cancellationToken);
 
             foreach (var categoryId in model.CategoryIds)
             {
-                var category = await _categoryRepository.GetByIdAsync(categoryId);
+                var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
 
                 var orderCategory = new OrderCategory
                 {
@@ -56,20 +57,20 @@ namespace Exoft.Gamification.Api.Services
                 order.Categories.Add(orderCategory);
             }
 
-            await _orderRepository.AddAsync(order);
+            await _orderRepository.AddAsync(order, cancellationToken);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return _mapper.Map<ReadOrderModel>(order);
         }
 
-        public async Task<ReadOrderModel> UpdateOrderAsync(UpdateOrderModel model, Guid id)
+        public async Task<ReadOrderModel> UpdateOrderAsync(UpdateOrderModel model, Guid id, CancellationToken cancellationToken)
         {
-            var order = await _orderRepository.GetByIdAsync(id);
+            var order = await _orderRepository.GetByIdAsync(id, cancellationToken);
             order.Title = model.Title;
             order.Description = model.Description;
             order.Price = model.Price;
-            order.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, order.IconId);
+            order.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, order.IconId, cancellationToken);
 
             var categoryIds = order.Categories.Select(i => i.Category.Id).ToList();
             foreach (var categoryId in categoryIds)
@@ -82,13 +83,13 @@ namespace Exoft.Gamification.Api.Services
                 }
             }
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             foreach (var categoryId in model.CategoryIds)
             {
                 if (!categoryIds.Contains(categoryId))
                 {
-                    var category = await _categoryRepository.GetByIdAsync(categoryId);
+                    var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
                     var orderCategory = new OrderCategory
                     {
                         Category = category,
@@ -101,30 +102,30 @@ namespace Exoft.Gamification.Api.Services
 
             _orderRepository.Update(order);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return _mapper.Map<ReadOrderModel>(order);
         }
 
-        public async Task DeleteOrderAsync(Guid id)
+        public async Task DeleteOrderAsync(Guid id, CancellationToken cancellationToken)
         {
-            var order = await _orderRepository.GetByIdAsync(id);
+            var order = await _orderRepository.GetByIdAsync(id, cancellationToken);
 
             _orderRepository.Delete(order);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<ReadOrderModel> GetOrderByIdAsync(Guid id)
+        public async Task<ReadOrderModel> GetOrderByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var order = await _orderRepository.GetByIdAsync(id);
+            var order = await _orderRepository.GetByIdAsync(id, cancellationToken);
 
             return _mapper.Map<ReadOrderModel>(order);
         }
 
-        public async Task<ReturnPagingInfo<ReadOrderModel>> GetAllOrderAsync(PagingInfo pagingInfo)
+        public async Task<ReturnPagingInfo<ReadOrderModel>> GetAllOrderAsync(PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
-            var page = await _orderRepository.GetAllDataAsync(pagingInfo);
+            var page = await _orderRepository.GetAllDataAsync(pagingInfo, cancellationToken);
 
             var readOrderModels = page.Data.Select(order => _mapper.Map<ReadOrderModel>(order)).ToList();
             var result = new ReturnPagingInfo<ReadOrderModel>()

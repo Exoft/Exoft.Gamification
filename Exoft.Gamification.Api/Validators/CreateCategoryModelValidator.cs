@@ -36,7 +36,7 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckNameAsync(string name, CancellationToken cancellationToken)
         {
-            var category = await _categoryRepository.GetCategoryByNameAsync(name);
+            var category = await _categoryRepository.GetCategoryByNameAsync(name, cancellationToken);
 
             return category == null;
         }

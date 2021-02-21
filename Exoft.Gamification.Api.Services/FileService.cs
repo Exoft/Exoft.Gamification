@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using AutoMapper;
@@ -30,26 +31,26 @@ namespace Exoft.Gamification.Api.Services
             _mapper = mapper;
         }
 
-        public async Task<FileModel> GetFileByIdAsync(Guid id)
+        public async Task<FileModel> GetFileByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var file = await _fileRepository.GetByIdAsync(id);
+            var file = await _fileRepository.GetByIdAsync(id, cancellationToken);
 
             return _mapper.Map<FileModel>(file);
         }
 
-        public async Task<Guid?> AddOrUpdateFileByIdAsync(IFormFile image, Guid? IconId)
+        public async Task<Guid?> AddOrUpdateFileByIdAsync(IFormFile image, Guid? iconId, CancellationToken cancellationToken)
         {
             if (image == null)
             {
-                return IconId;
+                return iconId;
             }
 
-            using var memory = new System.IO.MemoryStream();
-            await image.CopyToAsync(memory);
+            await using var memory = new System.IO.MemoryStream();
+            await image.CopyToAsync(memory, cancellationToken);
 
-            if (IconId.HasValue)
+            if (iconId.HasValue)
             {
-                await _fileRepository.Delete(IconId.Value);
+                await _fileRepository.Delete(iconId.Value, cancellationToken);
             }
 
             var file = new File
@@ -57,8 +58,8 @@ namespace Exoft.Gamification.Api.Services
                 Data = memory.ToArray(),
                 ContentType = image.ContentType
             };
-            await _fileRepository.AddAsync(file);
-            await _unitOfWork.SaveChangesAsync();
+            await _fileRepository.AddAsync(file, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return file.Id;
         }

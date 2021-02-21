@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Common.Models.User;
@@ -8,20 +9,20 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Services
 {
     public interface IUserService
     {
-        Task<ReadFullUserModel> AddUserAsync(CreateUserModel model);
+        Task<ReadFullUserModel> AddUserAsync(CreateUserModel model, CancellationToken cancellationToken);
 
-        Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid userId);
+        Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid userId, CancellationToken cancellationToken);
 
-        Task UpdatePasswordAsync(Guid userId, string newPassword);
+        Task UpdatePasswordAsync(Guid userId, string newPassword, CancellationToken cancellationToken);
 
-        Task DeleteUserAsync(Guid id);
+        Task DeleteUserAsync(Guid id, CancellationToken cancellationToken);
 
-        Task<ReadShortUserModel> GetShortUserByIdAsync(Guid id);
+        Task<ReadShortUserModel> GetShortUserByIdAsync(Guid id, CancellationToken cancellationToken);
 
-        Task<ReadFullUserModel> GetFullUserByIdAsync(Guid id);
+        Task<ReadFullUserModel> GetFullUserByIdAsync(Guid id, CancellationToken cancellationToken);
 
-        Task<ReturnPagingInfo<ReadShortUserModel>> GetAllUsersWithShortInfoAsync(PagingInfo pagingInfo);
+        Task<ReturnPagingInfo<ReadShortUserModel>> GetAllUsersWithShortInfoAsync(PagingInfo pagingInfo, CancellationToken cancellationToken);
 
-        Task<ReturnPagingInfo<ReadFullUserModel>> GetAllUsersWithFullInfoAsync(PagingInfo pagingInfo);
+        Task<ReturnPagingInfo<ReadFullUserModel>> GetAllUsersWithFullInfoAsync(PagingInfo pagingInfo, CancellationToken cancellationToken);
     }
 }

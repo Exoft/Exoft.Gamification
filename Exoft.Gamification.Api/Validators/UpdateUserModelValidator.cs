@@ -47,27 +47,27 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(CurrentUserId);
+            var user = await _userRepository.GetByIdAsync(CurrentUserId, cancellationToken);
 
             if (user.Email == email)
             {
                 return true;
             }
 
-            bool exists = await _userRepository.DoesEmailExistsAsync(email);
+            var exists = await _userRepository.DoesEmailExistsAsync(email, cancellationToken);
             return !exists;
         }
 
         private async Task<bool> CheckUserNameAsync(string userName, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(CurrentUserId);
+            var user = await _userRepository.GetByIdAsync(CurrentUserId, cancellationToken);
 
             if (user.UserName == userName)
             {
                 return true;
             }
 
-            var userEntity = await _userRepository.GetByUserNameAsync(userName);
+            var userEntity = await _userRepository.GetByUserNameAsync(userName, cancellationToken);
             if (userEntity == null)
             {
                 return true;

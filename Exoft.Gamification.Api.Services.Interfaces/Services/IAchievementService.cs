@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Common.Models.Achievement;
@@ -8,14 +9,14 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Services
 {
     public interface IAchievementService
     {
-        Task<ReadAchievementModel> AddAchievementAsync(CreateAchievementModel model);
+        Task<ReadAchievementModel> AddAchievementAsync(CreateAchievementModel model, CancellationToken cancellationToken);
 
-        Task<ReadAchievementModel> UpdateAchievementAsync(UpdateAchievementModel model, Guid id);
+        Task<ReadAchievementModel> UpdateAchievementAsync(UpdateAchievementModel model, Guid id, CancellationToken cancellationToken);
 
-        Task DeleteAchievementAsync(Guid id);
+        Task DeleteAchievementAsync(Guid id, CancellationToken cancellationToken);
 
-        Task<ReadAchievementModel> GetAchievementByIdAsync(Guid id);
+        Task<ReadAchievementModel> GetAchievementByIdAsync(Guid id, CancellationToken cancellationToken);
 
-        Task<ReturnPagingInfo<ReadAchievementModel>> GetAllAchievementsAsync(PagingInfo pagingInfo);
+        Task<ReturnPagingInfo<ReadAchievementModel>> GetAllAchievementsAsync(PagingInfo pagingInfo, CancellationToken cancellationToken);
     }
 }

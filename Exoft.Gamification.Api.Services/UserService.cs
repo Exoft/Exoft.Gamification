@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using AutoMapper;
@@ -54,48 +55,48 @@ namespace Exoft.Gamification.Api.Services
             _userAchievementRepository = userAchievementRepository;
         }
 
-        public async Task<ReadFullUserModel> AddUserAsync(CreateUserModel model)
+        public async Task<ReadFullUserModel> AddUserAsync(CreateUserModel model, CancellationToken cancellationToken)
         {
             var user = _mapper.Map<User>(model);
 
-            await SetRolesForUserModel(model.Roles, user);
+            await SetRolesForUserModel(model.Roles, user, cancellationToken);
 
-            user.AvatarId = await _fileService.AddOrUpdateFileByIdAsync(model.Avatar, user.AvatarId);
+            user.AvatarId = await _fileService.AddOrUpdateFileByIdAsync(model.Avatar, user.AvatarId, cancellationToken);
 
             user.Password = _hasher.GetHash(model.Password);
 
-            await _userRepository.AddAsync(user);
+            await _userRepository.AddAsync(user, cancellationToken);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            await SendEmail(model);
+            await SendEmail(model, cancellationToken);
 
             return _mapper.Map<ReadFullUserModel>(user);
         }
 
-        public async Task DeleteUserAsync(Guid id)
+        public async Task DeleteUserAsync(Guid id, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await _userRepository.GetByIdAsync(id, cancellationToken);
 
             _userRepository.Delete(user);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task UpdatePasswordAsync(Guid userId, string newPassword)
+        public async Task UpdatePasswordAsync(Guid userId, string newPassword, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
             user.Password = _hasher.GetHash(newPassword);
 
             _userRepository.Update(user);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<ReturnPagingInfo<ReadShortUserModel>> GetAllUsersWithShortInfoAsync(PagingInfo pagingInfo)
+        public async Task<ReturnPagingInfo<ReadShortUserModel>> GetAllUsersWithShortInfoAsync(PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
-            var page = await _userRepository.GetAllDataAsync(pagingInfo);
+            var page = await _userRepository.GetAllDataAsync(pagingInfo, cancellationToken);
 
             var readUserModels = page.Data.Select(i => _mapper.Map<ReadShortUserModel>(i)).ToList();
             var result = new ReturnPagingInfo<ReadShortUserModel>()
@@ -110,9 +111,9 @@ namespace Exoft.Gamification.Api.Services
             return result;
         }
 
-        public async Task<ReturnPagingInfo<ReadFullUserModel>> GetAllUsersWithFullInfoAsync(PagingInfo pagingInfo)
+        public async Task<ReturnPagingInfo<ReadFullUserModel>> GetAllUsersWithFullInfoAsync(PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
-            var page = await _userRepository.GetAllDataAsync(pagingInfo);
+            var page = await _userRepository.GetAllDataAsync(pagingInfo, cancellationToken);
 
             var readUserModels = page.Data.Select(i => _mapper.Map<ReadFullUserModel>(i)).ToList();
             var result = new ReturnPagingInfo<ReadFullUserModel>()
@@ -127,26 +128,26 @@ namespace Exoft.Gamification.Api.Services
             return result;
         }
 
-        public async Task<ReadFullUserModel> GetFullUserByIdAsync(Guid id)
+        public async Task<ReadFullUserModel> GetFullUserByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await _userRepository.GetByIdAsync(id, cancellationToken);
 
             var fullUserModel = _mapper.Map<ReadFullUserModel>(user);
-            fullUserModel.BadgesCount = await _userAchievementRepository.GetCountAchievementsByUserAsync(user.Id);
+            fullUserModel.BadgesCount = await _userAchievementRepository.GetCountAchievementsByUserAsync(user.Id, cancellationToken);
 
             return fullUserModel;
         }
 
-        public async Task<ReadShortUserModel> GetShortUserByIdAsync(Guid id)
+        public async Task<ReadShortUserModel> GetShortUserByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await _userRepository.GetByIdAsync(id, cancellationToken);
 
             return _mapper.Map<ReadShortUserModel>(user);
         }
 
-        public async Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid userId)
+        public async Task<ReadFullUserModel> UpdateUserAsync(UpdateUserModel model, Guid userId, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
             user.UserName = model.UserName;
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
@@ -156,26 +157,26 @@ namespace Exoft.Gamification.Api.Services
             if (model is UpdateFullUserModel updateFullUserModel)
             {
                 user.Roles.Clear();
-                await SetRolesForUserModel(updateFullUserModel.Roles, user);
+                await SetRolesForUserModel(updateFullUserModel.Roles, user, cancellationToken);
             }
 
-            user.AvatarId = await _fileService.AddOrUpdateFileByIdAsync(model.Avatar, user.AvatarId);
+            user.AvatarId = await _fileService.AddOrUpdateFileByIdAsync(model.Avatar, user.AvatarId, cancellationToken);
             _userRepository.Update(user);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return _mapper.Map<ReadFullUserModel>(user);
         }
         
-        private async Task SetRolesForUserModel(IEnumerable<string> roles, User user)
+        private async Task SetRolesForUserModel(IEnumerable<string> roles, User user, CancellationToken cancellationToken)
         {
             foreach (var role in roles)
             {
-                var roleFromDB = await _roleRepository.GetRoleByNameAsync(role);
+                var roleFromDb = await _roleRepository.GetRoleByNameAsync(role, cancellationToken);
 
-                var userRole = new UserRoles()
+                var userRole = new UserRoles
                 {
-                    Role = roleFromDB,
+                    Role = roleFromDb,
                     User = user
                 };
 
@@ -183,13 +184,13 @@ namespace Exoft.Gamification.Api.Services
             }
         }
 
-        private async Task SendEmail(CreateUserModel model)
+        private async Task SendEmail(CreateUserModel model, CancellationToken cancellationToken)
         {
             var forgotPasswordPage = _stringLocalizer["RegisterPage"].ToString();
 
             var pageWithParams = forgotPasswordPage.Replace("{FirstName}", model.FirstName).Replace("{Password}", model.Password);
 
-            await _emailService.SendEmailAsync("Welcome to Exoft", pageWithParams, model.Email);
+            await _emailService.SendEmailAsync("Welcome to Exoft", pageWithParams, model.Email, cancellationToken);
         }
     }
 }

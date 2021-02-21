@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using AutoMapper;
@@ -25,12 +26,12 @@ namespace Exoft.Gamification.Api.Services
             _mapper = mapper;
         }
 
-        public async Task<ReturnPagingInfo<EventModel>> GetAllEventAsync(PagingInfo pagingInfo)
+        public async Task<ReturnPagingInfo<EventModel>> GetAllEventAsync(PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
-            var page = await _eventRepository.GetAllDataAsync(pagingInfo);
+            var page = await _eventRepository.GetAllDataAsync(pagingInfo, cancellationToken);
 
             var eventModels = page.Data.Select(i => _mapper.Map<EventModel>(i)).ToList();
-            var result = new ReturnPagingInfo<EventModel>()
+            var result = new ReturnPagingInfo<EventModel>
             {
                 CurrentPage = page.CurrentPage,
                 PageSize = page.PageSize,

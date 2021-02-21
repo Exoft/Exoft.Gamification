@@ -1,4 +1,7 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
@@ -12,10 +15,8 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Threading.Tasks;
 
-namespace Exoft.Gamification.Api.Test
+namespace Exoft.Gamification.Api.Test.ServiceTests
 {
     [TestFixture]
     public class FileServiceTests
@@ -39,21 +40,22 @@ namespace Exoft.Gamification.Api.Test
             _fileService = new FileService(_fileRepository.Object, _unitOfWork.Object, _mapper);
         }
 
-        [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.SingleGuid))]
+        [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.ValidSingleGuid))]
         public async Task GetFileByIdAsync_ValidGuid_ReturnsFileModel(Guid id)
         {
             //Arrange
             var file = FileDumbData.GetEntity();
             id = file.Id;
             var expectedValue = _mapper.Map<FileModel>(file);
+            var cancellationToken = new CancellationToken();
 
-            _fileRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(file));
+            _fileRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken)).Returns(Task.FromResult(file));
 
             //Act
-            var response = await _fileService.GetFileByIdAsync(id);
+            var response = await _fileService.GetFileByIdAsync(id, cancellationToken);
 
             //Assert
-            _fileRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
+            _fileRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken), Times.Once);
             response.Should().BeEquivalentTo(expectedValue);
         }
 
@@ -61,22 +63,24 @@ namespace Exoft.Gamification.Api.Test
         public async Task AddOrUpdateFileByIdAsync_ValidIFormFileAndGuid_ReturnsGuid(IFormFile image, Guid? id)
         {
             //Arrange
-            _fileRepository.Setup(x => x.Delete(It.IsAny<Guid>())).Returns(Task.CompletedTask);
-            _fileRepository.Setup(x => x.AddAsync(It.IsAny<File>())).Returns(Task.CompletedTask);
-            _unitOfWork.Setup(x => x.SaveChangesAsync());
+            var cancellationToken = new CancellationToken();
+            
+            _fileRepository.Setup(x => x.Delete(It.IsAny<Guid>(), cancellationToken)).Returns(Task.CompletedTask);
+            _fileRepository.Setup(x => x.AddAsync(It.IsAny<File>(), cancellationToken)).Returns(Task.CompletedTask);
+            _unitOfWork.Setup(x => x.SaveChangesAsync(cancellationToken));
 
             //Act
-            var response = await _fileService.AddOrUpdateFileByIdAsync(image, id);
+            var response = await _fileService.AddOrUpdateFileByIdAsync(image, id, cancellationToken);
 
             //Assert
             if (image != null)
             {
                 if (id.HasValue)
                 {
-                    _fileRepository.Verify(x => x.Delete(It.IsAny<Guid>()), Times.Once);
+                    _fileRepository.Verify(x => x.Delete(It.IsAny<Guid>(), cancellationToken), Times.Once);
                 }
-                _fileRepository.Verify(x => x.AddAsync(It.IsAny<File>()), Times.Once);
-                _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
+                _fileRepository.Verify(x => x.AddAsync(It.IsAny<File>(), cancellationToken), Times.Once);
+                _unitOfWork.Verify(x => x.SaveChangesAsync(cancellationToken), Times.Once);
                 response.Should().HaveValue();
                 response.Should().NotBe(id.GetValueOrDefault());
             }

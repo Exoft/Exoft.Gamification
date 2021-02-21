@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Data.Core.Entities;
@@ -17,7 +18,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
         {
         }
 
-        public override async Task<ReturnPagingInfo<User>> GetAllDataAsync(PagingInfo pagingInfo)
+        public override async Task<ReturnPagingInfo<User>> GetAllDataAsync(PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
             var take = pagingInfo.PageSize;
             var skip = (pagingInfo.CurrentPage - 1) * pagingInfo.PageSize;
@@ -31,8 +32,8 @@ namespace Exoft.Gamification.Api.Data.Repositories
                 });
 
             var entities = pagingInfo.PageSize != 0
-                               ? await query.Skip(skip).Take(take).ToListAsync()
-                               : await query.ToListAsync();
+                               ? await query.Skip(skip).Take(take).ToListAsync(cancellationToken)
+                               : await query.ToListAsync(cancellationToken);
 
             var totalCount = entities.First().TotalCount;
 
@@ -48,33 +49,33 @@ namespace Exoft.Gamification.Api.Data.Repositories
             return result;
         }
 
-        public async Task<bool> DoesEmailExistsAsync(string email)
+        public async Task<bool> DoesEmailExistsAsync(string email, CancellationToken cancellationToken)
         {
-            var result = await IncludeAll().AnyAsync(i => i.Email == email);
+            var result = await IncludeAll().AnyAsync(i => i.Email == email, cancellationToken);
 
             return result;
         }
         
-        public async Task<User> GetByUserNameAsync(string userName)
+        public async Task<User> GetByUserNameAsync(string userName, CancellationToken cancellationToken)
         {
-            var user = await IncludeAll().SingleOrDefaultAsync(i => i.UserName == userName);
+            var user = await IncludeAll().SingleOrDefaultAsync(i => i.UserName == userName, cancellationToken);
 
             return user;
         }
 
-        public async Task<User> GetByEmailAsync(string email)
+        public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)
         {
-            var user = await IncludeAll().SingleOrDefaultAsync(i => i.Email == email);
+            var user = await IncludeAll().SingleOrDefaultAsync(i => i.Email == email, cancellationToken);
 
             return user;
         }
 
-        public async Task<ICollection<string>> GetAdminsEmailsAsync()
+        public async Task<ICollection<string>> GetAdminsEmailsAsync(CancellationToken cancellationToken)
         {
             var list = await Context.UserRoles
                 .Where(i => i.Role.Name == GamificationRole.Admin)
                 .Select(i => i.User.Email)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             return list;
         }

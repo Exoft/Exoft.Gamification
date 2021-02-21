@@ -40,14 +40,14 @@ namespace Exoft.Gamification.Api.Validators
         private async Task<bool> CheckNameAsync(string name, CancellationToken cancellationToken)
         {
             var achievementId = GetAchievementId();
-            var achievementEntity = await _achievementRepository.GetByIdAsync(achievementId);
+            var achievementEntity = await _achievementRepository.GetByIdAsync(achievementId, cancellationToken);
 
             if(achievementEntity.Name == name)
             {
                 return true;
             }
 
-            var achievement = await _achievementRepository.GetAchievementByNameAsync(name);
+            var achievement = await _achievementRepository.GetAchievementByNameAsync(name, cancellationToken);
             if(achievement == null)
             {
                 return true;

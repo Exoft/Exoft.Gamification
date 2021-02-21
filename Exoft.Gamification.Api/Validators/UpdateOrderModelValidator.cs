@@ -48,7 +48,7 @@ namespace Exoft.Gamification.Api.Validators
         {
             foreach (var categoryId in categoryIds)
             {
-                var category = await _categoryRepository.GetByIdAsync(categoryId);
+                var category = await _categoryRepository.GetByIdAsync(categoryId, cancellationToken);
 
                 if (category == null)
                 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using AutoMapper;
@@ -34,12 +35,12 @@ namespace Exoft.Gamification.Api.Services
             _mapper = mapper;
         }
 
-        public async Task<ReturnPagingInfo<ReadCategoryModel>> GetAllCategoryAsync(PagingInfo pagingInfo)
+        public async Task<ReturnPagingInfo<ReadCategoryModel>> GetAllCategoryAsync(PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
-            var page = await _categoryRepository.GetAllDataAsync(pagingInfo);
+            var page = await _categoryRepository.GetAllDataAsync(pagingInfo, cancellationToken);
 
             var readCategoryModels = page.Data.Select(category => _mapper.Map<ReadCategoryModel>(category)).ToList();
-            var result = new ReturnPagingInfo<ReadCategoryModel>()
+            var result = new ReturnPagingInfo<ReadCategoryModel>
             {
                 CurrentPage = page.CurrentPage,
                 PageSize = page.PageSize,
@@ -51,43 +52,43 @@ namespace Exoft.Gamification.Api.Services
             return result;
         }
 
-        public async Task<ReadCategoryModel> AddCategoryAsync(CreateCategoryModel model)
+        public async Task<ReadCategoryModel> AddCategoryAsync(CreateCategoryModel model, CancellationToken cancellationToken)
         {
             var category = _mapper.Map<Category>(model);
-            category.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, category.IconId);
+            category.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, category.IconId, cancellationToken);
 
-            await _categoryRepository.AddAsync(category);
+            await _categoryRepository.AddAsync(category, cancellationToken);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return _mapper.Map<ReadCategoryModel>(category);
         }
 
-        public async Task<ReadCategoryModel> UpdateCategoryAsync(UpdateCategoryModel model, Guid id)
+        public async Task<ReadCategoryModel> UpdateCategoryAsync(UpdateCategoryModel model, Guid id, CancellationToken cancellationToken)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
+            var category = await _categoryRepository.GetByIdAsync(id, cancellationToken);
             category.Name = model.Name;
-            category.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, category.IconId);
+            category.IconId = await _fileService.AddOrUpdateFileByIdAsync(model.Icon, category.IconId, cancellationToken);
 
             _categoryRepository.Update(category);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return _mapper.Map<ReadCategoryModel>(category);
         }
 
-        public async Task DeleteCategoryAsync(Guid id)
+        public async Task DeleteCategoryAsync(Guid id, CancellationToken cancellationToken)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
+            var category = await _categoryRepository.GetByIdAsync(id, cancellationToken);
 
             _categoryRepository.Delete(category);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<ReadCategoryModel> GetCategoryByIdAsync(Guid id)
+        public async Task<ReadCategoryModel> GetCategoryByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
+            var category = await _categoryRepository.GetByIdAsync(id, cancellationToken);
 
             return _mapper.Map<ReadCategoryModel>(category);
         }

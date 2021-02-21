@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using AutoMapper;
@@ -32,18 +33,18 @@ namespace Exoft.Gamification.Api.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task AddAsync(CreateThankModel model, Guid fromUserId)
+        public async Task AddAsync(CreateThankModel model, Guid fromUserId, CancellationToken cancellationToken)
         {
             var thank = _mapper.Map<Thank>(model);
-            thank.FromUser = await _userRepository.GetByIdAsync(fromUserId);
-            await _thankRepository.AddAsync(thank);
+            thank.FromUser = await _userRepository.GetByIdAsync(fromUserId, cancellationToken);
+            await _thankRepository.AddAsync(thank, cancellationToken);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<ReadThankModel> GetLastThankAsync(Guid toUserId)
+        public async Task<ReadThankModel> GetLastThankAsync(Guid toUserId, CancellationToken cancellationToken)
         {
-            var thankEntity = await _thankRepository.GetLastThankAsync(toUserId);
+            var thankEntity = await _thankRepository.GetLastThankAsync(toUserId, cancellationToken);
 
             return _mapper.Map<ReadThankModel>(thankEntity);
         }

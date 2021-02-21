@@ -46,14 +46,14 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckPasswordAsync(string password, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(CurrentUserId);
+            var user = await _userRepository.GetByIdAsync(CurrentUserId, cancellationToken);
 
             return user.Password == _hasher.GetHash(password);
         }
 
         private async Task<bool> ComparePasswordAsync(string newPassword, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(CurrentUserId);
+            var user = await _userRepository.GetByIdAsync(CurrentUserId, cancellationToken);
 
             return user.Password != _hasher.GetHash(newPassword);
         }

@@ -1,4 +1,9 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models.RequestOrder;
 using Exoft.Gamification.Api.Data.Core.Entities;
@@ -15,12 +20,8 @@ using FluentAssertions;
 using Microsoft.Extensions.Localization;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Exoft.Gamification.Api.Test
+namespace Exoft.Gamification.Api.Test.ServiceTests
 {
     [TestFixture]
     public class RequestOrderServiceTests
@@ -66,54 +67,56 @@ namespace Exoft.Gamification.Api.Test
             var order = OrderDumbData.GetRandomEntity();
             model.OrderId = order.Id;
             var enoughXP = user.XP < order.Price;
+            var cancellationToken = new CancellationToken();
 
             ICollection<string> emailCollection = new List<string> {
                     RandomHelper.GetRandomString(),
                     RandomHelper.GetRandomString(),
                 };
 
-            _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(user));
-            _orderRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(order));
-            _userRepository.Setup(x => x.GetAdminsEmailsAsync()).Returns(Task.FromResult(emailCollection));
-            _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
-            _emailService.Setup(x => x.SendEmailsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>())).Returns(Task.CompletedTask);
+            _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken)).Returns(Task.FromResult(user));
+            _orderRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken)).Returns(Task.FromResult(order));
+            _userRepository.Setup(x => x.GetAdminsEmailsAsync(cancellationToken)).Returns(Task.FromResult(emailCollection));
+            _unitOfWork.Setup(x => x.SaveChangesAsync(cancellationToken)).Returns(Task.CompletedTask);
+            _emailService.Setup(x => x.SendEmailsAsync(It.IsAny<string>(), It.IsAny<string>(), cancellationToken, It.IsAny<string[]>())).Returns(Task.CompletedTask);
             string key = "RequestOrderPage";
             var localizedString = new LocalizedString(key, key);
             _stringLocalizer.Setup(_ => _[key]).Returns(localizedString);
 
             // Act
-            var response = await _requestOrderService.AddAsync(model, userId);
+            var response = await _requestOrderService.AddAsync(model, userId, cancellationToken);
 
             // Assert
-            _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
-            _orderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
+            _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken), Times.Once);
+            _orderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken), Times.Once);
             if (enoughXP)
             {
                 response.Should().BeOfType<NotAllowedResponse>();
             }
             else
             {
-                _userRepository.Verify(x => x.GetAdminsEmailsAsync(), Times.Once);
+                _userRepository.Verify(x => x.GetAdminsEmailsAsync(cancellationToken), Times.Once);
                 _stringLocalizer.Verify(_ => _[key], Times.Once);
-                _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
-                _emailService.Verify(x => x.SendEmailsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>()), Times.Once);
+                _unitOfWork.Verify(x => x.SaveChangesAsync(cancellationToken), Times.Once);
+                _emailService.Verify(x => x.SendEmailsAsync(It.IsAny<string>(), It.IsAny<string>(), cancellationToken, It.IsAny<string[]>()), Times.Once);
                 response.Should().BeOfType<OkResponse>();
             }
         }
 
-        [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.SingleGuid))]
+        [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.ValidSingleGuid))]
         public async Task GetByIdAsync_ValidRequestOrderId(Guid id)
         {
             //Arrange
             var requestOrder = RequestOrderDumbData.GetRandomEntity();
+            var cancellationToken = new CancellationToken();
 
-            _requestOrderRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(requestOrder);
+            _requestOrderRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken)).ReturnsAsync(requestOrder);
 
             // Act
-            await _requestOrderService.GetByIdAsync(id);
+            await _requestOrderService.GetByIdAsync(id, cancellationToken);
 
             // Assert
-            _requestOrderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
+            _requestOrderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken), Times.Once);
         }
 
         [TestCase]
@@ -123,45 +126,47 @@ namespace Exoft.Gamification.Api.Test
             var users = UserDumbData.GetRandomEntities(5);
             var orders = OrderDumbData.GetRandomEntities(users.Count);
             var requestOrders = RequestOrderDumbData.GetEntities(users, orders);
+            var cancellationToken = new CancellationToken();
 
             var expectedRequestOrders = ReturnPagingInfoDumbData.GetForModel(new PagingInfo(), requestOrders);
             var expectedValue = ReturnPagingInfoDumbData.GetWithModels<ReadRequestOrderModel, RequestOrder>(expectedRequestOrders, _mapper);
 
-            _requestOrderRepository.Setup(x => x.GetAllDataAsync(It.IsAny<PagingInfo>())).Returns(Task.FromResult(expectedRequestOrders));
-            _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns((Guid x) => Task.FromResult(users.FirstOrDefault(y => y.Id == x)));
-            _orderRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns((Guid x) => Task.FromResult(orders.FirstOrDefault(y => y.Id == x)));
+            _requestOrderRepository.Setup(x => x.GetAllDataAsync(It.IsAny<PagingInfo>(), cancellationToken)).Returns(Task.FromResult(expectedRequestOrders));
+            _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken)).Returns((Guid x) => Task.FromResult(users.FirstOrDefault(y => y.Id == x)));
+            _orderRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken)).Returns((Guid x) => Task.FromResult(orders.FirstOrDefault(y => y.Id == x)));
 
 
             // Act
-            var response = await _requestOrderService.GetAllAsync();
+            var response = await _requestOrderService.GetAllAsync(cancellationToken);
 
             // Assert
-            _requestOrderRepository.Verify(x => x.GetAllDataAsync(It.IsAny<PagingInfo>()), Times.Once);
-            _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Exactly(users.Count));
-            _orderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Exactly(orders.Count));
+            _requestOrderRepository.Verify(x => x.GetAllDataAsync(It.IsAny<PagingInfo>(), cancellationToken), Times.Once);
+            _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken), Times.Exactly(users.Count));
+            _orderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken), Times.Exactly(orders.Count));
         }
 
-        [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.SingleGuid))]
+        [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.ValidSingleGuid))]
         public async Task ApproveOrderRequestAsync_ValidGuid(Guid id)
         {
             //Arrange
             var requestOrder = RequestOrderDumbData.GetRandomEntity();
             id = requestOrder.Id;
+            var cancellationToken = new CancellationToken();
 
-            _requestOrderRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(requestOrder));
+            _requestOrderRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken)).Returns(Task.FromResult(requestOrder));
             _requestOrderRepository.Setup(x => x.Update(It.IsAny<RequestOrder>()));
-            _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
+            _unitOfWork.Setup(x => x.SaveChangesAsync(cancellationToken)).Returns(Task.CompletedTask);
 
             // Act
-            await _requestOrderService.ApproveOrderRequestAsync(id);
+            await _requestOrderService.ApproveOrderRequestAsync(id, cancellationToken);
 
             // Assert
-            _requestOrderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
+            _requestOrderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken), Times.Once);
             _requestOrderRepository.Verify(x => x.Update(It.IsAny<RequestOrder>()), Times.Once);
-            _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
+            _unitOfWork.Verify(x => x.SaveChangesAsync(cancellationToken), Times.Once);
         }
 
-        [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.SingleGuid))]
+        [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.ValidSingleGuid))]
         public async Task DeclineOrderRequestAsync_ValidGuid(Guid id)
         {
             //Arrange
@@ -169,24 +174,25 @@ namespace Exoft.Gamification.Api.Test
             var order = OrderDumbData.GetRandomEntity();
             var requestOrder = RequestOrderDumbData.GetEntity(user.Id, order.Id);
             id = requestOrder.Id;
+            var cancellationToken = new CancellationToken();
 
-            _requestOrderRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(requestOrder));
-            _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(user));
-            _orderRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(order));
+            _requestOrderRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken)).Returns(Task.FromResult(requestOrder));
+            _userRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken)).Returns(Task.FromResult(user));
+            _orderRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken)).Returns(Task.FromResult(order));
             _userRepository.Setup(x => x.Update(It.IsAny<User>()));
             _requestOrderRepository.Setup(x => x.Update(It.IsAny<RequestOrder>()));
-            _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
+            _unitOfWork.Setup(x => x.SaveChangesAsync(cancellationToken)).Returns(Task.CompletedTask);
 
             // Act
-            await _requestOrderService.DeclineOrderRequestAsync(id);
+            await _requestOrderService.DeclineOrderRequestAsync(id, cancellationToken);
 
             // Assert
-            _requestOrderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
-            _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
-            _orderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
+            _requestOrderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken), Times.Once);
+            _userRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken), Times.Once);
+            _orderRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken), Times.Once);
             _userRepository.Verify(x => x.Update(It.IsAny<User>()), Times.Once);
             _requestOrderRepository.Verify(x => x.Update(It.IsAny<RequestOrder>()), Times.Once);
-            _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
+            _unitOfWork.Verify(x => x.SaveChangesAsync(cancellationToken), Times.Once);
         }
     }
 }

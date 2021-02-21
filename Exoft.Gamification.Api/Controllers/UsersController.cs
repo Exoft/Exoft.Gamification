@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Common.Models.User;
@@ -43,9 +44,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of users</responce>
         /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpGet("with-short-info")]
-        public async Task<IActionResult> GetUsersShortInfoAsync([FromQuery] PagingInfo pagingInfo)
+        public async Task<IActionResult> GetUsersShortInfoAsync([FromQuery] PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
-            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -53,7 +54,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var allItems = await _userService.GetAllUsersWithShortInfoAsync(pagingInfo);
+            var allItems = await _userService.GetAllUsersWithShortInfoAsync(pagingInfo, cancellationToken);
 
             return Ok(allItems);
         }
@@ -64,9 +65,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of users</responce>
         /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpGet("with-full-info")]
-        public async Task<IActionResult> GetUsersFullInfoAsync([FromQuery] PagingInfo pagingInfo)
+        public async Task<IActionResult> GetUsersFullInfoAsync([FromQuery] PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
-            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -74,7 +75,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var allItems = await _userService.GetAllUsersWithFullInfoAsync(pagingInfo);
+            var allItems = await _userService.GetAllUsersWithFullInfoAsync(pagingInfo, cancellationToken);
 
             return Ok(allItems);
         }
@@ -85,9 +86,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return some user</responce> 
         /// <responce code="404">When user does not exist</responce> 
         [HttpGet("{userId}", Name = "GetUser")]
-        public async Task<IActionResult> GetUserByIdAsync(Guid userId)
+        public async Task<IActionResult> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken)
         {
-            var item = await _userService.GetFullUserByIdAsync(userId);
+            var item = await _userService.GetFullUserByIdAsync(userId, cancellationToken);
             if (item == null)
             {
                 return NotFound();
@@ -104,9 +105,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="422">When the model structure is correct but validation fails</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost]
-        public async Task<IActionResult> AddUserAsync([FromForm] CreateUserModel model)
+        public async Task<IActionResult> AddUserAsync([FromForm] CreateUserModel model, CancellationToken cancellationToken)
         {
-            var resultValidation = await _createUserModelValidator.ValidateAsync(model);
+            var resultValidation = await _createUserModelValidator.ValidateAsync(model, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -114,7 +115,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var user = await _userService.AddUserAsync(model);
+            var user = await _userService.AddUserAsync(model, cancellationToken);
 
             return CreatedAtRoute(
                 "GetUser",
@@ -131,15 +132,15 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateFullUserModel model, Guid userId)
+        public async Task<IActionResult> UpdateUserAsync([FromForm] UpdateFullUserModel model, Guid userId, CancellationToken cancellationToken)
         {
-            var user = await _userService.GetFullUserByIdAsync(userId);
+            var user = await _userService.GetFullUserByIdAsync(userId, cancellationToken);
             if (user == null)
             {
                 return NotFound();
             }
 
-            var resultValidation = await _updateFullUserModelValidator.ValidateAsync(model);
+            var resultValidation = await _updateFullUserModelValidator.ValidateAsync(model, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -147,7 +148,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var item = await _userService.UpdateUserAsync(model, userId);
+            var item = await _userService.UpdateUserAsync(model, userId, cancellationToken);
 
             return Ok(item);
         }
@@ -160,15 +161,15 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="404">When the user does not exist</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpDelete("{userId}")]
-        public async Task<IActionResult> DeleteUserAsync(Guid userId)
+        public async Task<IActionResult> DeleteUserAsync(Guid userId, CancellationToken cancellationToken)
         {
-            var user = await _userService.GetFullUserByIdAsync(userId);
+            var user = await _userService.GetFullUserByIdAsync(userId, cancellationToken);
             if (user == null)
             {
                 return NotFound();
             }
 
-            await _userService.DeleteUserAsync(userId);
+            await _userService.DeleteUserAsync(userId, cancellationToken);
             return NoContent();
         }
 
@@ -180,9 +181,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [HttpGet("get-all")]
         [Authorize(Roles = GamificationRole.Admin)]
-        public async Task<ActionResult> GetAllUsers([FromQuery] PagingInfo pagingInfo)
+        public async Task<ActionResult> GetAllUsers([FromQuery] PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
-            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -190,7 +191,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var users = await _userService.GetAllUsersWithFullInfoAsync(pagingInfo);
+            var users = await _userService.GetAllUsersWithFullInfoAsync(pagingInfo, cancellationToken);
 
             return Ok(users);
         }

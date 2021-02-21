@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Data.Core.Helpers;
 using Exoft.Gamification.Api.Services.Interfaces.Services;
@@ -35,9 +36,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of events</responce>
         /// <response code="422">When the model structure is correct but validation fails</response> 
         [HttpGet]
-        public async Task<IActionResult> GetEventsAsync([FromQuery] PagingInfo pagingInfo)
+        public async Task<IActionResult> GetEventsAsync([FromQuery] PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
-            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -45,7 +46,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var list = await _eventService.GetAllEventAsync(pagingInfo);
+            var list = await _eventService.GetAllEventAsync(pagingInfo, cancellationToken);
 
             return Ok(list);
         }

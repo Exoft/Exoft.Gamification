@@ -3,6 +3,7 @@ using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data.Repositories
@@ -13,11 +14,11 @@ namespace Exoft.Gamification.Api.Data.Repositories
         {
         }
 
-        public async Task<Thank> GetLastThankAsync(Guid toUserId)
+        public async Task<Thank> GetLastThankAsync(Guid toUserId, CancellationToken cancellationToken)
         {
             return await IncludeAll()
                 .OrderByDescending(i => i.AddedTime)
-                .FirstOrDefaultAsync(i => i.ToUserId == toUserId);
+                .FirstOrDefaultAsync(i => i.ToUserId == toUserId, cancellationToken);
         }
 
         protected override IQueryable<Thank> IncludeAll()

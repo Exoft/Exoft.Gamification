@@ -35,18 +35,18 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
         {
-            bool exists = await _userRepository.DoesEmailExistsAsync(email);
+            var exists = await _userRepository.DoesEmailExistsAsync(email, cancellationToken);
             return exists;
         }
 
-        private bool CheckUri(Uri uri)
+        private static bool CheckUri(Uri uri)
         {
             if (uri == null || string.IsNullOrEmpty(uri.ToString()))
             {
                 return false;
             }
 
-            return Uri.TryCreate(uri.ToString(), UriKind.Absolute, out Uri outUri)
+            return Uri.TryCreate(uri.ToString(), UriKind.Absolute, out var outUri)
                 && (outUri.Scheme == Uri.UriSchemeHttp || outUri.Scheme == Uri.UriSchemeHttps);
         }
     }

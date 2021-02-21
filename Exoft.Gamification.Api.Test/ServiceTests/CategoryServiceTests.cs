@@ -1,4 +1,7 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models.Category;
 using Exoft.Gamification.Api.Data.Core.Entities;
@@ -13,10 +16,8 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Threading.Tasks;
 
-namespace Exoft.Gamification.Api.Test
+namespace Exoft.Gamification.Api.Test.ServiceTests
 {
     [TestFixture]
     public class CategoryServiceTests
@@ -43,21 +44,22 @@ namespace Exoft.Gamification.Api.Test
                 _fileService.Object, _unitOfWork.Object, _mapper);
         }
 
-        [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.PagingInfos))]
+        [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.ValidPagingInfos))]
         public async Task GetAllCategoryAsync_PagingInfo_ReturnsReturnPagingInfo_ReadCategoryModel(PagingInfo pagingInfo)
         {
             //Arrange
             var listOfEvents = CategoryDumbData.GetRandomEntities(5);
             var paging = ReturnPagingInfoDumbData.GetForModel(pagingInfo, listOfEvents);
             var expectedValue = ReturnPagingInfoDumbData.GetWithModels<ReadCategoryModel, Category>(paging, _mapper);
+            var cancellationToken = new CancellationToken();
 
-            _categoryRepository.Setup(x => x.GetAllDataAsync(It.IsAny<PagingInfo>())).Returns(Task.FromResult(paging));
+            _categoryRepository.Setup(x => x.GetAllDataAsync(It.IsAny<PagingInfo>(), cancellationToken)).Returns(Task.FromResult(paging));
 
             // Act
-            var response = await _categoryService.GetAllCategoryAsync(pagingInfo);
+            var response = await _categoryService.GetAllCategoryAsync(pagingInfo, cancellationToken);
 
             // Assert
-            _categoryRepository.Verify(x => x.GetAllDataAsync(It.IsAny<PagingInfo>()), Times.Once);
+            _categoryRepository.Verify(x => x.GetAllDataAsync(It.IsAny<PagingInfo>(), cancellationToken), Times.Once);
             response.Should().BeEquivalentTo(expectedValue);
         }
 
@@ -66,19 +68,20 @@ namespace Exoft.Gamification.Api.Test
         {
             //Arrange
             var expectedValue = CategoryDumbData.GetReadCategoryModel(model);
+            var cancellationToken = new CancellationToken();
 
-            _fileService.Setup(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>())).Returns(Task.FromResult((Guid?)expectedValue.IconId));
-            _categoryRepository.Setup(x => x.AddAsync(It.IsAny<Category>())).Returns(Task.FromResult(expectedValue));
-            _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
+            _fileService.Setup(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>(), cancellationToken)).Returns(Task.FromResult((Guid?)expectedValue.IconId));
+            _categoryRepository.Setup(x => x.AddAsync(It.IsAny<Category>(), cancellationToken)).Returns(Task.FromResult(expectedValue));
+            _unitOfWork.Setup(x => x.SaveChangesAsync(cancellationToken)).Returns(Task.CompletedTask);
 
             // Act
-            var response = await _categoryService.AddCategoryAsync(model);
+            var response = await _categoryService.AddCategoryAsync(model, cancellationToken);
             expectedValue.Id = response.Id;
 
             // Assert
-            _fileService.Verify(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>()), Times.Once);
-            _categoryRepository.Verify(x => x.AddAsync(It.IsAny<Category>()), Times.Once);
-            _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
+            _fileService.Verify(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>(), cancellationToken), Times.Once);
+            _categoryRepository.Verify(x => x.AddAsync(It.IsAny<Category>(), cancellationToken), Times.Once);
+            _unitOfWork.Verify(x => x.SaveChangesAsync(cancellationToken), Times.Once);
             response.Should().BeEquivalentTo(expectedValue);
         }
 
@@ -87,16 +90,17 @@ namespace Exoft.Gamification.Api.Test
         {
             //Arrange
             var category = CategoryDumbData.GetRandomEntity();
+            var cancellationToken = new CancellationToken();
 
             _categoryRepository.Setup(x => x.Delete(It.IsAny<Category>()));
-            _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
+            _unitOfWork.Setup(x => x.SaveChangesAsync(cancellationToken)).Returns(Task.CompletedTask);
 
             // Act
-            await _categoryService.DeleteCategoryAsync(category.Id);
+            await _categoryService.DeleteCategoryAsync(category.Id, cancellationToken);
 
             // Assert
             _categoryRepository.Verify(x => x.Delete(It.IsAny<Category>()), Times.Once);
-            _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
+            _unitOfWork.Verify(x => x.SaveChangesAsync(cancellationToken), Times.Once);
         }
 
         [TestCase]
@@ -105,14 +109,15 @@ namespace Exoft.Gamification.Api.Test
             //Arrange
             var category = CategoryDumbData.GetRandomEntity();
             var expectedValue = _mapper.Map<ReadCategoryModel>(category);
+            var cancellationToken = new CancellationToken();
 
-            _categoryRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(category));
+            _categoryRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken)).Returns(Task.FromResult(category));
 
             // Act
-            var response = await _categoryService.GetCategoryByIdAsync(category.Id);
+            var response = await _categoryService.GetCategoryByIdAsync(category.Id, cancellationToken);
 
             // Assert
-            _categoryRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
+            _categoryRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken), Times.Once);
             response.Should().BeEquivalentTo(expectedValue);
         }
 
@@ -122,20 +127,21 @@ namespace Exoft.Gamification.Api.Test
             //Arrange
             var category = CategoryDumbData.GetEntity(model);
             var expectedValue = _mapper.Map<ReadCategoryModel>(category);
+            var cancellationToken = new CancellationToken();
 
-            _categoryRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>())).Returns(Task.FromResult(category));
+            _categoryRepository.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken)).Returns(Task.FromResult(category));
             _categoryRepository.Setup(x => x.Update(It.IsAny<Category>()));
-            _fileService.Setup(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>())).Returns(Task.FromResult((Guid?)expectedValue.IconId));
-            _unitOfWork.Setup(x => x.SaveChangesAsync()).Returns(Task.CompletedTask);
+            _fileService.Setup(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>(), cancellationToken)).Returns(Task.FromResult((Guid?)expectedValue.IconId));
+            _unitOfWork.Setup(x => x.SaveChangesAsync(cancellationToken)).Returns(Task.CompletedTask);
 
             // Act
-            var response = await _categoryService.UpdateCategoryAsync(model, category.Id);
+            var response = await _categoryService.UpdateCategoryAsync(model, category.Id, cancellationToken);
 
             // Assert
-            _categoryRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>()), Times.Once);
+            _categoryRepository.Verify(x => x.GetByIdAsync(It.IsAny<Guid>(), cancellationToken), Times.Once);
             _categoryRepository.Verify(x => x.Update(It.IsAny<Category>()), Times.Once);
-            _fileService.Verify(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>()), Times.Once);
-            _unitOfWork.Verify(x => x.SaveChangesAsync(), Times.Once);
+            _fileService.Verify(x => x.AddOrUpdateFileByIdAsync(It.IsAny<IFormFile>(), It.IsAny<Guid?>(), cancellationToken), Times.Once);
+            _unitOfWork.Verify(x => x.SaveChangesAsync(cancellationToken), Times.Once);
             response.Should().BeEquivalentTo(expectedValue);
         }
     }

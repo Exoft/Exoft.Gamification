@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Data.Core.Entities;
@@ -16,7 +17,7 @@ namespace Exoft.Gamification.Api.Data.Repositories
         {
         }
 
-        public override async Task<ReturnPagingInfo<Event>> GetAllDataAsync(PagingInfo pagingInfo)
+        public override async Task<ReturnPagingInfo<Event>> GetAllDataAsync(PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
             var take = pagingInfo.PageSize;
             var skip = (pagingInfo.CurrentPage - 1) * pagingInfo.PageSize;
@@ -30,8 +31,8 @@ namespace Exoft.Gamification.Api.Data.Repositories
                 });
 
             var entities = pagingInfo.PageSize != 0
-                               ? await query.Skip(skip).Take(take).ToListAsync()
-                               : await query.ToListAsync();
+                               ? await query.Skip(skip).Take(take).ToListAsync(cancellationToken)
+                               : await query.ToListAsync(cancellationToken);
 
             var totalCount = entities.First().TotalCount;
 

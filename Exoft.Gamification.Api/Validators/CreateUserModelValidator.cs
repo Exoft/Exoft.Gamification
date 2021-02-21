@@ -60,7 +60,7 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckEmailAsync(string email, CancellationToken cancellationToken)
         {
-            var exists = await _userRepository.DoesEmailExistsAsync(email);
+            var exists = await _userRepository.DoesEmailExistsAsync(email, cancellationToken);
             return !exists;
         }
 
@@ -68,7 +68,7 @@ namespace Exoft.Gamification.Api.Validators
         {
             foreach (var role in roles)
             {
-                if (await _roleRepository.GetRoleByNameAsync(role) == null)
+                if (await _roleRepository.GetRoleByNameAsync(role, cancellationToken) == null)
                 {
                     return false;
                 }
@@ -79,7 +79,7 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckUserNameAsync(string userName, CancellationToken cancellationToken)
         {
-            var userEntity = await _userRepository.GetByUserNameAsync(userName);
+            var userEntity = await _userRepository.GetByUserNameAsync(userName, cancellationToken);
             return userEntity == null;
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using AutoMapper;
@@ -40,11 +41,11 @@ namespace Exoft.Gamification.Api.Services
             _mapper = mapper;
         }
 
-        public async Task AddAsync(Guid userId, Guid achievementId)
+        public async Task AddAsync(Guid userId, Guid achievementId, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
-            var achievement = await _achievementRepository.GetByIdAsync(achievementId);
+            var achievement = await _achievementRepository.GetByIdAsync(achievementId, cancellationToken);
 
             var userAchievement = new UserAchievement()
             {
@@ -58,18 +59,18 @@ namespace Exoft.Gamification.Api.Services
 
             user.Achievements.Add(userAchievement);
 
-            await _userAchievementRepository.AddAsync(userAchievement);
+            await _userAchievementRepository.AddAsync(userAchievement, cancellationToken);
 
-            await CreateEventAsync(user, $"Got achievement {achievement.Name}", GamificationEnums.EventType.Records);
+            await CreateEventAsync(user, $"Got achievement {achievement.Name}", GamificationEnums.EventType.Records, cancellationToken);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task DeleteAsync(Guid userAchievementsId)
+        public async Task DeleteAsync(Guid userAchievementsId, CancellationToken cancellationToken)
         {
-            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementsId);
+            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementsId, cancellationToken);
 
-            var user = await _userRepository.GetByIdAsync(userAchievement.User.Id);
+            var user = await _userRepository.GetByIdAsync(userAchievement.User.Id, cancellationToken);
 
             user.XP -= userAchievement.Achievement.XP;
             user.XP = user.XP >= 0 ? user.XP : 0;
@@ -82,14 +83,14 @@ namespace Exoft.Gamification.Api.Services
 
             user.Achievements.Remove(userAchievement);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<AchievementsInfoModel> GetAchievementsInfoByUserAsync(Guid userId)
+        public async Task<AchievementsInfoModel> GetAchievementsInfoByUserAsync(Guid userId, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            var countAchievements = await _userAchievementRepository.GetCountAchievementsByUserAsync(userId);
-            var countAchievementsByThisMonth = await _userAchievementRepository.GetCountAchievementsByThisMonthAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
+            var countAchievements = await _userAchievementRepository.GetCountAchievementsByUserAsync(userId, cancellationToken);
+            var countAchievementsByThisMonth = await _userAchievementRepository.GetCountAchievementsByThisMonthAsync(userId, cancellationToken);
 
             return new AchievementsInfoModel()
             {
@@ -99,10 +100,10 @@ namespace Exoft.Gamification.Api.Services
             };
         }
 
-        public async Task<ReturnPagingInfo<ReadUserAchievementModel>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid userId)
+        public async Task<ReturnPagingInfo<ReadUserAchievementModel>> GetAllAchievementsByUserAsync(PagingInfo pagingInfo, Guid userId, CancellationToken cancellationToken)
         {
             var page = await _userAchievementRepository
-                .GetAllAchievementsByUserAsync(pagingInfo, userId);
+                .GetAllAchievementsByUserAsync(pagingInfo, userId, cancellationToken);
 
             var readAchievementModel = page.Data.Select(i => _mapper.Map<ReadUserAchievementModel>(i)).ToList();
             var result = new ReturnPagingInfo<ReadUserAchievementModel>()
@@ -117,23 +118,23 @@ namespace Exoft.Gamification.Api.Services
             return result;
         }
 
-        public async Task<ReadUserAchievementModel> GetUserAchievementByIdAsync(Guid userAchievementsId)
+        public async Task<ReadUserAchievementModel> GetUserAchievementByIdAsync(Guid userAchievementsId, CancellationToken cancellationToken)
         {
-            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementsId);
+            var userAchievement = await _userAchievementRepository.GetByIdAsync(userAchievementsId, cancellationToken);
 
             return _mapper.Map<ReadUserAchievementModel>(userAchievement);
         }
 
-        public async Task ChangeUserAchievementsAsync(AssignAchievementsToUserModel model, Guid userId)
+        public async Task ChangeUserAchievementsAsync(AssignAchievementsToUserModel model, Guid userId, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
             var page = new PagingInfo
             {
                 CurrentPage = 1,
                 PageSize = 0
             };
-            var currentAchievements = (await _userAchievementRepository.GetAllAchievementsByUserAsync(page, userId)).Data.ToList();
+            var currentAchievements = (await _userAchievementRepository.GetAllAchievementsByUserAsync(page, userId, cancellationToken)).Data.ToList();
             var achievementsGroups = currentAchievements.GroupBy(i => i.Achievement.Id).ToArray();
 
             foreach (var achievementWithCount in model.Achievements)
@@ -145,9 +146,9 @@ namespace Exoft.Gamification.Api.Services
                 {
                     for (var i = 0; i < achievementWithCount.Count; i++)
                     {
-                        var achievement = await _achievementRepository.GetByIdAsync(achievementWithCount.AchievementId);
-                        await AddAchievementToUser(achievement, user);
-                        await CreateEventAsync(user, $"Got achievement {achievement.Name}", GamificationEnums.EventType.Records);
+                        var achievement = await _achievementRepository.GetByIdAsync(achievementWithCount.AchievementId, cancellationToken);
+                        await AddAchievementToUser(achievement, user, cancellationToken);
+                        await CreateEventAsync(user, $"Got achievement {achievement.Name}", GamificationEnums.EventType.Records, cancellationToken);
                     }
                 }
                 else
@@ -155,8 +156,8 @@ namespace Exoft.Gamification.Api.Services
                     for (var i = achievementsGroup.Count(); i < achievementWithCount.Count; i++)
                     {
                         var achievement = achievementsGroup.First().Achievement;
-                        await AddAchievementToUser(achievement, user);
-                        await CreateEventAsync(user, $"Got achievement {achievement.Name}", GamificationEnums.EventType.Records);
+                        await AddAchievementToUser(achievement, user, cancellationToken);
+                        await CreateEventAsync(user, $"Got achievement {achievement.Name}", GamificationEnums.EventType.Records, cancellationToken);
                     }
 
                     for (int i = achievementsGroup.Count(), j = 0; i > achievementWithCount.Count; i--, j++)
@@ -178,10 +179,10 @@ namespace Exoft.Gamification.Api.Services
 
             _userRepository.Update(user);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        private async Task AddAchievementToUser(Achievement achievement, User user)
+        private async Task AddAchievementToUser(Achievement achievement, User user, CancellationToken cancellationToken)
         {
             var userAchievement = new UserAchievement
             {
@@ -193,10 +194,10 @@ namespace Exoft.Gamification.Api.Services
 
             _userRepository.Update(user);
 
-            await _userAchievementRepository.AddAsync(userAchievement);
+            await _userAchievementRepository.AddAsync(userAchievement, cancellationToken);
         }
 
-        private async Task CreateEventAsync(User user, string text, GamificationEnums.EventType type)
+        private async Task CreateEventAsync(User user, string text, GamificationEnums.EventType type, CancellationToken cancellationToken)
         {
             var eventEntity = new Event()
             {
@@ -204,7 +205,7 @@ namespace Exoft.Gamification.Api.Services
                 User = user,
                 Type = type
             };
-            await _eventRepository.AddAsync(eventEntity);
+            await _eventRepository.AddAsync(eventEntity, cancellationToken);
         }
     }
 }

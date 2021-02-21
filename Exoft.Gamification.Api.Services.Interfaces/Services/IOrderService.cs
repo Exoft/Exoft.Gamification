@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Common.Models.Order;
@@ -8,14 +9,14 @@ namespace Exoft.Gamification.Api.Services.Interfaces.Services
 {
     public interface IOrderService
     {
-        Task<ReadOrderModel> AddOrderAsync(CreateOrderModel model);
+        Task<ReadOrderModel> AddOrderAsync(CreateOrderModel model, CancellationToken cancellationToken);
 
-        Task<ReadOrderModel> UpdateOrderAsync(UpdateOrderModel model, Guid id);
+        Task<ReadOrderModel> UpdateOrderAsync(UpdateOrderModel model, Guid id, CancellationToken cancellationToken);
 
-        Task DeleteOrderAsync(Guid id);
+        Task DeleteOrderAsync(Guid id, CancellationToken cancellationToken);
 
-        Task<ReadOrderModel> GetOrderByIdAsync(Guid id);
+        Task<ReadOrderModel> GetOrderByIdAsync(Guid id, CancellationToken cancellationToken);
 
-        Task<ReturnPagingInfo<ReadOrderModel>> GetAllOrderAsync(PagingInfo pagingInfo);
+        Task<ReturnPagingInfo<ReadOrderModel>> GetAllOrderAsync(PagingInfo pagingInfo, CancellationToken cancellationToken);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Common.Models.Order;
@@ -43,9 +44,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of orders</responce>
         /// <response code="422">When the model structure is correct but validation fails</response> 
         [HttpGet]
-        public async Task<IActionResult> GetOrdersAsync([FromQuery] PagingInfo pagingInfo)
+        public async Task<IActionResult> GetOrdersAsync([FromQuery] PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
-            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -53,7 +54,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var list = await _orderService.GetAllOrderAsync(pagingInfo);
+            var list = await _orderService.GetAllOrderAsync(pagingInfo, cancellationToken);
 
             return Ok(list);
         }
@@ -64,9 +65,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return some order</responce> 
         /// <responce code="404">When order does not exist</responce> 
         [HttpGet("{orderId}", Name = "GetOrder")]
-        public async Task<IActionResult> GetOrderByIdAsync(Guid orderId)
+        public async Task<IActionResult> GetOrderByIdAsync(Guid orderId, CancellationToken cancellationToken)
         {
-            var item = await _orderService.GetOrderByIdAsync(orderId);
+            var item = await _orderService.GetOrderByIdAsync(orderId, cancellationToken);
             if (item == null)
             {
                 return NotFound();
@@ -83,9 +84,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="422">When the model structure is correct but validation fails</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost]
-        public async Task<IActionResult> AddOrderAsync([FromForm] CreateOrderModel model)
+        public async Task<IActionResult> AddOrderAsync([FromForm] CreateOrderModel model, CancellationToken cancellationToken)
         {
-            var resultValidation = await _createOrderModelValidator.ValidateAsync(model);
+            var resultValidation = await _createOrderModelValidator.ValidateAsync(model, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -93,7 +94,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var order = await _orderService.AddOrderAsync(model);
+            var order = await _orderService.AddOrderAsync(model, cancellationToken);
 
             return CreatedAtRoute(
                 "GetOrder",
@@ -110,15 +111,15 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpPut("{orderId}")]
-        public async Task<IActionResult> UpdateOrderAsync([FromForm] UpdateOrderModel model, Guid orderId)
+        public async Task<IActionResult> UpdateOrderAsync([FromForm] UpdateOrderModel model, Guid orderId, CancellationToken cancellationToken)
         {
-            var order = await _orderService.GetOrderByIdAsync(orderId);
+            var order = await _orderService.GetOrderByIdAsync(orderId, cancellationToken);
             if (order == null)
             {
                 return NotFound();
             }
 
-            var resultValidation = await _updateOrderModelValidator.ValidateAsync(model);
+            var resultValidation = await _updateOrderModelValidator.ValidateAsync(model, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -126,7 +127,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var item = await _orderService.UpdateOrderAsync(model, orderId);
+            var item = await _orderService.UpdateOrderAsync(model, orderId, cancellationToken);
 
             return Ok(item);
         }
@@ -139,15 +140,15 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="404">When the order does not exist</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpDelete("{orderId}")]
-        public async Task<IActionResult> DeleteOrderAsync(Guid orderId)
+        public async Task<IActionResult> DeleteOrderAsync(Guid orderId, CancellationToken cancellationToken)
         {
-            var order = await _orderService.GetOrderByIdAsync(orderId);
+            var order = await _orderService.GetOrderByIdAsync(orderId, cancellationToken);
             if (order == null)
             {
                 return NotFound();
             }
 
-            await _orderService.DeleteOrderAsync(orderId);
+            await _orderService.DeleteOrderAsync(orderId, cancellationToken);
 
             return NoContent();
         }

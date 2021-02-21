@@ -39,7 +39,7 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckSecretString(string secretString, CancellationToken cancellationToken)
         {
-            var userId = await _cache.GetByKeyAsync(secretString);
+            var userId = await _cache.GetByKeyAsync(secretString, cancellationToken);
 
             return userId != default(Guid);
         }

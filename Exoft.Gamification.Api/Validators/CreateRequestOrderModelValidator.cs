@@ -36,7 +36,7 @@ namespace Exoft.Gamification.Api.Validators
 
         private async Task<bool> CheckDoesOrderExistAsync(Guid orderId, CancellationToken cancellationToken)
         {
-            var order = await _orderService.GetOrderByIdAsync(orderId);
+            var order = await _orderService.GetOrderByIdAsync(orderId, cancellationToken);
 
             return order != null;
         }

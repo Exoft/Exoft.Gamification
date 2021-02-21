@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using AutoMapper;
 using Exoft.Gamification.Api.Common.Helpers;
 using Exoft.Gamification.Api.Common.Models;
 using Exoft.Gamification.Api.Data.Core.Entities;
@@ -11,9 +13,8 @@ using Exoft.Gamification.Api.Test.TestData;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using System.Threading.Tasks;
 
-namespace Exoft.Gamification.Api.Test
+namespace Exoft.Gamification.Api.Test.ServiceTests
 {
     [TestFixture]
     public class EventServiceTests
@@ -35,21 +36,22 @@ namespace Exoft.Gamification.Api.Test
             _eventService = new EventService(_eventRepository.Object, _mapper);
         }
 
-        [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.PagingInfos))]
+        [TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.ValidPagingInfos))]
         public async Task GetAllEventAsync_PagingInfo_ReturnsReturnPagingInfo_EventModel(PagingInfo pagingInfo)
         {
             //Arrange
             var listOfEvents = EventDumbData.GetRandomEntities(5); 
             var paging = ReturnPagingInfoDumbData.GetForModel(pagingInfo, listOfEvents);
             var expectedValue = ReturnPagingInfoDumbData.GetWithModels<EventModel, Event>(paging, _mapper);
+            var cancellationToken = new CancellationToken();
 
-            _eventRepository.Setup(x => x.GetAllDataAsync(It.IsAny<PagingInfo>())).Returns(Task.FromResult(paging));
+            _eventRepository.Setup(x => x.GetAllDataAsync(It.IsAny<PagingInfo>(), cancellationToken)).Returns(Task.FromResult(paging));
 
             // Act
-            var response = await _eventService.GetAllEventAsync(pagingInfo);
+            var response = await _eventService.GetAllEventAsync(pagingInfo, cancellationToken);
 
             // Assert
-            _eventRepository.Verify(x => x.GetAllDataAsync(It.IsAny<PagingInfo>()), Times.Once);
+            _eventRepository.Verify(x => x.GetAllDataAsync(It.IsAny<PagingInfo>(), cancellationToken), Times.Once);
             response.Should().BeEquivalentTo(expectedValue);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Common.Models;
@@ -43,15 +44,15 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="422">When the model structure is correct but validation fails</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost("{userId}/achievements/")]
-        public async Task<IActionResult> UpdateUserAchievements([FromBody] AssignAchievementsToUserModel model, Guid userId)
+        public async Task<IActionResult> UpdateUserAchievements([FromBody] AssignAchievementsToUserModel model, Guid userId, CancellationToken cancellationToken)
         {
-            var user = await _userService.GetShortUserByIdAsync(userId);
+            var user = await _userService.GetShortUserByIdAsync(userId, cancellationToken);
             if (user == null)
             {
                 return NotFound();
             }
 
-            await _userAchievementService.ChangeUserAchievementsAsync(model, userId);
+            await _userAchievementService.ChangeUserAchievementsAsync(model, userId, cancellationToken);
 
             return Ok();
         }
@@ -62,9 +63,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return all achievements current user</responce>
         /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpGet("{userId}/achievements")]
-        public async Task<IActionResult> GetUserAchievementsAsync(Guid userId, [FromQuery] PagingInfo pagingInfo)
+        public async Task<IActionResult> GetUserAchievementsAsync(Guid userId, [FromQuery] PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
-            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -72,7 +73,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var item = await _userAchievementService.GetAllAchievementsByUserAsync(pagingInfo, userId);
+            var item = await _userAchievementService.GetAllAchievementsByUserAsync(pagingInfo, userId, cancellationToken);
 
             return Ok(item);
         }
@@ -83,9 +84,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return some achievement current user</responce> 
         /// <responce code="404">When the achievement does not exist</responce> 
         [HttpGet("{userId}/achievements/{achievementId}")]
-        public async Task<IActionResult> GetAchievementByUserAsync([FromQuery] Guid userAchievementId)
+        public async Task<IActionResult> GetAchievementByUserAsync([FromQuery] Guid userAchievementId, CancellationToken cancellationToken)
         {
-            var model = await _userAchievementService.GetUserAchievementByIdAsync(userAchievementId);
+            var model = await _userAchievementService.GetUserAchievementByIdAsync(userAchievementId, cancellationToken);
             if (model == null)
             {
                 return NotFound();

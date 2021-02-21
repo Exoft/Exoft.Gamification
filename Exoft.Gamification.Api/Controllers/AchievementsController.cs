@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Exoft.Gamification.Api.Common.Models.Achievement;
@@ -43,9 +44,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return the PageModel: pageNumber, pageSize and page of achievements</responce>
         /// <response code="422">When the model structure is correct but validation fails</response>
         [HttpGet]
-        public async Task<IActionResult> GetAchievementsAsync([FromQuery] PagingInfo pagingInfo)
+        public async Task<IActionResult> GetAchievementsAsync([FromQuery] PagingInfo pagingInfo, CancellationToken cancellationToken)
         {
-            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo);
+            var resultValidation = await _pagingInfoValidator.ValidateAsync(pagingInfo, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -53,7 +54,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var allItems = await _achievementService.GetAllAchievementsAsync(pagingInfo);
+            var allItems = await _achievementService.GetAllAchievementsAsync(pagingInfo, cancellationToken);
 
             return Ok(allItems);
         }
@@ -64,9 +65,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="200">Return some achievement</responce> 
         /// <responce code="404">When the achievement does not exist</responce> 
         [HttpGet("{achievementId}", Name = "GetAchievement")]
-        public async Task<IActionResult> GetAchievementByIdAsync(Guid achievementId)
+        public async Task<IActionResult> GetAchievementByIdAsync(Guid achievementId, CancellationToken cancellationToken)
         {
-            var item = await _achievementService.GetAchievementByIdAsync(achievementId);
+            var item = await _achievementService.GetAchievementByIdAsync(achievementId, cancellationToken);
             if (item == null)
             {
                 return NotFound();
@@ -83,9 +84,9 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="422">When the model structure is correct but validation fails</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpPost]
-        public async Task<IActionResult> AddAchievementAsync([FromForm] CreateAchievementModel model)
+        public async Task<IActionResult> AddAchievementAsync([FromForm] CreateAchievementModel model, CancellationToken cancellationToken)
         {
-            var resultValidation = await _createAchievementModelValidator.ValidateAsync(model);
+            var resultValidation = await _createAchievementModelValidator.ValidateAsync(model, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -93,7 +94,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var achievement = await _achievementService.AddAchievementAsync(model);
+            var achievement = await _achievementService.AddAchievementAsync(model, cancellationToken);
 
             return CreatedAtRoute(
                 "GetAchievement",
@@ -110,15 +111,15 @@ namespace Exoft.Gamification.Api.Controllers
         /// <responce code="422">When the model structure is correct but validation fails</responce> 
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpPut("{achievementId}")]
-        public async Task<IActionResult> UpdateAchievementAsync([FromForm] UpdateAchievementModel model, Guid achievementId)
+        public async Task<IActionResult> UpdateAchievementAsync([FromForm] UpdateAchievementModel model, Guid achievementId, CancellationToken cancellationToken)
         {
-            var achievement = await _achievementService.GetAchievementByIdAsync(achievementId);
+            var achievement = await _achievementService.GetAchievementByIdAsync(achievementId, cancellationToken);
             if (achievement == null)
             {
                 return NotFound();
             }
 
-            var resultValidation = await _updateAchievementModelValidator.ValidateAsync(model);
+            var resultValidation = await _updateAchievementModelValidator.ValidateAsync(model, cancellationToken);
             resultValidation.AddToModelState(ModelState, null);
 
             if (!ModelState.IsValid)
@@ -126,7 +127,7 @@ namespace Exoft.Gamification.Api.Controllers
                 return UnprocessableEntity(ModelState);
             }
 
-            var item = await _achievementService.UpdateAchievementAsync(model, achievementId);
+            var item = await _achievementService.UpdateAchievementAsync(model, achievementId, cancellationToken);
 
             return Ok(item);
         }
@@ -139,15 +140,15 @@ namespace Exoft.Gamification.Api.Controllers
         /// <response code="404">When the achievement does not exist</response>
         [Authorize(Roles = GamificationRole.Admin)]
         [HttpDelete("{achievementId}")]
-        public async Task<IActionResult> DeleteAchievementAsync(Guid achievementId)
+        public async Task<IActionResult> DeleteAchievementAsync(Guid achievementId, CancellationToken cancellationToken)
         {
-            var achievement = await _achievementService.GetAchievementByIdAsync(achievementId);
+            var achievement = await _achievementService.GetAchievementByIdAsync(achievementId, cancellationToken);
             if (achievement == null)
             {
                 return NotFound();
             }
 
-            await _achievementService.DeleteAchievementAsync(achievementId);
+            await _achievementService.DeleteAchievementAsync(achievementId, cancellationToken);
 
             return NoContent();
         }

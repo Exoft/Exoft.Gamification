@@ -35,7 +35,6 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api
 {
@@ -83,7 +82,6 @@ namespace Exoft.Gamification.Api
             services.AddScoped<IJwtSecret, JwtSecret>(s => jwtSecret);
             services.AddScoped<IEmailSenderSettings, EmailSenderSettings>();
             services.AddScoped<IResetPasswordSettings, ResetPasswordSettings>();
-            services.AddScoped<IAppCenterSettings, AppCenterSettings>();
 
             // Services
             services.AddScoped<IAuthService, AuthService>();
@@ -95,8 +93,6 @@ namespace Exoft.Gamification.Api
             services.AddScoped<IThankService, ThankService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IRequestAchievementService, RequestAchievementService>();
-            services.AddScoped<IReferenceBookService, ReferenceBookService>();
-            services.AddScoped<IPushNotificationService, PushNotificationService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IRequestOrderService, RequestOrderService>();
@@ -110,8 +106,6 @@ namespace Exoft.Gamification.Api
             services.AddTransient<IRoleRepository, RoleRepository>();
             services.AddTransient<IThankRepository, ThankRepository>();
             services.AddTransient<IRequestAchievementRepository, RequestAchievementRepository>();
-            services.AddTransient<IArticleRepository, ArticleRepository>();
-            services.AddTransient<IChapterRepository, ChapterRepository>();
             services.AddTransient<IOrderRepository, OrderRepository>();
             services.AddTransient<ICategoryRepository, CategoryRepository>();
             services.AddTransient<IRequestOrderRepository, RequestOrderRepository>();
@@ -126,7 +120,6 @@ namespace Exoft.Gamification.Api
             services.AddTransient<IValidator<ResetPasswordModel>, ResetPasswordModelValidator>();
             services.AddTransient<IValidator<RequestResetPasswordModel>, RequestResetPasswordModelValidator>();
             services.AddTransient<IValidator<CreateRequestAchievementModel>, CreateRequestAchievementModelValidator>();
-            services.AddTransient<IValidator<PushRequestModel>, PushRequestModelValidator>();
             services.AddTransient<IValidator<ChangePasswordModel>, ChangePasswordModelValidator>();
             services.AddTransient<IValidator<PagingInfo>, PagingInfoValidator>();
             services.AddTransient<IValidator<CreateOrderModel>, CreateOrderModelValidator>();

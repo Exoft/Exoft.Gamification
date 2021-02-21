@@ -2,6 +2,7 @@
 using Exoft.Gamification.Api.Data.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Exoft.Gamification.Api.Data.Repositories
@@ -13,9 +14,9 @@ namespace Exoft.Gamification.Api.Data.Repositories
         {
         }
 
-        public async Task<Achievement> GetAchievementByNameAsync(string name)
+        public async Task<Achievement> GetAchievementByNameAsync(string name, CancellationToken cancellationToken)
         {
-            var achievement = await IncludeAll().SingleOrDefaultAsync(i => i.Name == name);
+            var achievement = await IncludeAll().SingleOrDefaultAsync(i => i.Name == name, cancellationToken);
 
             return achievement;
         }

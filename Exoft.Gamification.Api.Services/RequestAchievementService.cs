@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using AutoMapper;
@@ -51,10 +52,10 @@ namespace Exoft.Gamification.Api.Services
             _userAchievementService = userAchievementService;
         }
 
-        public async Task<IResponse> AddAsync(CreateRequestAchievementModel model, Guid userId)
+        public async Task<IResponse> AddAsync(CreateRequestAchievementModel model, Guid userId, CancellationToken cancellationToken)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            var achievement = await _achievementRepository.GetByIdAsync(model.AchievementId);
+            var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
+            var achievement = await _achievementRepository.GetByIdAsync(model.AchievementId, cancellationToken);
 
             var requestAchievementPage = _stringLocalizer["RequestAchievementPage"].ToString();
             var pageWithParams = requestAchievementPage.Replace("{userLastName}", user.LastName);
@@ -62,33 +63,33 @@ namespace Exoft.Gamification.Api.Services
             pageWithParams = pageWithParams.Replace("{message}", model.Message);
             pageWithParams = pageWithParams.Replace("{achievementName}", achievement.Name);
 
-            var emails = await _userRepository.GetAdminsEmailsAsync();
+            var emails = await _userRepository.GetAdminsEmailsAsync(cancellationToken);
 
-            await _emailService.SendEmailsAsync("Request achievement", pageWithParams, emails.ToArray());
+            await _emailService.SendEmailsAsync("Request achievement", pageWithParams, cancellationToken, emails.ToArray());
 
             var entity = _mapper.Map<RequestAchievement>(model);
             entity.UserId = userId;
-            await _requestAchievementRepository.AddAsync(entity);
-            await _unitOfWork.SaveChangesAsync();
+            await _requestAchievementRepository.AddAsync(entity, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new OkResponse();
         }
 
-        public async Task DeleteAsync(RequestAchievement achievementRequest)
+        public async Task DeleteAsync(RequestAchievement achievementRequest, CancellationToken cancellationToken)
         {
             _requestAchievementRepository.Delete(achievementRequest);
 
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<IEnumerable<ReadRequestAchievementModel>> GetAllAsync()
+        public async Task<IEnumerable<ReadRequestAchievementModel>> GetAllAsync(CancellationToken cancellationToken)
         {
             var requestAchievementModels = new List<ReadRequestAchievementModel>();
-            var requestAchievements = (await _requestAchievementRepository.GetAllDataAsync(new PagingInfo())).Data.ToList();
+            var requestAchievements = (await _requestAchievementRepository.GetAllDataAsync(new PagingInfo(), cancellationToken)).Data.ToList();
             foreach (var item in requestAchievements)
             {
-                var user = await _userRepository.GetByIdAsync(item.UserId);
-                var achievement = await _achievementRepository.GetByIdAsync(item.AchievementId);
+                var user = await _userRepository.GetByIdAsync(item.UserId, cancellationToken);
+                var achievement = await _achievementRepository.GetByIdAsync(item.AchievementId, cancellationToken);
                 requestAchievementModels.Add(new ReadRequestAchievementModel
                 {
                     Id = item.Id,
@@ -103,17 +104,17 @@ namespace Exoft.Gamification.Api.Services
             return requestAchievementModels;
         }
 
-        public async Task<RequestAchievement> GetByIdAsync(Guid id)
+        public async Task<RequestAchievement> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            return await _requestAchievementRepository.GetByIdAsync(id);
+            return await _requestAchievementRepository.GetByIdAsync(id, cancellationToken);
         }
 
-        public async Task ApproveAchievementRequestAsync(Guid id)
+        public async Task ApproveAchievementRequestAsync(Guid id, CancellationToken cancellationToken)
         {
-            var achievementRequest = await _requestAchievementRepository.GetByIdAsync(id);
-            await _userAchievementService.AddAsync(achievementRequest.UserId, achievementRequest.AchievementId);
-            await DeleteAsync(achievementRequest);
-            await _unitOfWork.SaveChangesAsync();
+            var achievementRequest = await _requestAchievementRepository.GetByIdAsync(id, cancellationToken);
+            await _userAchievementService.AddAsync(achievementRequest.UserId, achievementRequest.AchievementId, cancellationToken);
+            await DeleteAsync(achievementRequest, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 }
