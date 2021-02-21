@@ -66,8 +66,13 @@ namespace Exoft.Gamification.Api
             })
             .AddNewtonsoftJson();
 
+            // SQL Server.
             services.AddDbContext<GamificationDbContext>(
                 options => options.UseSqlServer(Configuration.GetConnectionString("DataConnection")));
+            
+            // SQLite.
+            // services.AddDbContext<GamificationDbContext>(
+            //     options => options.UseSqlite(Configuration.GetConnectionString("DataConnection_SQLite")));
 
             // configure DI for application services
             services.AddTransient<IUnitOfWork, UnitOfWork>();
